@@ -118,8 +118,7 @@
   // Real people: MakeHuman CC0 bodies (2 looks per sex, 3 levels of detail), dressed and given hair by
   // tools/humans/build_humans.py, with weights for an 11-bone skeleton. js/data/humans.js ships them gzipped; they are
   // unpacked once in the background (until then, or without DecompressionStream, the built-in bodies above are used).
-  // Every pose is made in the vertex shader from a few angles per person: sitting/standing, clapping, dancing, arms up,
-  // filming on a phone, running. Shared "director" uniforms (P.U) drive group moments: Mexican waves, jumps, cheers.
+  // Each person plays in-place clips from js/crowd.js; the pose (joint angles) is uploaded per person every frame.
   var REAL = null, LOOKS = null, realLoading = null, lookMats = {};
   P.source.bodies = "MakeHuman base mesh, skeleton and shape targets (CC0 1.0, makehumancommunity/makehuman), dressed and rigged by tools/humans/build_humans.py";
   P.loadReal = function () {
@@ -131,11 +130,10 @@
       if (head.v !== 2) throw new Error("old humans.js");
       head.meshes.forEach(function (m) {
         var o = base + m.off, n = m.nv, q = new Uint16Array(buf, o, n * 3), by = new Uint8Array(buf, o + n * 6, n * 4), io = o + n * 10 + (n * 10) % 2;
-        var pos = new Float32Array(n * 3), part = new Float32Array(n), b0 = new Float32Array(n), b1 = new Float32Array(n), w = new Float32Array(n);
+        var pos = new Float32Array(n * 3), bone = new Float32Array(n * 4); // bone = (bone0, bone1, weight0, part): one attribute, WebGL has 16
         for (var k = 0; k < n * 3; k++) { var a = k % 3; pos[k] = m.lo[a] + q[k] / 65535 * (m.hi[a] - m.lo[a]); }
-        for (k = 0; k < n; k++) { part[k] = by[k]; b0[k] = by[n + k]; b1[k] = by[2 * n + k]; w[k] = by[3 * n + k] / 255; }
-        var g = new T.BufferGeometry(); g.addAttribute("position", new T.BufferAttribute(pos, 3));
-        [["aPart", part], ["aB0", b0], ["aB1", b1], ["aW", w]].forEach(function (x) { g.addAttribute(x[0], new T.BufferAttribute(x[1], 1)); });
+        for (k = 0; k < n; k++) { bone[k * 4] = by[n + k]; bone[k * 4 + 1] = by[2 * n + k]; bone[k * 4 + 2] = by[3 * n + k] / 255; bone[k * 4 + 3] = by[k]; }
+        var g = new T.BufferGeometry(); g.addAttribute("position", new T.BufferAttribute(pos, 3)); g.addAttribute("aBone", new T.BufferAttribute(bone, 4));
         g.setIndex(new T.BufferAttribute(new Uint16Array(buf.slice(io, io + m.nt * 6)), 1)); g.computeVertexNormals();
         out[m.key] = g;
       });
@@ -143,14 +141,18 @@
     }).catch(function () { return false; }));
   };
   P.realReady = function () { return !!REAL; };
-  // Director uniforms, shared by every crowd material (and the far-crowd sprites in scene.js).
-  P.U = { uTime: { value: 0 }, uBeat: { value: 2 }, uEnergy: { value: 0 }, uWaveA: { value: 0 }, uWaveOn: { value: 0 }, uJump: { value: 0 }, uCheer: { value: 0 }, uClap: { value: 0 }, uCenter: { value: new T.Vector2() } };
-  var MODE = P.MODE = { idle: 0, clap: 1, dance: 2, cheer: 3, phone: 4, run: 5, perform: 6 };
+  // Crowd state. Poses of the near crowd come from js/crowd.js (clips per fan, computed on the CPU each frame and
+  // uploaded as 4 vec4s per person); the shader below only bends the mesh. P.U are the uniforms the far-crowd sprites
+  // (scene.js) read, so near and far crowd do the same thing at the same time.
+  P.U = { uTime: { value: 0 }, uBeat: { value: 2 }, uEnergy: { value: 0 }, uJump: { value: 0 }, uCheer: { value: 0 }, uStill: { value: 0 },
+    uWaveOn: { value: 0 }, uWaveT0: { value: -1e9 }, uWaveLen: { value: 20 }, uWaveA0: { value: 0 }, uCenter: { value: new T.Vector2() } };
+  P.G = { uTime: 0, beat: 2, still: false, waveOn: false, waveT0: -1e9, waveLen: 20, waveA0: 0, cx: 0, cz: 0, jump: 0, cheer: 0, cheerT: -1e9 };
+  P.still = false; P.ctx = { sport: false };
   var SVS = [
-    "attribute float aPart; attribute float aB0; attribute float aB1; attribute float aW;",
-    "attribute vec3 iOffset; attribute float iRot; attribute float iH; attribute vec4 iAct; attribute vec3 iSkin; attribute vec3 iTop; attribute vec3 iLegs; attribute vec3 iHair;",
-    "uniform vec3 jHipL, jHipR, jKneeL, jKneeR, jAnkL, jShL, jShR, jElL, jElR, jWaist, jNeck;",
-    "uniform float uTime, uBeat, uEnergy, uWaveA, uWaveOn, uJump, uCheer, uClap; uniform vec2 uCenter;",
+    "attribute vec4 aBone;", // bone0, bone1, weight0, part
+    "attribute vec4 iPos; attribute vec4 iMisc; attribute vec3 iSkin; attribute vec3 iTop; attribute vec3 iLegs; attribute vec3 iHair;", // iMisc = (height, nod, phone, width scale)
+    "attribute vec4 iQLeg; attribute vec4 iQBody; attribute vec4 iQArmL; attribute vec4 iQArmR;", // pose from js/crowd.js; arms = (raise, side, elbow, swing in)
+    "uniform vec3 jHipL, jHipR, jKneeL, jKneeR, jShL, jShR, jElL, jElR, jWaist, jNeck;",
     "varying vec3 vCol; varying vec3 vN; varying vec3 vW; varying float vY; varying float vPart; varying float vScreen;",
     "mat3 rx(float a){ float c = cos(a), s = sin(a); return mat3(1.0,0.0,0.0, 0.0,c,s, 0.0,-s,c); }",
     "mat3 rz(float a){ float c = cos(a), s = sin(a); return mat3(c,s,0.0, -s,c,0.0, 0.0,0.0,1.0); }",
@@ -167,107 +169,97 @@
     "  if (b > 0.5) { P = Rsp * (P - jWaist) + jWaist; N = Rsp * N; }",
     "}",
     "void main(){",
-    "  float mode = iAct.x, seed = iAct.y, ph = seed * 6.2832, t = uTime;",
-    "  float az = atan(iOffset.x - uCenter.x, iOffset.z - uCenter.y), dA = mod(az - uWaveA + 3.14159, 6.28318) - 3.14159;",
-    "  float wave = uWaveOn * exp(-dA * dA / 0.05);", // a Mexican wave passing this person
-    "  float cheer = uCheer * step(fract(seed * 7.13), 0.7);",
-    "  float stand = max(max(1.0 - iAct.z, wave), cheer);",
-    "  float up = max(wave, cheer), beat = 6.2832 * uBeat * t + seed * 0.9;",
-    "  float bounce = 0.0, twist = 0.0, sway = 0.04 * sin(t * 0.7 + ph), nod = 0.05 * sin(t * 0.45 + ph * 2.0), clap = 0.0, pumpR = 0.0, pumpL = 0.0, phone = 0.0, run = 0.0;",
-    "  if (mode > 0.5 && mode < 1.5) clap = smoothstep(0.1, 0.4, uClap * (0.7 + 0.3 * sin(t * 0.37 + ph)));",
-    "  else if (mode > 1.5 && mode < 2.5) { bounce = uEnergy * (0.5 + 0.5 * sin(beat)); twist = uEnergy * 0.22 * sin(beat * 0.5); pumpR = uEnergy * step(0.55, fract(seed * 5.3)) * (0.75 + 0.25 * sin(beat)); }",
-    "  else if (mode > 2.5 && mode < 3.5) { bounce = uEnergy * 0.6 * (0.5 + 0.5 * sin(beat)); pumpR = 0.8 + 0.2 * sin(beat); pumpL = step(0.5, fract(seed * 3.1)) * pumpR; }",
-    "  else if (mode > 3.5 && mode < 4.5) { phone = 1.0; bounce = uEnergy * 0.4 * (0.5 + 0.5 * sin(beat)); }",
-    "  else if (mode > 4.5 && mode < 5.5) run = 1.0;",
-    "  else if (mode > 5.5) { bounce = 0.6 + 0.4 * sin(beat); twist = 0.3 * sin(beat * 0.5); pumpR = 0.6 + 0.4 * sin(beat * 0.5); pumpL = 0.5 + 0.5 * sin(beat * 0.25 + 1.0); }",
-    "  float jump = uJump * stand * max(0.0, sin(beat)) * step(0.15, fract(seed * 9.7));",
-    // legs: sitting (thighs forward, shins down), knee bounce, running stride
-    "  float sitA = 1.45 * (1.0 - stand), rp = t * 9.0 + ph, sw = run * 0.65 * sin(rp);",
-    "  float thL = -sitA - 0.35 * bounce + sw, thR = -sitA - 0.35 * bounce - sw;",
-    "  float shL = sitA + 0.7 * bounce + run * (0.4 + 0.5 * max(0.0, -sin(rp))), shR = sitA + 0.7 * bounce + run * (0.4 + 0.5 * max(0.0, sin(rp)));",
-    "  Rtl = rx(thL); Rtr = rx(thR); Rsl = rx(shL); Rsr = rx(shR);",
-    "  float L1 = length(jKneeL - jHipL), L2 = length(jAnkL - jKneeL), footH = jAnkL.y;",
-    "  float ext = max(L1 * cos(thL) + L2 * cos(thL + shL), L1 * cos(thR) + L2 * cos(thR + shR)) + footH;",
-    "  float rootY = ext - jHipL.y + jump * 0.075;", // feet stay on the floor; jumps lift everyone off it
-    "  Rsp = ry(twist) * rz(sway * 0.5) * rx(0.12 * (1.0 - stand) + 0.12 * run); Rh = rx(nod + 0.15 * phone);",
-    // arms: lap when seated, clapping, arms up (wave / cheer), fist pumps, phone held up, running swing
-    "  float lap = (1.0 - stand) * (1.0 - clap) * (1.0 - up);",
-    "  float fL = -0.35 * lap - 0.75 * clap + run * 0.55 * sin(rp) - 0.15 * pumpL, fR = -0.35 * lap - 0.75 * clap - run * 0.55 * sin(rp) - 0.15 * pumpR;",
-    "  float cIn = clap * (0.38 + 0.16 * sin(t * 13.0 + ph));",
-    "  float sL = mix(-cIn, 2.75, max(up, pumpL)), sR = mix(cIn, -2.75, max(up, pumpR));",
-    "  float ffL = -1.1 * lap - 1.3 * clap - 1.2 * run - 0.3 * max(up, pumpL), ffR = -1.1 * lap - 1.3 * clap - 1.2 * run - 0.3 * max(up, pumpR);",
-    "  fR = mix(fR, -1.25, phone); sR = mix(sR, 0.12, phone); ffR = mix(ffR, -1.4, phone);",
-    "  Rul = rz(sL) * rx(fL); Rur = rz(sR) * rx(fR); Rfl = rx(ffL); Rfr = rx(ffR);",
-    "  vec3 P0 = position, N0 = normal, P1 = position, N1 = normal; bone(aB0, P0, N0); bone(aB1, P1, N1);",
-    "  vec3 p = mix(P1, P0, aW), n = normalize(mix(N1, N0, aW)); p.y += rootY;",
-    "  if (aPart > 4.5 && phone < 0.5) p = jWaist;", // phone only in the hands of people filming
-    "  vY = p.y; vPart = aPart; vScreen = (aPart > 4.5 && normal.z > 0.5) ? 1.0 : 0.0;",
-    "  p *= iH; float c = cos(iRot), s = sin(iRot);",
-    "  p = vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z) + iOffset; vN = vec3(c*n.x + s*n.z, n.y, -s*n.x + c*n.z); vW = p;",
-    "  vCol = aPart < 0.5 ? iSkin : aPart < 1.5 ? iTop : aPart < 2.5 ? iLegs : aPart < 3.5 ? iHair : aPart < 4.5 ? vec3(0.08) : (vScreen > 0.5 ? vec3(1.05, 1.12, 1.25) : vec3(0.12));",
+    "  Rtl = rx(iQLeg.x); Rtr = rx(iQLeg.y); Rsl = rx(iQLeg.z); Rsr = rx(iQLeg.w);",
+    "  Rsp = ry(iQBody.y) * rz(iQBody.z * 0.5) * rx(iQBody.w); Rh = rx(iMisc.y + 0.15 * iMisc.z);",
+    "  Rul = ry(-iQArmL.w) * rx(iQArmL.x) * rz(iQArmL.y); Rur = ry(iQArmR.w) * rx(iQArmR.x) * rz(-iQArmR.y); Rfl = rx(iQArmL.z); Rfr = rx(iQArmR.z);", // side first, then raise: side means out/in at any height
+    "  vec3 P0 = position, N0 = normal, P1 = position, N1 = normal; bone(aBone.x, P0, N0); bone(aBone.y, P1, N1);",
+    "  vec3 p = mix(P1, P0, aBone.z), n = normalize(mix(N1, N0, aBone.z)); p.y += iQBody.x; float part = aBone.w;",
+    "  if (part > 4.5 && iMisc.z < 0.5) p = jWaist;", // phone only in the hands of people filming
+    "  vY = p.y; vPart = part; vScreen = (part > 4.5 && normal.z > 0.5) ? 1.0 : 0.0;",
+    "  p *= iMisc.x; p.x *= iMisc.w; float c = cos(iPos.w), s = sin(iPos.w);",
+    "  p = vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z) + iPos.xyz; vN = vec3(c*n.x + s*n.z, n.y, -s*n.x + c*n.z); vW = p;",
+    "  vCol = part < 0.5 ? iSkin : part < 1.5 ? iTop : part < 2.5 ? iLegs : part < 3.5 ? iHair : part < 4.5 ? vec3(0.08) : (vScreen > 0.5 ? vec3(1.05, 1.12, 1.25) : vec3(0.12));",
     "  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }"].join("\n");
   var SFS = [P.LIGHT_FS, "varying vec3 vCol; varying vec3 vN; varying vec3 vW; varying float vY; varying float vPart; varying float vScreen;",
     "void main(){ gl_FragColor = vec4(concertLight(vCol, normalize(vN), vW, vY, vScreen), 1.0); }"].join("\n");
   function lookMat(id) { // one material per look (its joint positions); the shader program itself is compiled once
     if (lookMats[id]) { if (P.stagePos) lookMats[id].uniforms.uStage.value.copy(P.stagePos); return lookMats[id]; }
     var J = LOOKS[id], u = P.lightUniforms(), V3 = function (a) { return { value: new T.Vector3(a[0], a[1], a[2]) }; };
-    var map = { jHipL: "hip.L", jHipR: "hip.R", jKneeL: "knee.L", jKneeR: "knee.R", jAnkL: "ankle.L", jShL: "sh.L", jShR: "sh.R", jElL: "el.L", jElR: "el.R", jWaist: "waist", jNeck: "neck" };
-    Object.keys(map).forEach(function (k) { u[k] = V3(J[map[k]]); }); Object.keys(P.U).forEach(function (k) { u[k] = P.U[k]; });
+    var map = { jHipL: "hip.L", jHipR: "hip.R", jKneeL: "knee.L", jKneeR: "knee.R", jShL: "sh.L", jShR: "sh.R", jElL: "el.L", jElR: "el.R", jWaist: "waist", jNeck: "neck" };
+    Object.keys(map).forEach(function (k) { u[k] = V3(J[map[k]]); });
     return (lookMats[id] = new T.ShaderMaterial({ vertexShader: SVS, fragmentShader: SFS, uniforms: u }));
   }
-  // Who does what: sport crowds sit, clap and stand for waves and big moments; concert crowds stand and dance, some
-  // with fists up, some filming. p.mode (players, performer) overrides.
-  P.ctx = { sport: false };
-  function modeFor(p) {
-    if (p.mode != null) return p.mode; var r = rng(p.k, 11);
-    if (p.phone) return MODE.phone;
-    if (P.ctx.sport) return r < 0.45 ? MODE.clap : MODE.idle;
-    if (p.sit) return r < 0.55 ? MODE.clap : MODE.idle;
-    return r < 0.62 ? MODE.dance : r < 0.78 ? MODE.cheer : r < 0.9 ? MODE.clap : MODE.idle;
-  }
+  P.looks = function () { return LOOKS; };
+  var live = []; // crowds whose poses are updated every frame (near crowd, performer, players)
+  function lookOf(p) { var d = p.d || (p.d = P.describe(p.k)); return d.sex + (rng(p.k, 9) < 0.5 ? "0" : "1"); }
   function makeRealCrowd(people, group) {
-    var byKey = {};
-    people.forEach(function (p) {
-      var d = p.d || (p.d = P.describe(p.k)), key = d.sex + (rng(p.k, 9) < 0.5 ? "0" : "1") + "-" + (p.lod || 0);
-      (byKey[key] = byKey[key] || []).push(p);
+    people.forEach(function (p) { if (!p.d) p.d = P.describe(p.k); }); // heights first: makeFans uses them
+    var byKey = {}, fans = Crowd.makeFans(people, { sport: P.ctx.sport });
+    people.forEach(function (p, i) {
+      var look = lookOf(p), key = look + "-" + (p.lod || 0);
+      p.fan = fans[i]; fans[i].look = look; (byKey[key] = byKey[key] || []).push(p);
     });
     Object.keys(byKey).forEach(function (key) {
       var src = REAL[key], list = byKey[key], n = list.length; if (!src) return;
       var g = new T.InstancedBufferGeometry(); g.setIndex(src.index);
-      ["position", "normal", "aPart", "aB0", "aB1", "aW"].forEach(function (a) { g.addAttribute(a, src.attributes[a]); });
-      var off = new Float32Array(n * 3), rot = new Float32Array(n), hh = new Float32Array(n), act = new Float32Array(n * 4), sk = new Float32Array(n * 3), tp = new Float32Array(n * 3), lg = new Float32Array(n * 3), hr = new Float32Array(n * 3);
-      list.forEach(function (p, i) { var d = p.d; off.set([p.x, p.y, p.z], i * 3); rot[i] = p.rot; hh[i] = p.h || d.h; act.set([modeFor(p), rng(p.k, 12), p.sit ? 1 : 0, p.phone ? 1 : 0], i * 4);
-        sk.set(d.skin, i * 3); tp.set(p.top || d.top, i * 3); lg.set(p.legs || d.legs, i * 3); hr.set(d.hair, i * 3); });
-      var attrs = {};
-      [["iOffset", off, 3], ["iRot", rot, 1], ["iH", hh, 1], ["iAct", act, 4], ["iSkin", sk, 3], ["iTop", tp, 3], ["iLegs", lg, 3], ["iHair", hr, 3]].forEach(function (a) { g.addAttribute(a[0], attrs[a[0]] = new T.InstancedBufferAttribute(a[1], a[2])); });
+      ["position", "normal", "aBone"].forEach(function (a) { g.addAttribute(a, src.attributes[a]); });
+      var sk = new Float32Array(n * 3), tp = new Float32Array(n * 3), lg = new Float32Array(n * 3), hr = new Float32Array(n * 3), attrs = {};
+      list.forEach(function (p, i) { var d = p.d; sk.set(d.skin, i * 3); tp.set(p.top || d.top, i * 3); lg.set(p.legs || d.legs, i * 3); hr.set(d.hair, i * 3); });
+      [["iSkin", sk, 3], ["iTop", tp, 3], ["iLegs", lg, 3], ["iHair", hr, 3]].forEach(function (a) { g.addAttribute(a[0], new T.InstancedBufferAttribute(a[1], a[2])); });
+      ["iPos", "iMisc", "iQLeg", "iQBody", "iQArmL", "iQArmR"].forEach(function (a) { var at = attrs[a] = new T.InstancedBufferAttribute(new Float32Array(n * 4), 4); at.setDynamic(true); g.addAttribute(a, at); });
       g.maxInstancedCount = n;
       var mesh = new T.Mesh(g, lookMat(key.split("-")[0])); mesh.frustumCulled = false; mesh.userData.people = list; mesh.userData.attrs = attrs; group.add(mesh);
     });
-    group.userData.count = people.length; return group;
+    group.userData.count = people.length; group.userData.real = true; live.push(group);
+    writePoses(group, P.G.uTime, null, true);
+    return group;
   }
-  // Crowd director: moves the shared uniforms every frame. Concerts: dance energy that swells and dips, a synchronised
-  // jump every ~35 s, hands up at the end of a "song". Sport: chants with clapping, a Mexican wave every ~70 s,
-  // everyone up for a score (P.cheer, called by the match preview). P.wave() / P.jump() start one on demand.
+  var pose = Crowd.blank(), fr = new T.Frustum(), pm = new T.Matrix4(), sph = new T.Sphere(new T.Vector3(), 1.3);
+  function writePoses(group, t, frustum, all) {
+    group.children.forEach(function (m) {
+      var a = m.userData.attrs; if (!a || !a.iPos) return;
+      m.userData.people.forEach(function (p, i) {
+        if (!all && frustum && !group.userData.noCull) { sph.center.set(p.x, p.y + 0.9, p.z); if (!frustum.intersectsSphere(sph)) return; } // off screen: keep the last pose
+        var q = Crowd.pose(p.fan, t, P.G, pose), J = LOOKS[p.fan.look], o = i * 4;
+        a.iPos.array[o] = p.x; a.iPos.array[o + 1] = p.y; a.iPos.array[o + 2] = p.z; a.iPos.array[o + 3] = p.rot;
+        a.iQLeg.array.set([q.thL, q.thR, q.shL, q.shR], o); a.iQBody.array.set([Crowd.rootY(J, q), q.twist, q.sway, q.lean], o);
+        a.iQArmL.array.set([q.fL, q.sL, q.ffL, q.yL], o); a.iQArmR.array.set([q.fR, q.sR, q.ffR, q.yR], o); a.iMisc.array.set([p.h || p.d.h, q.nod, q.phone, p.fan.wscale], o);
+      });
+      ["iPos", "iMisc", "iQLeg", "iQBody", "iQArmL", "iQArmR"].forEach(function (k) { a[k].needsUpdate = true; });
+    });
+  }
+  // Every frame: pose the near crowd, the performer and the players (only those on screen).
+  P.update = function (camera) {
+    if (camera) { camera.updateMatrixWorld(); pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); fr.setFromMatrix(pm); }
+    live = live.filter(function (g) { return !!g.parent; });
+    for (var i = 0; i < live.length; i++) writePoses(live[i], P.G.uTime, camera ? fr : null, false);
+  };
+  // Director: the shared moments. Animated concerts: energy that swells and dips, a synchronised jump every ~35 s,
+  // hands up at the end of a "song". Animated sport: a Mexican wave every ~70 s, everyone up for a score (P.cheer,
+  // from the match preview). Still mode: nobody moves unless you press Wave. P.wave() / P.jump() start one on demand.
   var manual = { wave: -1e9, jump: -1e9, cheer: -1e9 };
   function env(t, t0, len, edge) { var x = t - t0; return x < 0 || x > len ? 0 : Math.min(1, x / edge, (len - x) / edge); }
+  P.waveLen = 20; // seconds for one lap (set per venue size by scene.js)
   P.tick = function (t, sport) {
-    var U = P.U; U.uTime.value = t; P.ctx.sport = !!sport;
-    var waveT = Math.max(sport ? (t % 70 > 50 ? t - (t % 70) + 50 : -1e9) : -1e9, manual.wave), wl = 16;
-    U.uWaveOn.value = t - waveT < wl ? env(t, waveT, wl, 0.8) : 0; U.uWaveA.value = (t - waveT) / wl * 6.2832 * 1.15 - 0.3;
+    var U = P.U, G = P.G, still = P.still; G.uTime = t; U.uTime.value = t; P.ctx.sport = !!sport;
+    G.still = still; U.uStill.value = still ? 1 : 0;
+    var auto = !still && sport && t % 70 > 40 ? t - (t % 70) + 40 : -1e9, w0 = Math.max(auto, manual.wave), wl = P.waveLen;
+    G.waveT0 = w0; G.waveLen = wl; G.waveA0 = 0; G.waveOn = t >= w0 && t < w0 + wl + 3; // one lap, then it stops
+    U.uWaveT0.value = w0; U.uWaveLen.value = wl; U.uWaveA0.value = 0; U.uWaveOn.value = G.waveOn ? 1 : 0;
+    if (still) { G.jump = G.cheer = 0; U.uJump.value = U.uCheer.value = U.uEnergy.value = 0; return; }
     if (sport) {
-      U.uEnergy.value = 0; U.uBeat.value = 1.6; U.uJump.value = 0;
-      U.uCheer.value = Math.max(env(t, manual.cheer, 6, 0.5), t - manual.cheer > 120 ? env(t % 50, 44, 5, 0.6) : 0); // scores (match.js), else now and then
-      U.uClap.value = Math.max(env(t % 24, 2, 9, 1), U.uCheer.value);
+      U.uEnergy.value = 0; G.beat = U.uBeat.value = 1.6; G.jump = U.uJump.value = 0;
+      var c = Math.max(env(t, manual.cheer, 6, 0.5), t - manual.cheer > 120 ? env(t % 50, 44, 5, 0.6) : 0);
+      G.cheer = U.uCheer.value = c; G.cheerT = t - manual.cheer < 6 ? manual.cheer : t - (t % 50) + 44;
     } else {
-      U.uBeat.value = 2; U.uEnergy.value = 0.72 + 0.28 * Math.sin(t * 6.2832 / 45);
-      U.uJump.value = Math.max(env(t % 35, 26, 7, 0.8), env(t, manual.jump, 7, 0.5));
-      U.uCheer.value = env(t % 60, 55, 4, 0.7);
-      U.uClap.value = 0.25 + 0.75 * env(t % 60, 53, 7, 1);
+      G.beat = U.uBeat.value = 2; U.uEnergy.value = 0.72 + 0.28 * Math.sin(t * 6.2832 / 45);
+      G.jump = U.uJump.value = Math.max(env(t % 35, 26, 7, 0.8), env(t, manual.jump, 7, 0.5));
+      G.cheer = U.uCheer.value = env(t % 60, 55, 4, 0.7); G.cheerT = t - (t % 60) + 55;
     }
   };
-  P.wave = function () { manual.wave = P.U.uTime.value; };
-  P.jump = function () { manual.jump = P.U.uTime.value; };
-  P.cheer = function () { manual.cheer = P.U.uTime.value; };
+  P.wave = function () { if (P.G.uTime > P.G.waveT0 + P.G.waveLen + 3) manual.wave = P.G.uTime; };
+  P.jump = function () { manual.jump = P.G.uTime; };
+  P.cheer = function () { manual.cheer = P.G.uTime; };
   // people: [{x,y,z,rot,k,sit}] -> one draw call per sex
   // ONE shared material for every built-in person, created once and never disposed: disposing it made three.js
   // throw away the compiled shader, so every seat click recompiled it (measured: the slowest step of a click).

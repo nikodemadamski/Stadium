@@ -300,3 +300,4 @@ body.framed #liveSet { opacity:.5; }
 }
 #crowdBar .sep { width:1px; align-self:stretch; background:var(--line2); margin:4px 4px; padding:0; }
 #crowdBar button[hidden] { display:none; }
+#crowdBar #stillPose { padding:0; display:flex; gap:2px; color:inherit; } #crowdBar #stillPose[hidden] { display:none; }

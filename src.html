@@ -64,7 +64,7 @@
       <div class="lenses" role="group" aria-label="iPhone lens"><button type="button" data-z="0.5417" data-l=".5">.5</button><button type="button" data-z="1" data-l="1×" class="on">1×</button><button type="button" data-z="2" data-l="2">2</button><button type="button" data-z="4.1667" data-l="4">4</button><button type="button" data-z="8.3333" data-l="8">8</button></div>
     </div>
     <div id="crowdBar" role="group" aria-label="Crowd">
-      <span>Crowd</span><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button><span class="sep" aria-hidden="true"></span><button type="button" id="crowdWave" title="Start a Mexican wave">🌊 Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button>
+      <span>Crowd</span><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button><span class="sep" aria-hidden="true"></span><button type="button" id="crowdMove" class="on" aria-pressed="true" title="Fans dance, clap, cheer">Moving</button><button type="button" id="crowdStill" aria-pressed="false" title="Everyone holds still">Still</button><span id="stillPose" hidden><button type="button" id="stillSit" title="Everyone sitting">Sit</button><button type="button" id="stillStand" title="Everyone standing">Stand</button></span><span class="sep" aria-hidden="true"></span><button type="button" id="crowdWave" title="One Mexican wave around the whole venue">🌊 Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button>
     </div>
     <div id="hud"><span id="fps">– fps</span><span class="hp"> · <span id="people">0</span> people</span><span id="humanStat"></span></div>
     <div id="hint">Tap any seat to sit there</div>
@@ -141,6 +141,7 @@
 <script src="js/geometry.js"></script>
 <script src="js/seatmap.js"></script>
 <script src="js/sidebar.js"></script>
+<script src="js/crowd.js"></script>
 <script src="js/people.js"></script>
 <script src="js/match.js"></script>
 <script src="js/models.js"></script>

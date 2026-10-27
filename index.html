@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-AehIWPb3ANPBg8J2ASItYhmDbQmx3fX8ATuAno+tc4E=' 'sha256-6IYVCKtguXqUYIJRXYKMgTXm1RfLkmc8EAMEsdVa/XQ=' 'sha256-Q30Vz7tpSokEJcAzKBy99ue36eiE/+5ZaxXorFclWy0=' 'sha256-MastnFAGnW51c5pu6mgBMGrOEGAseeHLdK5WMSakgow=' 'sha256-mn3Ym4TrR9g12RX2Qn3bKJnK6qmRhk+Vc/PLsE+xWmc=' 'sha256-G7IihD7JzZwjoFWVQYz5J8aeXu/lUGII/jct2ej9b/M=' 'sha256-t33mMJA2kMFZt4jPvmAwNv0l5aLgA356HZ9wJSlVgOs=' 'sha256-FMDPAyfk9b5MFbzZSlSNsNEAVbrtfateNRpaTZA1IT0=' 'sha256-YVL+5Ma8DOIX1sJTvli4gWjZ0WUm4WjEtv5gJnZ9flM=' 'sha256-u6Dy2/lGTTNm95e4UNQU3p8DNj4IMK09lNciYB+xhYI=' 'sha256-4LvRddj+rnZm9a47Sd4WBgCavsQi53WUkxDH57ECdz0=' 'sha256-Qq9CK5vZAlAsj5xa2CEybPJlwxElNYKtFqkreF4okng=' 'sha256-DTbVG/dvKT0V+BS5KIpDdEWXU1yIsOErgqlLo57ioy0=' 'sha256-bpY7FLE2nWcdP8KM99GyFax7jH11QBcq56C5yae4ynA=' 'sha256-v2H7QwRPtDEg5kkXZO0sl8lC6gD20erdyJ/KMWJDnH0=' 'sha256-w83ot138XjOL/pnIh5OJTWXaZCGiuO9rYiLPpei+vhA=' 'sha256-/jQGVdhVRckQ9kZCRmnRWoMAVhB1BNPGaSGPHuBPkqs='; style-src 'unsafe-inline'; img-src 'self' data: blob: https://commons.wikimedia.org https://upload.wikimedia.org https://mapsapi.tmol.io; connect-src 'self' https://app.ticketmaster.com https://musicbrainz.org; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-AehIWPb3ANPBg8J2ASItYhmDbQmx3fX8ATuAno+tc4E=' 'sha256-6IYVCKtguXqUYIJRXYKMgTXm1RfLkmc8EAMEsdVa/XQ=' 'sha256-Q30Vz7tpSokEJcAzKBy99ue36eiE/+5ZaxXorFclWy0=' 'sha256-MastnFAGnW51c5pu6mgBMGrOEGAseeHLdK5WMSakgow=' 'sha256-mn3Ym4TrR9g12RX2Qn3bKJnK6qmRhk+Vc/PLsE+xWmc=' 'sha256-G7IihD7JzZwjoFWVQYz5J8aeXu/lUGII/jct2ej9b/M=' 'sha256-t33mMJA2kMFZt4jPvmAwNv0l5aLgA356HZ9wJSlVgOs=' 'sha256-FMDPAyfk9b5MFbzZSlSNsNEAVbrtfateNRpaTZA1IT0=' 'sha256-YVL+5Ma8DOIX1sJTvli4gWjZ0WUm4WjEtv5gJnZ9flM=' 'sha256-u6Dy2/lGTTNm95e4UNQU3p8DNj4IMK09lNciYB+xhYI=' 'sha256-4LvRddj+rnZm9a47Sd4WBgCavsQi53WUkxDH57ECdz0=' 'sha256-fyt0rg4o8cAlh0R/0ZnmeigAlHQf0i2BiwK4tgJ60iA=' 'sha256-IAXKfnScfs38FQorE5ov6mUWt95KGBi9qrhKoUFDfgA=' 'sha256-2pot3BI3Ek/t1quzpHTOvFshkCbPD3LOfF6Q1JtjCSQ=' 'sha256-bpY7FLE2nWcdP8KM99GyFax7jH11QBcq56C5yae4ynA=' 'sha256-v2H7QwRPtDEg5kkXZO0sl8lC6gD20erdyJ/KMWJDnH0=' 'sha256-ox72tB5WV06OrdB4YNpeUbgdwr95Y8ytC1I2Rim8fwc=' 'sha256-282SPtd3WTxzovk1uJGoRG3zuWLehMM7QhgwWIZXj+8='; style-src 'unsafe-inline'; img-src 'self' data: blob: https://commons.wikimedia.org https://upload.wikimedia.org https://mapsapi.tmol.io; connect-src 'self' https://app.ticketmaster.com https://musicbrainz.org; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Seat View — Irish Stadiums</title>
@@ -310,6 +310,7 @@ body.framed #liveSet { opacity:.5; }
 }
 #crowdBar .sep { width:1px; align-self:stretch; background:var(--line2); margin:4px 4px; padding:0; }
 #crowdBar button[hidden] { display:none; }
+#crowdBar #stillPose { padding:0; display:flex; gap:2px; color:inherit; } #crowdBar #stillPose[hidden] { display:none; }
 </style>
 </head>
 <body>
@@ -367,7 +368,7 @@ body.framed #liveSet { opacity:.5; }
       <div class="lenses" role="group" aria-label="iPhone lens"><button type="button" data-z="0.5417" data-l=".5">.5</button><button type="button" data-z="1" data-l="1×" class="on">1×</button><button type="button" data-z="2" data-l="2">2</button><button type="button" data-z="4.1667" data-l="4">4</button><button type="button" data-z="8.3333" data-l="8">8</button></div>
     </div>
     <div id="crowdBar" role="group" aria-label="Crowd">
-      <span>Crowd</span><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button><span class="sep" aria-hidden="true"></span><button type="button" id="crowdWave" title="Start a Mexican wave">🌊 Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button>
+      <span>Crowd</span><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button><span class="sep" aria-hidden="true"></span><button type="button" id="crowdMove" class="on" aria-pressed="true" title="Fans dance, clap, cheer">Moving</button><button type="button" id="crowdStill" aria-pressed="false" title="Everyone holds still">Still</button><span id="stillPose" hidden><button type="button" id="stillSit" title="Everyone sitting">Sit</button><button type="button" id="stillStand" title="Everyone standing">Stand</button></span><span class="sep" aria-hidden="true"></span><button type="button" id="crowdWave" title="One Mexican wave around the whole venue">🌊 Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button>
     </div>
     <div id="hud"><span id="fps">– fps</span><span class="hp"> · <span id="people">0</span> people</span><span id="humanStat"></span></div>
     <div id="hint">Tap any seat to sit there</div>
@@ -2257,6 +2258,203 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
   };
 })();
 </script>
+<script>/* js/crowd.js */
+/* Crowd clips and per-fan players for the near crowd (the ~500 rigged people around your seat).
+ * Every fan owns a SLOT (seat or terrace spot) and only plays IN-PLACE clips, so nobody drifts into a neighbour.
+ * A clip is a small function that sets joint angles for the 11-bone rig in js/people.js; people.js uploads the pose
+ * to the GPU each frame. The same pose code drives tools/tests (clipping check), so what is tested is what is drawn.
+ *
+ * Arm span: every clip is tagged "narrow" (hands stay inside the fan's own seat width: arms move forward/up, never
+ * out to the side) or "wide" (side-to-side sway). Wide clips only go to fans with room on both sides.
+ * Randomness is deterministic: seeded by the fan's seat, so the same seat behaves the same on every reload.
+ * Each fan: weighted clip pool, own start offset, timeScale 0.85-1.15 (clip timing and crossfades), crossfade to another
+ * clip every 8-20 s, never starts the same clip within 2 s of the neighbour next to them, and moves on the beat in a
+ * phase bin no neighbour shares (so adjacent fans are never in lock-step). */
+(function () {
+  var C = window.Crowd = {};
+  function h(a, b) { var x = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return x - Math.floor(x); }
+  function sm(a, b, x) { var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+  C.hash = h; C.smooth = sm;
+  var KEYS = ["thL", "thR", "shL", "shR", "twist", "sway", "lean", "nod", "fL", "sL", "ffL", "yL", "fR", "sR", "ffR", "yR", "jump", "phone"];
+  function blank() { var o = {}; for (var i = 0; i < KEYS.length; i++) o[KEYS[i]] = 0; return o; }
+  // Blend two poses. Arms raise/lower ELBOW FIRST: mid-transition the elbow bends in proportion to how far the upper
+  // arm travels, so hands pass close to the body instead of sweeping straight out into the person in front.
+  function mixInto(a, b, w) {
+    var tuckL = Math.sin(Math.PI * w) * Math.min(1, Math.abs(b.fL - a.fL) / 1.2), tuckR = Math.sin(Math.PI * w) * Math.min(1, Math.abs(b.fR - a.fR) / 1.2);
+    for (var i = 0; i < KEYS.length; i++) { var k = KEYS[i]; a[k] += (b[k] - a[k]) * w; }
+    // elbow bent (never folded past ~120 degrees: a folded forearm points back OUT) and swung in while travelling
+    a.ffL = Math.max(-2.1, a.ffL - 1.0 * tuckL); a.ffR = Math.max(-2.1, a.ffR - 1.0 * tuckR);
+    a.yL = Math.max(a.yL, 0.6 * tuckL); a.yR = Math.max(a.yR, 0.6 * tuckR); return a;
+  }
+  C.blank = blank; C.mix = mixInto;
+  // Angle conventions (rest pose = standing, arms down): f < 0 raises the upper arm forward (-2.8 = overhead), s > 0
+  // moves it out to the side (applied before the raise, so it means "out" at any height), ff < 0 bends the elbow forward, y > 0 swings a raised arm in across the body (so forearms
+  // held in front - clapping, dancing - stay inside the fan's own width); th < 0 raises the thigh, sh > 0 bends the knee.
+  function sit(p, u) { p.thL = p.thR = -1.45 * u; p.shL = p.shR = 1.45 * u; p.lean = 0.12 * u; }
+  // The modelled rest pose hangs the arms ~7 degrees outward (elbows 2 cm wider than the shoulders); s = -0.2 brings
+  // the elbows under the shoulders so a fan's arms stay inside their own seat width (measured: tools/tests/crowd_check.js).
+  function lap(p, u) { p.fL = p.fR = -0.35 * u; p.ffL = p.ffR = -1.1 * u; p.sL = p.sR = -0.2 * u; p.yL = p.yR = 0.4 * u; } // hands on the thighs, not out on the knees
+  function restArms(p) { p.sL = p.sR = -0.2; p.fL = p.fR = -0.12; p.ffL = p.ffR = -0.45; p.yL = p.yR = 0.35; } // hands in front of the thighs
+  // Arms raised overhead, hands a little in over the head.
+  function upArms(p, S, f, u) { p["f" + S] = f; p["s" + S] = -0.32; p["ff" + S] = -0.2; p["y" + S] = 0; }
+  var TAU = 6.2832;
+  function clapArms(p, b) { p.fL = p.fR = -0.85; p.ffL = p.ffR = -1.2; p.sL = p.sR = -0.2; p.yL = p.yR = 0.55 + 0.12 * Math.sin(b); } // hands meet in front of the chest
+  function phoneArm(p) { p.fR = -1.25; p.sR = 0; p.ffR = -1.4; p.yR = 0.35; p.phone = 1; p.nod = 0.15; } // phone held up in front of the face
+  function chestArms(p, S, u) { p["f" + S] = -0.5; p["ff" + S] = -1.5 + 0.2 * u; p["s" + S] = -0.2; p["y" + S] = 0.45; } // forearms up in front, elbows in
+  // clip(p, t, beat, seed): t = clip-local seconds, beat = beat phase in radians (already offset and time-scaled per fan)
+  var CLIPS = C.CLIPS = {
+    still_stand: { span: "narrow", seated: false, fn: function (p) { restArms(p); } },
+    still_sit: { span: "narrow", seated: true, fn: function (p) { sit(p, 1); lap(p, 1); } },
+    idle: { span: "narrow", seated: false, fn: function (p, t, b, s) { restArms(p); p.sway = 0.04 * Math.sin(t * 0.7 + s * TAU); p.nod = 0.05 * Math.sin(t * 0.45 + s * 9); } },
+    sit_idle: { span: "narrow", seated: true, fn: function (p, t, b, s) { sit(p, 1); lap(p, 1); p.nod = 0.06 * Math.sin(t * 0.4 + s * 9); p.twist = 0.06 * Math.sin(t * 0.23 + s * 5); } },
+    clap: { span: "narrow", seated: false, fn: function (p, t, b) { clapArms(p, b); } },
+    sit_clap: { span: "narrow", seated: true, fn: function (p, t, b) { sit(p, 1); clapArms(p, b); } },
+    bounce: { span: "narrow", seated: false, fn: function (p, t, b) { var u = 0.5 + 0.5 * Math.sin(b); p.thL = p.thR = -0.3 * u; p.shL = p.shR = 0.6 * u; chestArms(p, "L", u); chestArms(p, "R", u); p.twist = 0.1 * Math.sin(b * 0.5); } },
+    fist_pump: { span: "narrow", seated: false, fn: function (p, t, b) { var u = Math.max(0, Math.sin(b)); upArms(p, "R", -2.6 + 0.3 * u); p.ffR = -0.35 * (1 - u); chestArms(p, "L", 0); p.thL = p.thR = -0.15 * u; p.shL = p.shR = 0.3 * u; } },
+    cheer: { span: "narrow", seated: false, fn: function (p, t, b) { var u = Math.sin(b); upArms(p, "L", -2.8 + 0.12 * u); upArms(p, "R", -2.8 + 0.12 * u); p.thL = p.thR = -0.12 * (0.5 + 0.5 * u); p.shL = p.shR = 0.24 * (0.5 + 0.5 * u); } },
+    sit_cheer: { span: "narrow", seated: true, fn: function (p, t, b) { sit(p, 1); var u = Math.sin(b); upArms(p, "L", -2.75 + 0.12 * u); upArms(p, "R", -2.75 + 0.12 * u); } },
+    jump: { span: "narrow", seated: false, fn: function (p, t, b) { var u = Math.max(0, Math.sin(b)), land = Math.max(0, -Math.sin(b)); p.jump = 0.06 * u; p.thL = p.thR = -0.3 * land; p.shL = p.shR = 0.6 * land; chestArms(p, "L", u); chestArms(p, "R", u); } },
+    sway: { span: "wide", seated: false, fn: function (p, t, b) { var a = 0.45 * Math.sin(b * 0.5); p.fL = p.fR = -2.8; p.sL = a; p.sR = -a; p.ffL = p.ffR = -0.15; p.sway = 0.08 * Math.sin(b * 0.5); } },
+    phone: { span: "narrow", seated: false, fn: function (p, t, b, s) { restArms(p); phoneArm(p); p.sway = 0.03 * Math.sin(t * 0.6 + s * 7); } },
+    sit_phone: { span: "narrow", seated: true, fn: function (p) { sit(p, 1); lap(p, 1); phoneArm(p); } },
+    run: { span: "wide", seated: false, fn: function (p, t) { var r = t * 9, w = 0.65 * Math.sin(r); p.thL = w; p.thR = -w; p.shL = 0.4 + 0.5 * Math.max(0, -Math.sin(r)); p.shR = 0.4 + 0.5 * Math.max(0, Math.sin(r)); p.fL = 0.55 * Math.sin(r); p.fR = -0.55 * Math.sin(r); p.ffL = p.ffR = -1.2; p.lean = 0.12; } },
+    perform: { span: "wide", seated: false, fn: function (p, t, b) { var u = 0.5 + 0.5 * Math.sin(b); p.thL = p.thR = -0.3 * u; p.shL = p.shR = 0.6 * u; p.twist = 0.3 * Math.sin(b * 0.5); p.fR = -2.4 + 0.4 * Math.sin(b * 0.5); p.sR = 0.4; p.ffR = -0.4; p.fL = -1.2; p.sL = 0.5 + 0.3 * Math.sin(b * 0.25); p.ffL = -0.8; } }
+  };
+  // Weighted pools (clip, weight). Wide clips are skipped for fans without room.
+  var POOLS = C.POOLS = {
+    concert_stand: [["bounce", 30], ["fist_pump", 18], ["idle", 12], ["clap", 10], ["jump", 10], ["cheer", 8], ["sway", 12]],
+    concert_sit: [["sit_idle", 50], ["sit_clap", 35], ["sit_cheer", 15]],
+    sport_sit: [["sit_idle", 60], ["sit_clap", 40]],
+    sport_stand: [["idle", 60], ["clap", 40]]
+  };
+  function pickFrom(pool, room, r) {
+    var tot = 0, i; for (i = 0; i < pool.length; i++) if (room || CLIPS[pool[i][0]].span !== "wide") tot += pool[i][1];
+    var x = r * tot; for (i = 0; i < pool.length; i++) { if (!room && CLIPS[pool[i][0]].span === "wide") continue; x -= pool[i][1]; if (x <= 0) return pool[i][0]; }
+    return pool[pool.length - 1][0];
+  }
+  // Fans: one per near person. people: [{x,z,k,sit,phone,rot,...}] in the order they are drawn.
+  var BINS = 12; // up to ~8 neighbours within 0.9 m in a theatre; 12 bins always leave a free one
+  C.HALF_SPAN = 0.142; // widest narrow clip 0.238 m for a 1.75 m fan (0.136 x height), plus room for arms in transit
+  C.makeFans = function (people, ctx) {
+    var fans = people.map(function (p) {
+      var s = h(p.k, 21);
+      return { p: p, k: p.k, seed: s, ts: 0.85 + 0.3 * h(p.k, 22), off: h(p.k, 23) * 97, P: 8 + 12 * h(p.k, 24), beatOff: 0, wscale: 1,
+        seated: !!p.sit, phone: !!p.phone, fixed: p.clip || null, room: true, left: null, near: [], side: [], cache: {} };
+    });
+    // neighbours within 0.9 m: "side" ones share the row (perpendicular to the way the fan faces)
+    fans.forEach(function (f, i) {
+      var best = null, bd = 0.81, rL = 0, rR = 0, fx = Math.cos(f.p.rot), fz = -Math.sin(f.p.rot); // fan's right-hand side
+      fans.forEach(function (g, j) {
+        if (i === j) return; var dx = g.p.x - f.p.x, dz = g.p.z - f.p.z, d2 = dx * dx + dz * dz; if (d2 > 0.81) return;
+        f.near.push(g); var side = dx * fx + dz * fz; if (Math.abs(side) < 0.25) return; // in front / behind, not beside
+        f.side.push([g, Math.sqrt(d2)]); if (side > 0) rR = 1; else rL = 1;
+        if (side < 0 && d2 < bd && j < i) { bd = d2; best = g; }
+      });
+      f.room = !rL && !rR; f.left = best; // wide clips swing both arms both ways: free on both sides
+    });
+    // beat phase: every fan gets one of 12 phase bins (30 degrees apart), never the same bin as a neighbour, so nobody
+    // moves in lock-step with the person next to, in front of or behind them (greedy colouring).
+    fans.forEach(function (f) { // the bin furthest (in phase) from every neighbour's bin; ties broken by the fan's seed
+      var start = (h(f.k, 25) * BINS) | 0, best = start, bestD = -1;
+      for (var n = 0; n < BINS; n++) {
+        var b = (start + n) % BINS, dmin = BINS;
+        f.near.forEach(function (g) { if (g.bin != null) { var d = Math.abs(g.bin - b); dmin = Math.min(dmin, Math.min(d, BINS - d)); } });
+        if (dmin > bestD) { bestD = dmin; best = b; }
+      }
+      f.bin = best; f.beatOff = best / BINS * TAU + (h(f.k, 26) - 0.5) * 0.08; // jitter well under half a bin
+    });
+    // Shoulder room: every narrow clip keeps the arms within HALF_SPAN x height of the fan's centre (measured per clip
+    // by tools/tests/crowd_check.js). Where two tall neighbours still don't fit their seat spacing, both are drawn a few
+    // per cent narrower (at most 12%) - invisible at crowd scale, and better than shoulders passing through each other.
+    fans.forEach(function (f) {
+      var hf = f.p.h || f.p.d.h;
+      f.side.forEach(function (e) {
+        var g = e[0], hg = g.p.h || g.p.d.h, need = C.HALF_SPAN * (hf + hg), room = e[1] - 0.005;
+        if (need > room) { var k = Math.max(0.88, room / need); f.wscale = Math.min(f.wscale, k); g.wscale = Math.min(g.wscale, k); }
+      });
+    });
+
+    fans.forEach(function (f) { f.pool = f.seated ? (ctx.sport ? POOLS.sport_sit : POOLS.concert_sit) : (ctx.sport ? POOLS.sport_stand : POOLS.concert_stand); });
+    return fans;
+  };
+  function segStart(f, seg) { return (seg * f.P - f.off) / f.ts; } // in global seconds
+  function clipAt(f, seg) {
+    if (f.cache[seg]) return f.cache[seg];
+    var c = pickFrom(f.pool, f.room, h(f.k * 1.37 + seg, 31)), L = f.left;
+    if (L) { // never start the same clip as the neighbour on the left within 2 s
+      var t0 = segStart(f, seg), ls = Math.floor((t0 * L.ts + L.off) / L.P), lc = clipAt(L, ls);
+      if (lc === c && Math.abs(segStart(L, ls) - t0) < 2) { var alt = f.pool.filter(function (e) { return e[0] !== c && (f.room || CLIPS[e[0]].span !== "wide"); }); if (alt.length) c = alt[(h(f.k, seg + 7) * alt.length) | 0][0]; }
+    }
+    var keys = Object.keys(f.cache); if (keys.length > 6) delete f.cache[keys[0]];
+    return (f.cache[seg] = c);
+  }
+  C.clipAt = function (f, t) { var tt = t * f.ts + f.off; return clipAt(f, Math.floor(tt / f.P)); };
+  // Mexican wave: one lap. Each fan's turn comes when the wave front reaches their angle around the venue centre:
+  // sit -> stand (0-0.5 s) -> arms up (0.35-0.9 s) -> arms down (1.4-2.0 s) -> sit (1.6-2.4 s).
+  C.waveUp = function (lt) { return { stand: sm(0, 0.5, lt) * (1 - sm(1.6, 2.4, lt)), arms: sm(0.35, 0.9, lt) * (1 - sm(1.4, 2.0, lt)) }; };
+  C.waveLocal = function (G, x, z) {
+    var a = Math.atan2(x - G.cx, z - G.cz) - G.waveA0; a = ((a % TAU) + TAU) % TAU;
+    return G.uTime - (G.waveT0 + a / TAU * G.waveLen);
+  };
+  // Pose of one fan at time t under the shared state G (people.js P.G): still/animated, beat, wave, cheer, jump.
+  var A = blank(), B = blank();
+  C.pose = function (f, t, G, out) {
+    var p = out || blank(), i; for (i = 0; i < KEYS.length; i++) p[KEYS[i]] = 0;
+    var s = f.seed, tl = t * f.ts + f.off, beat = TAU * G.beat * t + f.beatOff; // beat moves follow the music, each fan in its own phase bin; timeScale drives everything else
+    if (f.fixed) CLIPS[f.fixed].fn(p, tl, beat, s);
+    else if (G.still) CLIPS[f.seated ? "still_sit" : "still_stand"].fn(p, 0, 0, s);
+    else if (f.phone) CLIPS[f.seated ? "sit_phone" : "phone"].fn(p, tl, beat, s);
+    else {
+      var seg = Math.floor(tl / f.P), fr = tl / f.P - seg, ca = clipAt(f, seg), w = sm(1 - 1.2 / f.P, 1, fr);
+      for (i = 0; i < KEYS.length; i++) A[KEYS[i]] = 0; CLIPS[ca].fn(A, tl - seg * f.P, beat, s);
+      if (w > 0) { var cb = clipAt(f, seg + 1); for (i = 0; i < KEYS.length; i++) B[KEYS[i]] = 0; CLIPS[cb].fn(B, tl - (seg + 1) * f.P, beat, s); mixInto(A, B, w); }
+      for (i = 0; i < KEYS.length; i++) p[KEYS[i]] = A[KEYS[i]];
+    }
+    if (f.fixed) return p;
+    var seatedNow = f.seated;
+    // group moments (animated only): synchronised jump at concerts, everyone up for a score
+    if (!G.still && G.jump > 0 && !seatedNow) { var j = G.jump * Math.max(0, Math.sin(beat)); p.jump = Math.max(p.jump, 0.06 * j); }
+    if (!G.still && G.cheer > 0) { var cw = G.cheer * sm(0, 0.6, G.uTime - G.cheerT - s * 0.3); if (cw > 0) { for (i = 0; i < KEYS.length; i++) B[KEYS[i]] = 0; CLIPS.cheer.fn(B, tl, beat, s); B.phone = p.phone; mixInto(p, B, cw); } }
+    if (G.waveOn) {
+      var w2 = C.waveUp(C.waveLocal(G, f.p.x, f.p.z));
+      if (w2.stand > 0 || w2.arms > 0) {
+        if (seatedNow) { var u = 1 - w2.stand; p.thL = p.thR = -1.45 * u; p.shL = p.shR = 1.45 * u; p.lean *= u; }
+        var a = w2.arms; for (i = 0; i < KEYS.length; i++) B[KEYS[i]] = p[KEYS[i]]; upArms(B, "L", -2.8); upArms(B, "R", -2.8); B.phone = 0;
+        for (i = 0; i < KEYS.length; i++) if (!/^(f|s|ff|y)[LR]$|^phone$/.test(KEYS[i])) B[KEYS[i]] = p[KEYS[i]]; // arms only
+        mixInto(p, B, a);
+      }
+    }
+    return p;
+  };
+  // Forward kinematics of the same rig (for tests and the clipping check): joint positions in unit-stature space.
+  function rx(a, v) { var c = Math.cos(a), s = Math.sin(a); return [v[0], c * v[1] - s * v[2], s * v[1] + c * v[2]]; }
+  function ry(a, v) { var c = Math.cos(a), s = Math.sin(a); return [c * v[0] + s * v[2], v[1], -s * v[0] + c * v[2]]; }
+  function rz(a, v) { var c = Math.cos(a), s = Math.sin(a); return [c * v[0] - s * v[1], s * v[0] + c * v[1], v[2]]; }
+  function sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; } function add(a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; }
+  function about(p, piv, fns) { var v = sub(p, piv); fns.forEach(function (f) { v = f(v); }); return add(v, piv); }
+  C.rootY = function (J, p) { // feet stay on the floor whatever the legs do; jumps lift off it
+    var L1 = Math.hypot(J["knee.L"][0] - J["hip.L"][0], J["knee.L"][1] - J["hip.L"][1], J["knee.L"][2] - J["hip.L"][2]);
+    var L2 = Math.hypot(J["ankle.L"][0] - J["knee.L"][0], J["ankle.L"][1] - J["knee.L"][1], J["ankle.L"][2] - J["knee.L"][2]);
+    var ext = Math.max(L1 * Math.cos(p.thL) + L2 * Math.cos(p.thL + p.shL), L1 * Math.cos(p.thR) + L2 * Math.cos(p.thR + p.shR)) + J["ankle.L"][1];
+    return ext - J["hip.L"][1] + p.jump;
+  };
+  C.joints = function (J, p) {
+    var y = C.rootY(J, p), W = J.waist, spine = function (v) { return about(v, W, [function (q) { return rx(p.lean, q); }, function (q) { return rz(p.sway * 0.5, q); }, function (q) { return ry(p.twist, q); }]); };
+    var out = {}, lift = function (v) { return [v[0], v[1] + y, v[2]]; };
+    ["L", "R"].forEach(function (S) {
+      var f = p["f" + S], s = S === "L" ? p.sL : -p.sR, y = S === "L" ? -p.yL : p.yR, ff = p["ff" + S], sh = J["sh." + S], el = J["el." + S], wr = J["wr." + S];
+      var tip = add(wr, [(wr[0] - el[0]) * 0.45, (wr[1] - el[1]) * 0.45, (wr[2] - el[2]) * 0.45]);
+      var up = function (v) { return about(v, sh, [function (q) { return rz(s, q); }, function (q) { return rx(f, q); }, function (q) { return ry(y, q); }]); };
+      var fore = function (v) { return about(v, el, [function (q) { return rx(ff, q); }]); };
+      out["sh" + S] = lift(spine(sh)); out["el" + S] = lift(spine(up(el))); out["wr" + S] = lift(spine(up(fore(wr)))); out["tip" + S] = lift(spine(up(fore(tip))));
+    });
+    out.waist = lift(W); out.neck = lift(spine(J.neck)); out.head = lift(spine(add(J.neck, [0, 0.07, 0.015])));
+    out.hip = lift([(J["hip.L"][0] + J["hip.R"][0]) / 2, J["hip.L"][1], J["hip.L"][2]]);
+    return out;
+  };
+  C.KEYS = KEYS;
+})();
+</script>
 <script>/* js/people.js */
 /* Realistic-proportion crowd people, built in code (no download, works offline, nothing to license).
  * Body dimensions come from published anthropometry, not guesses:
@@ -2378,8 +2576,7 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
   // Real people: MakeHuman CC0 bodies (2 looks per sex, 3 levels of detail), dressed and given hair by
   // tools/humans/build_humans.py, with weights for an 11-bone skeleton. js/data/humans.js ships them gzipped; they are
   // unpacked once in the background (until then, or without DecompressionStream, the built-in bodies above are used).
-  // Every pose is made in the vertex shader from a few angles per person: sitting/standing, clapping, dancing, arms up,
-  // filming on a phone, running. Shared "director" uniforms (P.U) drive group moments: Mexican waves, jumps, cheers.
+  // Each person plays in-place clips from js/crowd.js; the pose (joint angles) is uploaded per person every frame.
   var REAL = null, LOOKS = null, realLoading = null, lookMats = {};
   P.source.bodies = "MakeHuman base mesh, skeleton and shape targets (CC0 1.0, makehumancommunity/makehuman), dressed and rigged by tools/humans/build_humans.py";
   P.loadReal = function () {
@@ -2391,11 +2588,10 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
       if (head.v !== 2) throw new Error("old humans.js");
       head.meshes.forEach(function (m) {
         var o = base + m.off, n = m.nv, q = new Uint16Array(buf, o, n * 3), by = new Uint8Array(buf, o + n * 6, n * 4), io = o + n * 10 + (n * 10) % 2;
-        var pos = new Float32Array(n * 3), part = new Float32Array(n), b0 = new Float32Array(n), b1 = new Float32Array(n), w = new Float32Array(n);
+        var pos = new Float32Array(n * 3), bone = new Float32Array(n * 4); // bone = (bone0, bone1, weight0, part): one attribute, WebGL has 16
         for (var k = 0; k < n * 3; k++) { var a = k % 3; pos[k] = m.lo[a] + q[k] / 65535 * (m.hi[a] - m.lo[a]); }
-        for (k = 0; k < n; k++) { part[k] = by[k]; b0[k] = by[n + k]; b1[k] = by[2 * n + k]; w[k] = by[3 * n + k] / 255; }
-        var g = new T.BufferGeometry(); g.addAttribute("position", new T.BufferAttribute(pos, 3));
-        [["aPart", part], ["aB0", b0], ["aB1", b1], ["aW", w]].forEach(function (x) { g.addAttribute(x[0], new T.BufferAttribute(x[1], 1)); });
+        for (k = 0; k < n; k++) { bone[k * 4] = by[n + k]; bone[k * 4 + 1] = by[2 * n + k]; bone[k * 4 + 2] = by[3 * n + k] / 255; bone[k * 4 + 3] = by[k]; }
+        var g = new T.BufferGeometry(); g.addAttribute("position", new T.BufferAttribute(pos, 3)); g.addAttribute("aBone", new T.BufferAttribute(bone, 4));
         g.setIndex(new T.BufferAttribute(new Uint16Array(buf.slice(io, io + m.nt * 6)), 1)); g.computeVertexNormals();
         out[m.key] = g;
       });
@@ -2403,14 +2599,18 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
     }).catch(function () { return false; }));
   };
   P.realReady = function () { return !!REAL; };
-  // Director uniforms, shared by every crowd material (and the far-crowd sprites in scene.js).
-  P.U = { uTime: { value: 0 }, uBeat: { value: 2 }, uEnergy: { value: 0 }, uWaveA: { value: 0 }, uWaveOn: { value: 0 }, uJump: { value: 0 }, uCheer: { value: 0 }, uClap: { value: 0 }, uCenter: { value: new T.Vector2() } };
-  var MODE = P.MODE = { idle: 0, clap: 1, dance: 2, cheer: 3, phone: 4, run: 5, perform: 6 };
+  // Crowd state. Poses of the near crowd come from js/crowd.js (clips per fan, computed on the CPU each frame and
+  // uploaded as 4 vec4s per person); the shader below only bends the mesh. P.U are the uniforms the far-crowd sprites
+  // (scene.js) read, so near and far crowd do the same thing at the same time.
+  P.U = { uTime: { value: 0 }, uBeat: { value: 2 }, uEnergy: { value: 0 }, uJump: { value: 0 }, uCheer: { value: 0 }, uStill: { value: 0 },
+    uWaveOn: { value: 0 }, uWaveT0: { value: -1e9 }, uWaveLen: { value: 20 }, uWaveA0: { value: 0 }, uCenter: { value: new T.Vector2() } };
+  P.G = { uTime: 0, beat: 2, still: false, waveOn: false, waveT0: -1e9, waveLen: 20, waveA0: 0, cx: 0, cz: 0, jump: 0, cheer: 0, cheerT: -1e9 };
+  P.still = false; P.ctx = { sport: false };
   var SVS = [
-    "attribute float aPart; attribute float aB0; attribute float aB1; attribute float aW;",
-    "attribute vec3 iOffset; attribute float iRot; attribute float iH; attribute vec4 iAct; attribute vec3 iSkin; attribute vec3 iTop; attribute vec3 iLegs; attribute vec3 iHair;",
-    "uniform vec3 jHipL, jHipR, jKneeL, jKneeR, jAnkL, jShL, jShR, jElL, jElR, jWaist, jNeck;",
-    "uniform float uTime, uBeat, uEnergy, uWaveA, uWaveOn, uJump, uCheer, uClap; uniform vec2 uCenter;",
+    "attribute vec4 aBone;", // bone0, bone1, weight0, part
+    "attribute vec4 iPos; attribute vec4 iMisc; attribute vec3 iSkin; attribute vec3 iTop; attribute vec3 iLegs; attribute vec3 iHair;", // iMisc = (height, nod, phone, width scale)
+    "attribute vec4 iQLeg; attribute vec4 iQBody; attribute vec4 iQArmL; attribute vec4 iQArmR;", // pose from js/crowd.js; arms = (raise, side, elbow, swing in)
+    "uniform vec3 jHipL, jHipR, jKneeL, jKneeR, jShL, jShR, jElL, jElR, jWaist, jNeck;",
     "varying vec3 vCol; varying vec3 vN; varying vec3 vW; varying float vY; varying float vPart; varying float vScreen;",
     "mat3 rx(float a){ float c = cos(a), s = sin(a); return mat3(1.0,0.0,0.0, 0.0,c,s, 0.0,-s,c); }",
     "mat3 rz(float a){ float c = cos(a), s = sin(a); return mat3(c,s,0.0, -s,c,0.0, 0.0,0.0,1.0); }",
@@ -2427,107 +2627,97 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
     "  if (b > 0.5) { P = Rsp * (P - jWaist) + jWaist; N = Rsp * N; }",
     "}",
     "void main(){",
-    "  float mode = iAct.x, seed = iAct.y, ph = seed * 6.2832, t = uTime;",
-    "  float az = atan(iOffset.x - uCenter.x, iOffset.z - uCenter.y), dA = mod(az - uWaveA + 3.14159, 6.28318) - 3.14159;",
-    "  float wave = uWaveOn * exp(-dA * dA / 0.05);", // a Mexican wave passing this person
-    "  float cheer = uCheer * step(fract(seed * 7.13), 0.7);",
-    "  float stand = max(max(1.0 - iAct.z, wave), cheer);",
-    "  float up = max(wave, cheer), beat = 6.2832 * uBeat * t + seed * 0.9;",
-    "  float bounce = 0.0, twist = 0.0, sway = 0.04 * sin(t * 0.7 + ph), nod = 0.05 * sin(t * 0.45 + ph * 2.0), clap = 0.0, pumpR = 0.0, pumpL = 0.0, phone = 0.0, run = 0.0;",
-    "  if (mode > 0.5 && mode < 1.5) clap = smoothstep(0.1, 0.4, uClap * (0.7 + 0.3 * sin(t * 0.37 + ph)));",
-    "  else if (mode > 1.5 && mode < 2.5) { bounce = uEnergy * (0.5 + 0.5 * sin(beat)); twist = uEnergy * 0.22 * sin(beat * 0.5); pumpR = uEnergy * step(0.55, fract(seed * 5.3)) * (0.75 + 0.25 * sin(beat)); }",
-    "  else if (mode > 2.5 && mode < 3.5) { bounce = uEnergy * 0.6 * (0.5 + 0.5 * sin(beat)); pumpR = 0.8 + 0.2 * sin(beat); pumpL = step(0.5, fract(seed * 3.1)) * pumpR; }",
-    "  else if (mode > 3.5 && mode < 4.5) { phone = 1.0; bounce = uEnergy * 0.4 * (0.5 + 0.5 * sin(beat)); }",
-    "  else if (mode > 4.5 && mode < 5.5) run = 1.0;",
-    "  else if (mode > 5.5) { bounce = 0.6 + 0.4 * sin(beat); twist = 0.3 * sin(beat * 0.5); pumpR = 0.6 + 0.4 * sin(beat * 0.5); pumpL = 0.5 + 0.5 * sin(beat * 0.25 + 1.0); }",
-    "  float jump = uJump * stand * max(0.0, sin(beat)) * step(0.15, fract(seed * 9.7));",
-    // legs: sitting (thighs forward, shins down), knee bounce, running stride
-    "  float sitA = 1.45 * (1.0 - stand), rp = t * 9.0 + ph, sw = run * 0.65 * sin(rp);",
-    "  float thL = -sitA - 0.35 * bounce + sw, thR = -sitA - 0.35 * bounce - sw;",
-    "  float shL = sitA + 0.7 * bounce + run * (0.4 + 0.5 * max(0.0, -sin(rp))), shR = sitA + 0.7 * bounce + run * (0.4 + 0.5 * max(0.0, sin(rp)));",
-    "  Rtl = rx(thL); Rtr = rx(thR); Rsl = rx(shL); Rsr = rx(shR);",
-    "  float L1 = length(jKneeL - jHipL), L2 = length(jAnkL - jKneeL), footH = jAnkL.y;",
-    "  float ext = max(L1 * cos(thL) + L2 * cos(thL + shL), L1 * cos(thR) + L2 * cos(thR + shR)) + footH;",
-    "  float rootY = ext - jHipL.y + jump * 0.075;", // feet stay on the floor; jumps lift everyone off it
-    "  Rsp = ry(twist) * rz(sway * 0.5) * rx(0.12 * (1.0 - stand) + 0.12 * run); Rh = rx(nod + 0.15 * phone);",
-    // arms: lap when seated, clapping, arms up (wave / cheer), fist pumps, phone held up, running swing
-    "  float lap = (1.0 - stand) * (1.0 - clap) * (1.0 - up);",
-    "  float fL = -0.35 * lap - 0.75 * clap + run * 0.55 * sin(rp) - 0.15 * pumpL, fR = -0.35 * lap - 0.75 * clap - run * 0.55 * sin(rp) - 0.15 * pumpR;",
-    "  float cIn = clap * (0.38 + 0.16 * sin(t * 13.0 + ph));",
-    "  float sL = mix(-cIn, 2.75, max(up, pumpL)), sR = mix(cIn, -2.75, max(up, pumpR));",
-    "  float ffL = -1.1 * lap - 1.3 * clap - 1.2 * run - 0.3 * max(up, pumpL), ffR = -1.1 * lap - 1.3 * clap - 1.2 * run - 0.3 * max(up, pumpR);",
-    "  fR = mix(fR, -1.25, phone); sR = mix(sR, 0.12, phone); ffR = mix(ffR, -1.4, phone);",
-    "  Rul = rz(sL) * rx(fL); Rur = rz(sR) * rx(fR); Rfl = rx(ffL); Rfr = rx(ffR);",
-    "  vec3 P0 = position, N0 = normal, P1 = position, N1 = normal; bone(aB0, P0, N0); bone(aB1, P1, N1);",
-    "  vec3 p = mix(P1, P0, aW), n = normalize(mix(N1, N0, aW)); p.y += rootY;",
-    "  if (aPart > 4.5 && phone < 0.5) p = jWaist;", // phone only in the hands of people filming
-    "  vY = p.y; vPart = aPart; vScreen = (aPart > 4.5 && normal.z > 0.5) ? 1.0 : 0.0;",
-    "  p *= iH; float c = cos(iRot), s = sin(iRot);",
-    "  p = vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z) + iOffset; vN = vec3(c*n.x + s*n.z, n.y, -s*n.x + c*n.z); vW = p;",
-    "  vCol = aPart < 0.5 ? iSkin : aPart < 1.5 ? iTop : aPart < 2.5 ? iLegs : aPart < 3.5 ? iHair : aPart < 4.5 ? vec3(0.08) : (vScreen > 0.5 ? vec3(1.05, 1.12, 1.25) : vec3(0.12));",
+    "  Rtl = rx(iQLeg.x); Rtr = rx(iQLeg.y); Rsl = rx(iQLeg.z); Rsr = rx(iQLeg.w);",
+    "  Rsp = ry(iQBody.y) * rz(iQBody.z * 0.5) * rx(iQBody.w); Rh = rx(iMisc.y + 0.15 * iMisc.z);",
+    "  Rul = ry(-iQArmL.w) * rx(iQArmL.x) * rz(iQArmL.y); Rur = ry(iQArmR.w) * rx(iQArmR.x) * rz(-iQArmR.y); Rfl = rx(iQArmL.z); Rfr = rx(iQArmR.z);", // side first, then raise: side means out/in at any height
+    "  vec3 P0 = position, N0 = normal, P1 = position, N1 = normal; bone(aBone.x, P0, N0); bone(aBone.y, P1, N1);",
+    "  vec3 p = mix(P1, P0, aBone.z), n = normalize(mix(N1, N0, aBone.z)); p.y += iQBody.x; float part = aBone.w;",
+    "  if (part > 4.5 && iMisc.z < 0.5) p = jWaist;", // phone only in the hands of people filming
+    "  vY = p.y; vPart = part; vScreen = (part > 4.5 && normal.z > 0.5) ? 1.0 : 0.0;",
+    "  p *= iMisc.x; p.x *= iMisc.w; float c = cos(iPos.w), s = sin(iPos.w);",
+    "  p = vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z) + iPos.xyz; vN = vec3(c*n.x + s*n.z, n.y, -s*n.x + c*n.z); vW = p;",
+    "  vCol = part < 0.5 ? iSkin : part < 1.5 ? iTop : part < 2.5 ? iLegs : part < 3.5 ? iHair : part < 4.5 ? vec3(0.08) : (vScreen > 0.5 ? vec3(1.05, 1.12, 1.25) : vec3(0.12));",
     "  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }"].join("\n");
   var SFS = [P.LIGHT_FS, "varying vec3 vCol; varying vec3 vN; varying vec3 vW; varying float vY; varying float vPart; varying float vScreen;",
     "void main(){ gl_FragColor = vec4(concertLight(vCol, normalize(vN), vW, vY, vScreen), 1.0); }"].join("\n");
   function lookMat(id) { // one material per look (its joint positions); the shader program itself is compiled once
     if (lookMats[id]) { if (P.stagePos) lookMats[id].uniforms.uStage.value.copy(P.stagePos); return lookMats[id]; }
     var J = LOOKS[id], u = P.lightUniforms(), V3 = function (a) { return { value: new T.Vector3(a[0], a[1], a[2]) }; };
-    var map = { jHipL: "hip.L", jHipR: "hip.R", jKneeL: "knee.L", jKneeR: "knee.R", jAnkL: "ankle.L", jShL: "sh.L", jShR: "sh.R", jElL: "el.L", jElR: "el.R", jWaist: "waist", jNeck: "neck" };
-    Object.keys(map).forEach(function (k) { u[k] = V3(J[map[k]]); }); Object.keys(P.U).forEach(function (k) { u[k] = P.U[k]; });
+    var map = { jHipL: "hip.L", jHipR: "hip.R", jKneeL: "knee.L", jKneeR: "knee.R", jShL: "sh.L", jShR: "sh.R", jElL: "el.L", jElR: "el.R", jWaist: "waist", jNeck: "neck" };
+    Object.keys(map).forEach(function (k) { u[k] = V3(J[map[k]]); });
     return (lookMats[id] = new T.ShaderMaterial({ vertexShader: SVS, fragmentShader: SFS, uniforms: u }));
   }
-  // Who does what: sport crowds sit, clap and stand for waves and big moments; concert crowds stand and dance, some
-  // with fists up, some filming. p.mode (players, performer) overrides.
-  P.ctx = { sport: false };
-  function modeFor(p) {
-    if (p.mode != null) return p.mode; var r = rng(p.k, 11);
-    if (p.phone) return MODE.phone;
-    if (P.ctx.sport) return r < 0.45 ? MODE.clap : MODE.idle;
-    if (p.sit) return r < 0.55 ? MODE.clap : MODE.idle;
-    return r < 0.62 ? MODE.dance : r < 0.78 ? MODE.cheer : r < 0.9 ? MODE.clap : MODE.idle;
-  }
+  P.looks = function () { return LOOKS; };
+  var live = []; // crowds whose poses are updated every frame (near crowd, performer, players)
+  function lookOf(p) { var d = p.d || (p.d = P.describe(p.k)); return d.sex + (rng(p.k, 9) < 0.5 ? "0" : "1"); }
   function makeRealCrowd(people, group) {
-    var byKey = {};
-    people.forEach(function (p) {
-      var d = p.d || (p.d = P.describe(p.k)), key = d.sex + (rng(p.k, 9) < 0.5 ? "0" : "1") + "-" + (p.lod || 0);
-      (byKey[key] = byKey[key] || []).push(p);
+    people.forEach(function (p) { if (!p.d) p.d = P.describe(p.k); }); // heights first: makeFans uses them
+    var byKey = {}, fans = Crowd.makeFans(people, { sport: P.ctx.sport });
+    people.forEach(function (p, i) {
+      var look = lookOf(p), key = look + "-" + (p.lod || 0);
+      p.fan = fans[i]; fans[i].look = look; (byKey[key] = byKey[key] || []).push(p);
     });
     Object.keys(byKey).forEach(function (key) {
       var src = REAL[key], list = byKey[key], n = list.length; if (!src) return;
       var g = new T.InstancedBufferGeometry(); g.setIndex(src.index);
-      ["position", "normal", "aPart", "aB0", "aB1", "aW"].forEach(function (a) { g.addAttribute(a, src.attributes[a]); });
-      var off = new Float32Array(n * 3), rot = new Float32Array(n), hh = new Float32Array(n), act = new Float32Array(n * 4), sk = new Float32Array(n * 3), tp = new Float32Array(n * 3), lg = new Float32Array(n * 3), hr = new Float32Array(n * 3);
-      list.forEach(function (p, i) { var d = p.d; off.set([p.x, p.y, p.z], i * 3); rot[i] = p.rot; hh[i] = p.h || d.h; act.set([modeFor(p), rng(p.k, 12), p.sit ? 1 : 0, p.phone ? 1 : 0], i * 4);
-        sk.set(d.skin, i * 3); tp.set(p.top || d.top, i * 3); lg.set(p.legs || d.legs, i * 3); hr.set(d.hair, i * 3); });
-      var attrs = {};
-      [["iOffset", off, 3], ["iRot", rot, 1], ["iH", hh, 1], ["iAct", act, 4], ["iSkin", sk, 3], ["iTop", tp, 3], ["iLegs", lg, 3], ["iHair", hr, 3]].forEach(function (a) { g.addAttribute(a[0], attrs[a[0]] = new T.InstancedBufferAttribute(a[1], a[2])); });
+      ["position", "normal", "aBone"].forEach(function (a) { g.addAttribute(a, src.attributes[a]); });
+      var sk = new Float32Array(n * 3), tp = new Float32Array(n * 3), lg = new Float32Array(n * 3), hr = new Float32Array(n * 3), attrs = {};
+      list.forEach(function (p, i) { var d = p.d; sk.set(d.skin, i * 3); tp.set(p.top || d.top, i * 3); lg.set(p.legs || d.legs, i * 3); hr.set(d.hair, i * 3); });
+      [["iSkin", sk, 3], ["iTop", tp, 3], ["iLegs", lg, 3], ["iHair", hr, 3]].forEach(function (a) { g.addAttribute(a[0], new T.InstancedBufferAttribute(a[1], a[2])); });
+      ["iPos", "iMisc", "iQLeg", "iQBody", "iQArmL", "iQArmR"].forEach(function (a) { var at = attrs[a] = new T.InstancedBufferAttribute(new Float32Array(n * 4), 4); at.setDynamic(true); g.addAttribute(a, at); });
       g.maxInstancedCount = n;
       var mesh = new T.Mesh(g, lookMat(key.split("-")[0])); mesh.frustumCulled = false; mesh.userData.people = list; mesh.userData.attrs = attrs; group.add(mesh);
     });
-    group.userData.count = people.length; return group;
+    group.userData.count = people.length; group.userData.real = true; live.push(group);
+    writePoses(group, P.G.uTime, null, true);
+    return group;
   }
-  // Crowd director: moves the shared uniforms every frame. Concerts: dance energy that swells and dips, a synchronised
-  // jump every ~35 s, hands up at the end of a "song". Sport: chants with clapping, a Mexican wave every ~70 s,
-  // everyone up for a score (P.cheer, called by the match preview). P.wave() / P.jump() start one on demand.
+  var pose = Crowd.blank(), fr = new T.Frustum(), pm = new T.Matrix4(), sph = new T.Sphere(new T.Vector3(), 1.3);
+  function writePoses(group, t, frustum, all) {
+    group.children.forEach(function (m) {
+      var a = m.userData.attrs; if (!a || !a.iPos) return;
+      m.userData.people.forEach(function (p, i) {
+        if (!all && frustum && !group.userData.noCull) { sph.center.set(p.x, p.y + 0.9, p.z); if (!frustum.intersectsSphere(sph)) return; } // off screen: keep the last pose
+        var q = Crowd.pose(p.fan, t, P.G, pose), J = LOOKS[p.fan.look], o = i * 4;
+        a.iPos.array[o] = p.x; a.iPos.array[o + 1] = p.y; a.iPos.array[o + 2] = p.z; a.iPos.array[o + 3] = p.rot;
+        a.iQLeg.array.set([q.thL, q.thR, q.shL, q.shR], o); a.iQBody.array.set([Crowd.rootY(J, q), q.twist, q.sway, q.lean], o);
+        a.iQArmL.array.set([q.fL, q.sL, q.ffL, q.yL], o); a.iQArmR.array.set([q.fR, q.sR, q.ffR, q.yR], o); a.iMisc.array.set([p.h || p.d.h, q.nod, q.phone, p.fan.wscale], o);
+      });
+      ["iPos", "iMisc", "iQLeg", "iQBody", "iQArmL", "iQArmR"].forEach(function (k) { a[k].needsUpdate = true; });
+    });
+  }
+  // Every frame: pose the near crowd, the performer and the players (only those on screen).
+  P.update = function (camera) {
+    if (camera) { camera.updateMatrixWorld(); pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); fr.setFromMatrix(pm); }
+    live = live.filter(function (g) { return !!g.parent; });
+    for (var i = 0; i < live.length; i++) writePoses(live[i], P.G.uTime, camera ? fr : null, false);
+  };
+  // Director: the shared moments. Animated concerts: energy that swells and dips, a synchronised jump every ~35 s,
+  // hands up at the end of a "song". Animated sport: a Mexican wave every ~70 s, everyone up for a score (P.cheer,
+  // from the match preview). Still mode: nobody moves unless you press Wave. P.wave() / P.jump() start one on demand.
   var manual = { wave: -1e9, jump: -1e9, cheer: -1e9 };
   function env(t, t0, len, edge) { var x = t - t0; return x < 0 || x > len ? 0 : Math.min(1, x / edge, (len - x) / edge); }
+  P.waveLen = 20; // seconds for one lap (set per venue size by scene.js)
   P.tick = function (t, sport) {
-    var U = P.U; U.uTime.value = t; P.ctx.sport = !!sport;
-    var waveT = Math.max(sport ? (t % 70 > 50 ? t - (t % 70) + 50 : -1e9) : -1e9, manual.wave), wl = 16;
-    U.uWaveOn.value = t - waveT < wl ? env(t, waveT, wl, 0.8) : 0; U.uWaveA.value = (t - waveT) / wl * 6.2832 * 1.15 - 0.3;
+    var U = P.U, G = P.G, still = P.still; G.uTime = t; U.uTime.value = t; P.ctx.sport = !!sport;
+    G.still = still; U.uStill.value = still ? 1 : 0;
+    var auto = !still && sport && t % 70 > 40 ? t - (t % 70) + 40 : -1e9, w0 = Math.max(auto, manual.wave), wl = P.waveLen;
+    G.waveT0 = w0; G.waveLen = wl; G.waveA0 = 0; G.waveOn = t >= w0 && t < w0 + wl + 3; // one lap, then it stops
+    U.uWaveT0.value = w0; U.uWaveLen.value = wl; U.uWaveA0.value = 0; U.uWaveOn.value = G.waveOn ? 1 : 0;
+    if (still) { G.jump = G.cheer = 0; U.uJump.value = U.uCheer.value = U.uEnergy.value = 0; return; }
     if (sport) {
-      U.uEnergy.value = 0; U.uBeat.value = 1.6; U.uJump.value = 0;
-      U.uCheer.value = Math.max(env(t, manual.cheer, 6, 0.5), t - manual.cheer > 120 ? env(t % 50, 44, 5, 0.6) : 0); // scores (match.js), else now and then
-      U.uClap.value = Math.max(env(t % 24, 2, 9, 1), U.uCheer.value);
+      U.uEnergy.value = 0; G.beat = U.uBeat.value = 1.6; G.jump = U.uJump.value = 0;
+      var c = Math.max(env(t, manual.cheer, 6, 0.5), t - manual.cheer > 120 ? env(t % 50, 44, 5, 0.6) : 0);
+      G.cheer = U.uCheer.value = c; G.cheerT = t - manual.cheer < 6 ? manual.cheer : t - (t % 50) + 44;
     } else {
-      U.uBeat.value = 2; U.uEnergy.value = 0.72 + 0.28 * Math.sin(t * 6.2832 / 45);
-      U.uJump.value = Math.max(env(t % 35, 26, 7, 0.8), env(t, manual.jump, 7, 0.5));
-      U.uCheer.value = env(t % 60, 55, 4, 0.7);
-      U.uClap.value = 0.25 + 0.75 * env(t % 60, 53, 7, 1);
+      G.beat = U.uBeat.value = 2; U.uEnergy.value = 0.72 + 0.28 * Math.sin(t * 6.2832 / 45);
+      G.jump = U.uJump.value = Math.max(env(t % 35, 26, 7, 0.8), env(t, manual.jump, 7, 0.5));
+      G.cheer = U.uCheer.value = env(t % 60, 55, 4, 0.7); G.cheerT = t - (t % 60) + 55;
     }
   };
-  P.wave = function () { manual.wave = P.U.uTime.value; };
-  P.jump = function () { manual.jump = P.U.uTime.value; };
-  P.cheer = function () { manual.cheer = P.U.uTime.value; };
+  P.wave = function () { if (P.G.uTime > P.G.waveT0 + P.G.waveLen + 3) manual.wave = P.G.uTime; };
+  P.jump = function () { manual.jump = P.G.uTime; };
+  P.cheer = function () { manual.cheer = P.G.uTime; };
   // people: [{x,y,z,rot,k,sit}] -> one draw call per sex
   // ONE shared material for every built-in person, created once and never disposed: disposing it made three.js
   // throw away the compiled shader, so every seat click recompiled it (measured: the slowest step of a click).
@@ -2593,9 +2783,9 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
     this.players = []; var k0 = 900000 + (sc.S.id.length * 977);
     for (var t = 0; t < 2; t++) for (var i = 0; i < n; i++) {
       var k = k0 + t * 100 + i, kit = t ? away : home;
-      this.players.push({ team: t, role: i, x: 0, z: 0, vx: 0, vz: 0, rot: 0, k: k, h: 1.78 + 0.1 * rnd(k), top: kit[0], legs: kit[1], lod: 1, mode: People.MODE.run });
+      this.players.push({ team: t, role: i, x: 0, z: 0, vx: 0, vz: 0, rot: 0, k: k, h: 1.78 + 0.1 * rnd(k), top: kit[0], legs: kit[1], lod: 1, clip: "run" });
     }
-    this.ref = { team: 2, role: 0, x: 0, z: 0, vx: 0, vz: 0, rot: 0, k: k0 + 999, h: 1.78, top: [0.08, 0.08, 0.09], legs: [0.08, 0.08, 0.09], lod: 1, mode: People.MODE.run };
+    this.ref = { team: 2, role: 0, x: 0, z: 0, vx: 0, vz: 0, rot: 0, k: k0 + 999, h: 1.78, top: [0.08, 0.08, 0.09], legs: [0.08, 0.08, 0.09], lod: 1, clip: "run" };
     this.players.push(this.ref);
     this.players.forEach(function (p) { var dd = People.describe(p.k); dd.sex = "m"; dd.top = p.top; dd.legs = p.legs; p.d = dd; });
     this.n = n; this.group = new T.Group(); sc.scene.add(this.group);
@@ -2703,12 +2893,11 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
   };
   Match.prototype.score = function (team) { People.cheer(); this.kickoff(1 - team); };
   Match.prototype.push = function () { // copy positions into the instance buffers
-    var run = People.MODE.run, idle = People.MODE.idle;
-    this.slots.forEach(function (s) {
+    this.slots.forEach(function (s) { // real people: People.update reads p.x/p.z/p.rot and the clip; built-in bodies: write here
       var p = s[0], a = s[1], i = s[2];
+      if (p.fan) { p.fan.fixed = p.moving ? "run" : "idle"; return; }
       if (a.iOffset) { a.iOffset.array[i * 3] = p.x; a.iOffset.array[i * 3 + 2] = p.z; a.iOffset.needsUpdate = true; }
       if (a.iRot) { a.iRot.array[i] = p.rot; a.iRot.needsUpdate = true; }
-      if (a.iAct) { a.iAct.array[i * 4] = p.moving ? run : idle; a.iAct.needsUpdate = true; }
     });
   };
   window.Match = Match;
@@ -3184,14 +3373,17 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
   var crowdVS = [
     "attribute float aRand; attribute float aSize; attribute vec3 aColor; attribute float aPhone;",
     "uniform float uDensity; uniform float uScale; uniform float uPhones; uniform float uSeated;",
-    "uniform float uTime, uBeat, uEnergy, uWaveA, uWaveOn, uJump, uCheer; uniform vec2 uCenter;", // crowd director (people.js)
+    "uniform float uTime, uBeat, uEnergy, uJump, uCheer, uStill, uWaveOn, uWaveT0, uWaveLen, uWaveA0; uniform vec2 uCenter;", // crowd director (people.js)
     "varying vec3 vColor; varying float vPhone; varying float vUp;",
     "void main(){",
     "  vColor = aColor; vPhone = (aPhone < uPhones) ? 1.0 : 0.0;",
     "  vec3 pp = position; float beat = 6.2832 * uBeat * uTime + aRand * 0.9;",
-    "  float dA = mod(atan(pp.x - uCenter.x, pp.z - uCenter.y) - uWaveA + 3.14159, 6.28318) - 3.14159;",
-    "  vUp = max(uWaveOn * exp(-dA * dA / 0.05), uCheer * step(fract(aRand * 7.13), 0.7));",
-    "  pp.y += uSeated * 0.45 * vUp + (1.0 - uSeated) * (0.05 * uEnergy * (0.5 + 0.5 * sin(beat)) * step(0.3, fract(aRand * 5.1)) + 0.13 * uJump * max(0.0, sin(beat)));",
+    // one-lap Mexican wave, same timing as js/crowd.js waveUp(): stand 0-0.5 s, arms up 0.35-0.9 s, down by 2.4 s
+    "  float a = mod(atan(pp.x - uCenter.x, pp.z - uCenter.y) - uWaveA0, 6.28318), lt = uTime - (uWaveT0 + a / 6.28318 * uWaveLen);",
+    "  float wStand = uWaveOn * smoothstep(0.0, 0.5, lt) * (1.0 - smoothstep(1.6, 2.4, lt)), wArms = uWaveOn * smoothstep(0.35, 0.9, lt) * (1.0 - smoothstep(1.4, 2.0, lt));",
+    "  float move = 1.0 - uStill, cheer = move * uCheer * step(fract(aRand * 7.13), 0.7);",
+    "  vUp = max(wArms, cheer);",
+    "  pp.y += uSeated * 0.45 * max(wStand, cheer) + (1.0 - uSeated) * move * (0.05 * uEnergy * (0.5 + 0.5 * sin(beat)) * step(0.3, fract(aRand * 5.1)) + 0.13 * uJump * max(0.0, sin(beat)));",
     "  vec4 mv = modelViewMatrix * vec4(pp,1.0);",
     "  gl_Position = projectionMatrix * mv;",
     "  float on = (aRand < uDensity && aSize > 0.0) ? 1.0 : 0.0;",
@@ -3292,9 +3484,19 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
       var k = this.crowdSeatIndex[i]; if (k < 0) continue;
       size[k] = 0; if (this.crowdRand[k] >= density) continue;
       var c3 = [this.crowdCol[k * 3], this.crowdCol[k * 3 + 1], this.crowdCol[k * 3 + 2]], sit = !(s.standing || standing);
-      people.push({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, rot: Math.atan2(look.x - s.x, look.z - s.z), k: k, sit: sit, top: c3, dd: dd });
+      // Face along the seat (rows are built for it), turned towards the stage by at most ~14 degrees: facing the stage
+      // fully from a side stand would turn whole rows 45 degrees and put hands into the neighbour's seat.
+      var fx = -s.nx, fz = -s.nz; if (fx * -s.x + fz * -s.z < 0) { fx = -fx; fz = -fz; } // seat normal pointing into the bowl
+      var seatRot = Math.atan2(fx, fz), dr = Math.atan2(look.x - s.x, look.z - s.z) - seatRot; dr = Math.atan2(Math.sin(dr), Math.cos(dr));
+      people.push({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, rot: seatRot + Math.max(-0.25, Math.min(0.25, dr)), k: k, sit: sit, top: c3, dd: dd });
     }
     people.sort(function (a, b) { return a.dd - b.dd; });
+    // Where the generated layout squeezes seats closer than 0.42 m (block ends on a curve; real seats are >= 0.45 m)
+    // two people can't fit shoulder to shoulder, so the tighter seat stays empty instead of clipping.
+    var placed = []; people = people.filter(function (c) {
+      for (var n = 0; n < placed.length; n++) { var o = placed[n]; if (Math.abs(o.y - c.y) < 0.2 && (o.x - c.x) * (o.x - c.x) + (o.z - c.z) * (o.z - c.z) < 0.42 * 0.42) return false; }
+      if (placed.length < MAXN) placed.push(c); return true;
+    });
     var keep = people.slice(0, MAXN);
     people.slice(MAXN).forEach(function (c) { size[c.k] = 0.95; }); // beyond the cap: stay as GPU sprites
     // Phones are part of the person (raised arm + hand + phone). Nobody right next to you gets a phone - it would fill the camera.
@@ -3418,7 +3620,7 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
   StadiumScene.prototype.placePerformer = function (t) {
     var s = this.performerAt(t); if (!s) return; this.performer.position.copy(s.pos); this.performer.rotation.y = Math.atan2(s.dir.x, s.dir.z);
     if (window.People && !this.performerModel) { // realistic-proportion performer (1.79 m)
-      var pm = People.makeCrowd([{ x: 0, y: 0, z: 0, rot: 0, k: 7, h: 1.79, top: [0.85, 0.7, 0.2], mode: People.MODE.perform }]); this.performer.add(pm); this.performerModel = pm;
+      var pm = People.makeCrowd([{ x: 0, y: 0, z: 0, rot: 0, k: 7, h: 1.79, top: [0.85, 0.7, 0.2], clip: "perform" }]); pm.userData.noCull = true; this.performer.add(pm); this.performerModel = pm;
       this.performer.children.forEach(function (c) { if (c !== pm && c.geometry && c.geometry.type !== "CircleBufferGeometry") c.visible = false; });
     }
   };
@@ -3571,7 +3773,8 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
     if (dirtyFrames > 0) dirtyFrames--; lastDraw = now; A.renderCount = (A.renderCount || 0) + 1;
     var dt = Math.min(0.1, (now - last) / 1000); last = now;
     if (state.playing && sc.pathCurve) { state.t += dt; $("time").value = ((state.t / sc.pathSeconds) % 1).toFixed(3); }
-    People.tick(now / 1000, A.isSport()); $("crowdJump").hidden = A.isSport();
+    People.tick(now / 1000, A.isSport()); $("crowdJump").hidden = A.isSport() || People.still;
+    People.update(state.mode === "phone" ? sc.phoneCam : sc.camera);
     if (sc.match && state.playing && state.mode !== "map") sc.match.update(dt, now / 1000);
     sc.placePerformer(state.t); if (state.mode !== "map") sc.updateFx(now / 1000, renderer, state.mode === "phone" ? sc.phoneCam : sc.camera); updateCamera(); setCrowdScale(sc.camera, canvas.clientHeight * dpr);
     if (state.mode === "phone") renderer.clear(); else if (state.mode !== "map") renderer.render(sc.scene, sc.camera);
@@ -3634,9 +3837,21 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
   document.querySelectorAll("#crowdBar button[data-d]").forEach(function (b) { b.addEventListener("click", function () { setDensity(+b.dataset.d); }); });
   function play() { if (!state.playing) { state.playing = true; $("play").textContent = "Pause"; } }
   $("crowdWave").addEventListener("click", function () { People.wave(); play(); });
+  // Moving / Still. Still: everyone holds one pose; Sit / Stand chooses which (the same "Crowd standing" setting).
+  function setStanding(on) { state.standing = on; $("standing").checked = on; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); syncCrowdUI(); }
+  function syncCrowdUI() {
+    var still = People.still; $("crowdMove").classList.toggle("on", !still); $("crowdStill").classList.toggle("on", still);
+    $("crowdMove").setAttribute("aria-pressed", !still); $("crowdStill").setAttribute("aria-pressed", still); $("stillPose").hidden = !still;
+    $("stillSit").classList.toggle("on", !state.standing); $("stillStand").classList.toggle("on", state.standing);
+  }
+  A.syncCrowdUI = syncCrowdUI;
+  $("crowdMove").addEventListener("click", function () { People.still = false; syncCrowdUI(); invalidate(); });
+  $("crowdStill").addEventListener("click", function () { People.still = true; syncCrowdUI(); invalidate(); });
+  $("stillSit").addEventListener("click", function () { setStanding(false); });
+  $("stillStand").addEventListener("click", function () { setStanding(true); });
   $("crowdJump").addEventListener("click", function () { People.jump(); play(); });
   $("phones").addEventListener("input", function () { state.phones = +this.value; $("phonesLbl").textContent = Math.round(state.phones * 100) + "%"; sc.setPhones(state.phones); if (state.seatIdx >= 0) sc.updateNearPeople(state.seatIdx, state.density, state.phones); });
-  $("standing").addEventListener("change", function () { state.standing = this.checked; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); });
+  $("standing").addEventListener("change", function () { state.standing = this.checked; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); if (A.syncCrowdUI) A.syncCrowdUI(); });
   $("play").addEventListener("click", function () { state.playing = !state.playing; this.textContent = state.playing ? "Pause" : "Play"; });
   $("time").addEventListener("input", function () { state.playing = false; $("play").textContent = "Play"; state.t = +this.value * (sc.pathSeconds || 30); });
   $("showPath").addEventListener("change", function () { sc.showPath = this.checked; if (sc.pathLine) sc.pathLine.visible = this.checked; });
@@ -3707,7 +3922,7 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
   function endKey() { return "stageEnd:" + S.id; }
   function stageEndTag() { var v = store(endKey()); return v === "A" || v === "C" ? v : S.stage.defaultEnd; }
   function applyStage() {
-    sc.stageSign = stageEndTag() === "A" ? -1 : 1;
+    sc.stageSign = stageEndTag() === "A" ? -1 : 1; People.ctx.sport = isSport(state.event); People.waveLen = S.kind === "stadium" ? 24 : 16;
     sc.setStage(currentPreset()); sc.setMatch(isSport(state.event) ? state.event : null); rebuildCrowd(); renderPresetBtns(); renderStageEnd(); renderMap();
     if (state.seatIdx >= 0) goToSeat(state.seatIdx);
     SeatMap.computeStats(); SeatMap.refresh(); thumbCache = {}; renderCompare();
@@ -3800,7 +4015,7 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
   function selectEvent(id, keep) {
     var ev = state.events.filter(function (e) { return e.id === id; })[0]; if (!ev) return;
     var changed = !state.event || state.event.id !== ev.id, prevType = state.event ? state.event.type || "concert" : null; state.event = ev; A.event = ev;
-    if (changed && prevType !== (ev.type || "concert")) { state.standing = (ev.type || "concert") === "concert" && S.kind !== "theatre"; $("standing").checked = state.standing; }
+    if (changed && prevType !== (ev.type || "concert")) { state.standing = (ev.type || "concert") === "concert" && S.kind !== "theatre"; $("standing").checked = state.standing; if (A.syncCrowdUI) A.syncCrowdUI(); }
     renderEventCard(); if (changed || !keep) applyStage(); Sidebar.setCurrent(ev.id); $("eventSel").value = ev.id; renderHeader(); TM.render(A);
   }
   function renderEventCard() {

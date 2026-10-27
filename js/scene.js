@@ -148,14 +148,17 @@
   var crowdVS = [
     "attribute float aRand; attribute float aSize; attribute vec3 aColor; attribute float aPhone;",
     "uniform float uDensity; uniform float uScale; uniform float uPhones; uniform float uSeated;",
-    "uniform float uTime, uBeat, uEnergy, uWaveA, uWaveOn, uJump, uCheer; uniform vec2 uCenter;", // crowd director (people.js)
+    "uniform float uTime, uBeat, uEnergy, uJump, uCheer, uStill, uWaveOn, uWaveT0, uWaveLen, uWaveA0; uniform vec2 uCenter;", // crowd director (people.js)
     "varying vec3 vColor; varying float vPhone; varying float vUp;",
     "void main(){",
     "  vColor = aColor; vPhone = (aPhone < uPhones) ? 1.0 : 0.0;",
     "  vec3 pp = position; float beat = 6.2832 * uBeat * uTime + aRand * 0.9;",
-    "  float dA = mod(atan(pp.x - uCenter.x, pp.z - uCenter.y) - uWaveA + 3.14159, 6.28318) - 3.14159;",
-    "  vUp = max(uWaveOn * exp(-dA * dA / 0.05), uCheer * step(fract(aRand * 7.13), 0.7));",
-    "  pp.y += uSeated * 0.45 * vUp + (1.0 - uSeated) * (0.05 * uEnergy * (0.5 + 0.5 * sin(beat)) * step(0.3, fract(aRand * 5.1)) + 0.13 * uJump * max(0.0, sin(beat)));",
+    // one-lap Mexican wave, same timing as js/crowd.js waveUp(): stand 0-0.5 s, arms up 0.35-0.9 s, down by 2.4 s
+    "  float a = mod(atan(pp.x - uCenter.x, pp.z - uCenter.y) - uWaveA0, 6.28318), lt = uTime - (uWaveT0 + a / 6.28318 * uWaveLen);",
+    "  float wStand = uWaveOn * smoothstep(0.0, 0.5, lt) * (1.0 - smoothstep(1.6, 2.4, lt)), wArms = uWaveOn * smoothstep(0.35, 0.9, lt) * (1.0 - smoothstep(1.4, 2.0, lt));",
+    "  float move = 1.0 - uStill, cheer = move * uCheer * step(fract(aRand * 7.13), 0.7);",
+    "  vUp = max(wArms, cheer);",
+    "  pp.y += uSeated * 0.45 * max(wStand, cheer) + (1.0 - uSeated) * move * (0.05 * uEnergy * (0.5 + 0.5 * sin(beat)) * step(0.3, fract(aRand * 5.1)) + 0.13 * uJump * max(0.0, sin(beat)));",
     "  vec4 mv = modelViewMatrix * vec4(pp,1.0);",
     "  gl_Position = projectionMatrix * mv;",
     "  float on = (aRand < uDensity && aSize > 0.0) ? 1.0 : 0.0;",
@@ -256,9 +259,19 @@
       var k = this.crowdSeatIndex[i]; if (k < 0) continue;
       size[k] = 0; if (this.crowdRand[k] >= density) continue;
       var c3 = [this.crowdCol[k * 3], this.crowdCol[k * 3 + 1], this.crowdCol[k * 3 + 2]], sit = !(s.standing || standing);
-      people.push({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, rot: Math.atan2(look.x - s.x, look.z - s.z), k: k, sit: sit, top: c3, dd: dd });
+      // Face along the seat (rows are built for it), turned towards the stage by at most ~14 degrees: facing the stage
+      // fully from a side stand would turn whole rows 45 degrees and put hands into the neighbour's seat.
+      var fx = -s.nx, fz = -s.nz; if (fx * -s.x + fz * -s.z < 0) { fx = -fx; fz = -fz; } // seat normal pointing into the bowl
+      var seatRot = Math.atan2(fx, fz), dr = Math.atan2(look.x - s.x, look.z - s.z) - seatRot; dr = Math.atan2(Math.sin(dr), Math.cos(dr));
+      people.push({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, rot: seatRot + Math.max(-0.25, Math.min(0.25, dr)), k: k, sit: sit, top: c3, dd: dd });
     }
     people.sort(function (a, b) { return a.dd - b.dd; });
+    // Where the generated layout squeezes seats closer than 0.42 m (block ends on a curve; real seats are >= 0.45 m)
+    // two people can't fit shoulder to shoulder, so the tighter seat stays empty instead of clipping.
+    var placed = []; people = people.filter(function (c) {
+      for (var n = 0; n < placed.length; n++) { var o = placed[n]; if (Math.abs(o.y - c.y) < 0.2 && (o.x - c.x) * (o.x - c.x) + (o.z - c.z) * (o.z - c.z) < 0.42 * 0.42) return false; }
+      if (placed.length < MAXN) placed.push(c); return true;
+    });
     var keep = people.slice(0, MAXN);
     people.slice(MAXN).forEach(function (c) { size[c.k] = 0.95; }); // beyond the cap: stay as GPU sprites
     // Phones are part of the person (raised arm + hand + phone). Nobody right next to you gets a phone - it would fill the camera.
@@ -382,7 +395,7 @@
   StadiumScene.prototype.placePerformer = function (t) {
     var s = this.performerAt(t); if (!s) return; this.performer.position.copy(s.pos); this.performer.rotation.y = Math.atan2(s.dir.x, s.dir.z);
     if (window.People && !this.performerModel) { // realistic-proportion performer (1.79 m)
-      var pm = People.makeCrowd([{ x: 0, y: 0, z: 0, rot: 0, k: 7, h: 1.79, top: [0.85, 0.7, 0.2], mode: People.MODE.perform }]); this.performer.add(pm); this.performerModel = pm;
+      var pm = People.makeCrowd([{ x: 0, y: 0, z: 0, rot: 0, k: 7, h: 1.79, top: [0.85, 0.7, 0.2], clip: "perform" }]); pm.userData.noCull = true; this.performer.add(pm); this.performerModel = pm;
       this.performer.children.forEach(function (c) { if (c !== pm && c.geometry && c.geometry.type !== "CircleBufferGeometry") c.visible = false; });
     }
   };

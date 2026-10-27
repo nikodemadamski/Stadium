@@ -113,7 +113,8 @@
     if (dirtyFrames > 0) dirtyFrames--; lastDraw = now; A.renderCount = (A.renderCount || 0) + 1;
     var dt = Math.min(0.1, (now - last) / 1000); last = now;
     if (state.playing && sc.pathCurve) { state.t += dt; $("time").value = ((state.t / sc.pathSeconds) % 1).toFixed(3); }
-    People.tick(now / 1000, A.isSport()); $("crowdJump").hidden = A.isSport();
+    People.tick(now / 1000, A.isSport()); $("crowdJump").hidden = A.isSport() || People.still;
+    People.update(state.mode === "phone" ? sc.phoneCam : sc.camera);
     if (sc.match && state.playing && state.mode !== "map") sc.match.update(dt, now / 1000);
     sc.placePerformer(state.t); if (state.mode !== "map") sc.updateFx(now / 1000, renderer, state.mode === "phone" ? sc.phoneCam : sc.camera); updateCamera(); setCrowdScale(sc.camera, canvas.clientHeight * dpr);
     if (state.mode === "phone") renderer.clear(); else if (state.mode !== "map") renderer.render(sc.scene, sc.camera);
@@ -176,9 +177,21 @@
   document.querySelectorAll("#crowdBar button[data-d]").forEach(function (b) { b.addEventListener("click", function () { setDensity(+b.dataset.d); }); });
   function play() { if (!state.playing) { state.playing = true; $("play").textContent = "Pause"; } }
   $("crowdWave").addEventListener("click", function () { People.wave(); play(); });
+  // Moving / Still. Still: everyone holds one pose; Sit / Stand chooses which (the same "Crowd standing" setting).
+  function setStanding(on) { state.standing = on; $("standing").checked = on; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); syncCrowdUI(); }
+  function syncCrowdUI() {
+    var still = People.still; $("crowdMove").classList.toggle("on", !still); $("crowdStill").classList.toggle("on", still);
+    $("crowdMove").setAttribute("aria-pressed", !still); $("crowdStill").setAttribute("aria-pressed", still); $("stillPose").hidden = !still;
+    $("stillSit").classList.toggle("on", !state.standing); $("stillStand").classList.toggle("on", state.standing);
+  }
+  A.syncCrowdUI = syncCrowdUI;
+  $("crowdMove").addEventListener("click", function () { People.still = false; syncCrowdUI(); invalidate(); });
+  $("crowdStill").addEventListener("click", function () { People.still = true; syncCrowdUI(); invalidate(); });
+  $("stillSit").addEventListener("click", function () { setStanding(false); });
+  $("stillStand").addEventListener("click", function () { setStanding(true); });
   $("crowdJump").addEventListener("click", function () { People.jump(); play(); });
   $("phones").addEventListener("input", function () { state.phones = +this.value; $("phonesLbl").textContent = Math.round(state.phones * 100) + "%"; sc.setPhones(state.phones); if (state.seatIdx >= 0) sc.updateNearPeople(state.seatIdx, state.density, state.phones); });
-  $("standing").addEventListener("change", function () { state.standing = this.checked; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); });
+  $("standing").addEventListener("change", function () { state.standing = this.checked; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); if (A.syncCrowdUI) A.syncCrowdUI(); });
   $("play").addEventListener("click", function () { state.playing = !state.playing; this.textContent = state.playing ? "Pause" : "Play"; });
   $("time").addEventListener("input", function () { state.playing = false; $("play").textContent = "Play"; state.t = +this.value * (sc.pathSeconds || 30); });
   $("showPath").addEventListener("change", function () { sc.showPath = this.checked; if (sc.pathLine) sc.pathLine.visible = this.checked; });
@@ -249,7 +262,7 @@
   function endKey() { return "stageEnd:" + S.id; }
   function stageEndTag() { var v = store(endKey()); return v === "A" || v === "C" ? v : S.stage.defaultEnd; }
   function applyStage() {
-    sc.stageSign = stageEndTag() === "A" ? -1 : 1;
+    sc.stageSign = stageEndTag() === "A" ? -1 : 1; People.ctx.sport = isSport(state.event); People.waveLen = S.kind === "stadium" ? 24 : 16;
     sc.setStage(currentPreset()); sc.setMatch(isSport(state.event) ? state.event : null); rebuildCrowd(); renderPresetBtns(); renderStageEnd(); renderMap();
     if (state.seatIdx >= 0) goToSeat(state.seatIdx);
     SeatMap.computeStats(); SeatMap.refresh(); thumbCache = {}; renderCompare();
@@ -342,7 +355,7 @@
   function selectEvent(id, keep) {
     var ev = state.events.filter(function (e) { return e.id === id; })[0]; if (!ev) return;
     var changed = !state.event || state.event.id !== ev.id, prevType = state.event ? state.event.type || "concert" : null; state.event = ev; A.event = ev;
-    if (changed && prevType !== (ev.type || "concert")) { state.standing = (ev.type || "concert") === "concert" && S.kind !== "theatre"; $("standing").checked = state.standing; }
+    if (changed && prevType !== (ev.type || "concert")) { state.standing = (ev.type || "concert") === "concert" && S.kind !== "theatre"; $("standing").checked = state.standing; if (A.syncCrowdUI) A.syncCrowdUI(); }
     renderEventCard(); if (changed || !keep) applyStage(); Sidebar.setCurrent(ev.id); $("eventSel").value = ev.id; renderHeader(); TM.render(A);
   }
   function renderEventCard() {

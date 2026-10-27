@@ -32,9 +32,9 @@
     this.players = []; var k0 = 900000 + (sc.S.id.length * 977);
     for (var t = 0; t < 2; t++) for (var i = 0; i < n; i++) {
       var k = k0 + t * 100 + i, kit = t ? away : home;
-      this.players.push({ team: t, role: i, x: 0, z: 0, vx: 0, vz: 0, rot: 0, k: k, h: 1.78 + 0.1 * rnd(k), top: kit[0], legs: kit[1], lod: 1, mode: People.MODE.run });
+      this.players.push({ team: t, role: i, x: 0, z: 0, vx: 0, vz: 0, rot: 0, k: k, h: 1.78 + 0.1 * rnd(k), top: kit[0], legs: kit[1], lod: 1, clip: "run" });
     }
-    this.ref = { team: 2, role: 0, x: 0, z: 0, vx: 0, vz: 0, rot: 0, k: k0 + 999, h: 1.78, top: [0.08, 0.08, 0.09], legs: [0.08, 0.08, 0.09], lod: 1, mode: People.MODE.run };
+    this.ref = { team: 2, role: 0, x: 0, z: 0, vx: 0, vz: 0, rot: 0, k: k0 + 999, h: 1.78, top: [0.08, 0.08, 0.09], legs: [0.08, 0.08, 0.09], lod: 1, clip: "run" };
     this.players.push(this.ref);
     this.players.forEach(function (p) { var dd = People.describe(p.k); dd.sex = "m"; dd.top = p.top; dd.legs = p.legs; p.d = dd; });
     this.n = n; this.group = new T.Group(); sc.scene.add(this.group);
@@ -142,12 +142,11 @@
   };
   Match.prototype.score = function (team) { People.cheer(); this.kickoff(1 - team); };
   Match.prototype.push = function () { // copy positions into the instance buffers
-    var run = People.MODE.run, idle = People.MODE.idle;
-    this.slots.forEach(function (s) {
+    this.slots.forEach(function (s) { // real people: People.update reads p.x/p.z/p.rot and the clip; built-in bodies: write here
       var p = s[0], a = s[1], i = s[2];
+      if (p.fan) { p.fan.fixed = p.moving ? "run" : "idle"; return; }
       if (a.iOffset) { a.iOffset.array[i * 3] = p.x; a.iOffset.array[i * 3 + 2] = p.z; a.iOffset.needsUpdate = true; }
       if (a.iRot) { a.iRot.array[i] = p.rot; a.iRot.needsUpdate = true; }
-      if (a.iAct) { a.iAct.array[i * 4] = p.moving ? run : idle; a.iAct.needsUpdate = true; }
     });
   };
   window.Match = Match;
