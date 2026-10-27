@@ -95,17 +95,17 @@
     "  float d = max(dot(N, L), 0.0); float wrap = max((dot(N, L) + 0.35) / 1.35, 0.0);",
     "  float sky = 0.5 + 0.5 * N.y; float rim = pow(1.0 - max(dot(N, V), 0.0), 2.6);",
     "  float ao = mix(0.45, 1.0, smoothstep(0.0, 0.85, y));",
-    "  vec3 col = base * (uFill * sky * 0.55 + uKey * (0.75 * d + 0.25 * wrap)) * ao + uRim * rim * 0.55 * (0.4 + 0.6 * wrap);",
+    "  vec3 col = base * (uFill * (0.45 + 0.55 * sky) * 1.15 + uKey * (0.75 * d + 0.25 * wrap)) * ao + uRim * rim * 0.55 * (0.4 + 0.6 * wrap);", // fill lifted so backs (what a crowd shows you) keep their colours
     "  float dist = length(cameraPosition - W); col = mix(col, vec3(0.03, 0.035, 0.06), smoothstep(40.0, 160.0, dist) * 0.6);",
     "  return mix(col, base, emissive); }"].join("\n");
   var FS = [P.LIGHT_FS, "varying vec3 vCol; varying vec3 vN; varying vec3 vW; varying float vY; varying float vPart;",
     "void main(){ float em = (vPart > 4.5 && vCol.r > 1.0) ? 1.0 : 0.0;",
     "  gl_FragColor = vec4(concertLight(vCol, normalize(vN), vW, vY, em), 1.0); }"].join("\n");
-  P.lightUniforms = function () { return { uStage: { value: (P.stagePos || new T.Vector3(0, 6, -40)).clone() }, uKey: { value: new T.Color(1.0, 0.86, 0.72) }, uFill: { value: new T.Color(0.32, 0.38, 0.6) }, uRim: { value: new T.Color(0.75, 0.55, 1.0) } }; };
+  P.lightUniforms = function () { return { uStage: { value: (P.stagePos || new T.Vector3(0, 6, -40)).clone() }, uKey: { value: new T.Color(1.0, 0.86, 0.72) }, uFill: { value: new T.Color(0.42, 0.44, 0.56) }, uRim: { value: new T.Color(0.75, 0.55, 1.0) } }; };
   var SKIN = [[0.96, 0.80, 0.69], [0.92, 0.72, 0.58], [0.82, 0.62, 0.48], [0.68, 0.48, 0.36], [0.52, 0.36, 0.26], [0.36, 0.24, 0.18]];
   var TOPS = [[0.1, 0.1, 0.12], [0.85, 0.85, 0.85], [0.15, 0.25, 0.5], [0.55, 0.1, 0.12], [0.1, 0.4, 0.2], [0.75, 0.6, 0.2], [0.35, 0.35, 0.38], [0.9, 0.45, 0.6], [0.2, 0.55, 0.75]];
   var LEGS = [[0.12, 0.16, 0.28], [0.08, 0.08, 0.09], [0.22, 0.27, 0.4], [0.35, 0.3, 0.25], [0.18, 0.18, 0.2]];
-  var HAIR = [[0.07, 0.05, 0.04], [0.2, 0.12, 0.07], [0.42, 0.27, 0.14], [0.75, 0.6, 0.35], [0.5, 0.2, 0.08], [0.6, 0.6, 0.6]];
+  var HAIR = [[0.07, 0.05, 0.04], [0.2, 0.12, 0.07], [0.42, 0.27, 0.14], [0.75, 0.6, 0.35], [0.5, 0.2, 0.08], [0.55, 0.52, 0.48]];
   var bodies = {};
   function body(key) { return bodies[key] || (bodies[key] = P.buildBody(key.charAt(0), key.indexOf('p') > 0, key.indexOf('x') > 0 ? 2 : key.indexOf('l') > 0 ? 1 : 0)); }
   // Deterministic per-seat randomness so the same seat always has the same neighbours.
@@ -115,6 +115,48 @@
     var sex = rng(k, 1) < 0.5 ? "m" : "f", h = P.STATURE[sex] + P.SD * Math.max(-2.2, Math.min(2.2, gauss(k, 2)));
     return { sex: sex, h: h, skin: SKIN[(rng(k, 3) * SKIN.length) | 0], top: TOPS[(rng(k, 4) * TOPS.length) | 0], legs: LEGS[(rng(k, 5) * LEGS.length) | 0], hair: HAIR[(rng(k, 6) * HAIR.length) | 0] };
   };
+  // Real people: MakeHuman CC0 bodies (2 looks per sex, 4 poses, 3 levels of detail) posed, dressed, given hair and
+  // reduced in Blender by tools/humans/build_humans.py, shipped gzipped in js/data/humans.js. Unpacked once in the
+  // background; until then (or on a browser without DecompressionStream) the built-in bodies above are used.
+  var REAL = null, realLoading = null;
+  P.source.bodies = "MakeHuman base mesh, skeleton and shape targets (CC0 1.0, makehumancommunity/makehuman), posed and dressed by tools/humans/build_humans.py";
+  P.loadReal = function () {
+    if (realLoading) return realLoading;
+    if (!window.HUMANS_GZ || typeof DecompressionStream === "undefined" || typeof Response === "undefined") return (realLoading = Promise.resolve(false));
+    var bin = atob(window.HUMANS_GZ), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return (realLoading = new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer().then(function (buf) {
+      var hl = new DataView(buf).getUint32(0, true), head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, hl))), base = 4 + hl, out = {};
+      head.meshes.forEach(function (m) {
+        var o = base + m.off, q = new Uint16Array(buf, o, m.nv * 3), pt = new Uint8Array(buf, o + m.nv * 6, m.nv), io = o + m.nv * 7 + (m.nv * 7) % 2;
+        var pos = new Float32Array(m.nv * 3), part = new Float32Array(m.nv);
+        for (var k = 0; k < m.nv * 3; k++) { var a = k % 3; pos[k] = m.lo[a] + q[k] / 65535 * (m.hi[a] - m.lo[a]); }
+        for (k = 0; k < m.nv; k++) part[k] = pt[k];
+        var g = new T.BufferGeometry(); g.addAttribute("position", new T.BufferAttribute(pos, 3)); g.addAttribute("aPart", new T.BufferAttribute(part, 1));
+        g.setIndex(new T.BufferAttribute(new Uint16Array(buf.slice(io, io + m.nt * 6)), 1)); g.computeVertexNormals();
+        out[m.key] = g;
+      });
+      REAL = out; return true;
+    }).catch(function () { return false; }));
+  };
+  P.realReady = function () { return !!REAL; };
+  function makeRealCrowd(people, group, mat) {
+    var byKey = {};
+    people.forEach(function (p) {
+      var d = p.d || (p.d = P.describe(p.k)), key = d.sex + (rng(p.k, 9) < 0.5 ? "0" : "1") + "-" + (p.sit ? "sit" : "") + (p.phone ? "phone" : p.sit ? "" : "stand") + "-" + (p.lod || 0);
+      (byKey[key] = byKey[key] || []).push(p);
+    });
+    Object.keys(byKey).forEach(function (key) {
+      var src = REAL[key], list = byKey[key], n = list.length; if (!src) return;
+      var g = new T.InstancedBufferGeometry(); g.setIndex(src.index);
+      ["position", "normal", "aPart"].forEach(function (a) { g.addAttribute(a, src.attributes[a]); });
+      var off = new Float32Array(n * 3), rot = new Float32Array(n), hh = new Float32Array(n), sit = new Float32Array(n), sk = new Float32Array(n * 3), tp = new Float32Array(n * 3), lg = new Float32Array(n * 3), hr = new Float32Array(n * 3);
+      list.forEach(function (p, i) { var d = p.d; off.set([p.x, p.y, p.z], i * 3); rot[i] = p.rot; hh[i] = p.h || d.h; sk.set(d.skin, i * 3); tp.set(p.top || d.top, i * 3); lg.set(d.legs, i * 3); hr.set(d.hair, i * 3); });
+      [["iOffset", off, 3], ["iRot", rot, 1], ["iH", hh, 1], ["iSit", sit, 1], ["iSkin", sk, 3], ["iTop", tp, 3], ["iLegs", lg, 3], ["iHair", hr, 3]].forEach(function (a) { g.addAttribute(a[0], new T.InstancedBufferAttribute(a[1], a[2])); });
+      g.maxInstancedCount = n;
+      var mesh = new T.Mesh(g, mat); mesh.frustumCulled = false; group.add(mesh);
+    });
+    group.userData.count = people.length; return group;
+  }
   // people: [{x,y,z,rot,k,sit}] -> one draw call per sex
   // ONE shared material for every built-in person, created once and never disposed: disposing it made three.js
   // throw away the compiled shader, so every seat click recompiled it (measured: the slowest step of a click).
@@ -127,6 +169,7 @@
   P.makeCrowd = function (people) {
     var group = new T.Group(), mat = P.material();
     if (window.Models && Models.list.length) return Models.makeCrowd(people, group);
+    if (REAL) return makeRealCrowd(people, group, mat);
     var KEYS = []; ["m", "f"].forEach(function (s) { ["", "p"].forEach(function (ph) { ["", "l", "x"].forEach(function (l) { KEYS.push(s + ph + l); }); }); });
     KEYS.forEach(function (key) {
       var wantP = key.indexOf('p') > 0, lod = key.indexOf('x') > 0 ? 2 : key.indexOf('l') > 0 ? 1 : 0;

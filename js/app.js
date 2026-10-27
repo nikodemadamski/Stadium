@@ -559,7 +559,7 @@
       "<li>⚠️ The crowd and performer are simulated figures, not real people.</li>" +
       "<li>Phone view uses Apple's published iPhone 17 Pro focal lengths.</li></ul>" +
       "<details class='bynum'><summary>Live data (Ticketmaster)</summary><p class='small'>In the Events list, tap <b>Go live</b> and paste your free Ticketmaster Discovery API key (developer.ticketmaster.com). The app then loads every event at all six venues straight from Ticketmaster and refreshes once a day. If your browser blocks that, run <code>python tools\\tm_proxy.py</code> and open <code>http://localhost:8001/index.html?tm=1</code>. The free API has no per-seat availability.</p></details>" +
-      "<h3>Free assets used</h3><ul class='plain small'><li>Crowd people: built in the app from " + esc(People.source.stature) + "; " + esc(People.source.shoulders) + " (no external model files)</li><li>three.js r97: MIT</li><li>Photos: Wikimedia Commons (licences listed below)</li></ul><h3>All sources</h3><table class='info'>" + Object.keys(SOURCES).map(function (k) { var s = SOURCES[k]; return "<tr><td>" + (s.url ? '<a href="' + esc(safeUrl(s.url)) + '" target="_blank" rel="noopener">' + esc(s.title) + "</a>" : esc(s.title)) + "</td><td><span class='badge " + (s.status === "official" || s.status === "own-work" ? "ok" : "warn") + "'>" + s.status + "</span></td></tr>"; }).join("") +
+      "<h3>Free assets used</h3><ul class='plain small'><li>Crowd people: " + esc(People.source.bodies) + "; heights from " + esc(People.source.stature) + "</li><li>three.js r97: MIT</li><li>Photos: Wikimedia Commons (licences listed below)</li></ul><h3>All sources</h3><table class='info'>" + Object.keys(SOURCES).map(function (k) { var s = SOURCES[k]; return "<tr><td>" + (s.url ? '<a href="' + esc(safeUrl(s.url)) + '" target="_blank" rel="noopener">' + esc(s.title) + "</a>" : esc(s.title)) + "</td><td><span class='badge " + (s.status === "official" || s.status === "own-work" ? "ok" : "warn") + "'>" + s.status + "</span></td></tr>"; }).join("") +
       PHOTOS.map(function (p) { return "<tr><td><a href='" + esc(safeUrl(p.page)) + "' target='_blank' rel='noopener'>Photo: " + esc(p.caption) + "</a> — " + esc(p.author) + "</td><td>" + esc(p.licence) + "</td></tr>"; }).join("") + "</table>";
   }
 
@@ -613,6 +613,10 @@
   $("modelFlip").addEventListener("change", function () { Models.flip = this.checked; store("modelFlip", this.checked ? "1" : ""); refreshPeople(); });
   Models.flip = store("modelFlip") === "1"; $("modelFlip").checked = Models.flip;
   Models.restore().then(function () { renderModels(); refreshPeople(); });
+  People.loadReal().then(function (ok) { // swap the built-in bodies for the real ones once they are unpacked
+    if (!ok || !sc) return; refreshPeople();
+    if (sc.performerModel) { sc.performer.remove(sc.performerModel); sc.performerModel = null; } // rebuilt on the next frame
+  });
   A.updateHash = function () {
     var s = model.seats[state.seatIdx]; if (!s) return; var b = model.blocks[s.blockIdx];
     var h = "#stadium=" + S.id + (state.event ? "&ev=" + encodeURIComponent(state.event.id) : "") + "&seat=" + encodeURIComponent(b.id + "~" + s.row + "~" + s.seat);

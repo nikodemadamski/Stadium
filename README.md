@@ -31,3 +31,10 @@ Measured in headless Chromium with software rendering (no GPU), so absolute time
 
 Abuse protection on `/api/events`: one fixed URL (any `?…` is refused, so the cache can't be bypassed), Vercel's CDN serves one cached copy for 6 h, parallel requests share one refresh, and after a failure Ticketmaster is left alone for 5 min. Ticketmaster gets ~12 calls per refresh however many people visit (free limit: 5,000/day). Without `TM_API_KEY` the site still works with the listed events.
 Never put the key in a file in this repo; `.env` files are git-ignored.
+
+## Crowd people (27 Oct 2026)
+The people near your seat are real human meshes: MakeHuman's base body, skeleton, skin weights and shape targets (CC0 1.0, github.com/makehumancommunity/makehuman, `LICENSE.ASSETS.md`), posed, dressed and given hair by `tools/humans/build_humans.py` (Blender 5.2 as a Python module + numpy + scikit-image).
+- 4 looks (2 men, 2 women: T-shirt/long sleeves, short/crop/long/bob hair) x 4 poses (standing, seated, filming on a phone standing/seated) x 3 levels of detail (~3,300 / ~1,000 / ~330 triangles).
+- Shipped in `js/data/humans.js` (gzip + base64, ~700 KB) and unpacked once in the background; skin, clothes and hair colours and heights are still chosen per person in the app. Browsers without `DecompressionStream` fall back to the old built-in bodies.
+- Same seat, full crowd: 568k -> 609k triangles, 20 -> 32 draw calls, no measurable change in crowd rebuild time.
+- Rebuild: see the header of `tools/humans/build_humans.py` (about 1.5 minutes). `tools/humans/preview.py` renders check images.
