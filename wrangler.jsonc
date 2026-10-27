@@ -1,0 +1,12 @@
+// Cloudflare Workers: https://stadium.nikoaireland.workers.dev
+// Publishes ONLY public/ (the built single-page app, written by tools/build_single.py); the source, tools and docs
+// in this repository are not served. worker/index.js adds security headers and the /api/events relay.
+// Live Ticketmaster data: add the secret TM_API_KEY (dashboard > Workers > stadium > Settings > Variables and
+// Secrets, or `npx wrangler secret put TM_API_KEY`). Without it the site works with the listed events.
+{
+  "name": "stadium",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-09-01",
+  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": true },
+  "observability": { "enabled": true }
+}

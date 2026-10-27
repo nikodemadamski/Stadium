@@ -33,22 +33,26 @@
     <canvas id="c"></canvas>
     <div id="loading"><div class="spinner"></div>Building stadium…</div>
     <div id="mapWrap" hidden>
-      <canvas id="map2d" aria-label="Seat map. Drag to move, scroll or pinch to zoom, click a section then a seat."></canvas>
       <div id="mapTop">
-        <div class="chips">
-          <select id="fLevel" aria-label="Level"></select>
+        <div class="mrow">
+          <div id="mapLevels" class="segtabs" role="group" aria-label="Level"></div>
+          <div class="msearch"><input id="seatSearch" placeholder="Find a seat: 514 K 12" aria-label="Find a seat"><button type="button" id="seatSearchGo" class="iconbtn" aria-label="Find"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></button></div>
+          <button type="button" id="mapFiltersBtn" class="chip2" aria-expanded="false" aria-controls="mapFilters">Filters</button>
+        </div>
+        <div class="mrow" id="mapFilters" hidden>
           <label class="chip2"><span id="fDistLbl">Any distance</span><input id="fDist" type="range" min="30" max="200" step="5" value="200" aria-label="Maximum distance to stage"></label>
           <label class="chip2"><input id="fClosed" type="checkbox" checked> Hide behind stage</label>
-          <button type="button" id="surprise" class="chip2" aria-label="Surprise me: random open seat" title="Pick a random open seat in the sections that match your filters">Surprise me</button>
-          <div class="msearch"><input id="seatSearch" placeholder="Find a seat: 514 K 12" aria-label="Find a seat"><button type="button" id="seatSearchGo" class="iconbtn" aria-label="Find"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></button></div>
+          <button type="button" id="surprise" class="chip2" title="Pick a random open seat in the sections that match your filters">Surprise me</button>
         </div>
-        <div class="legend"><span><i class="sw blue"></i>Matches</span><span><i class="sw grey"></i>Filtered out</span><span><i class="sw terr"></i>Standing</span><span><i class="sw sel"></i>Your seat</span></div>
-        <div id="mapMsg" class="small"></div>
+        <div id="secBar" class="mrow" hidden></div>
+        <div class="mrow mhint"><span id="coach" role="status">Tap a section to see its seats</span><span id="mapMsg" class="small"></span></div>
       </div>
-      <div id="coach" role="status">Tap a section to see its seats</div>
-      <div id="mapCtl"><canvas id="miniMap" title="Overview: click to jump"></canvas><div class="zbtns"><button type="button" id="mapReset" title="Reset view">⟲</button><button type="button" id="mapZoomIn" title="Zoom in">+</button><button type="button" id="mapZoomOut" title="Zoom out">−</button></div></div>
-      <div id="mapTip" hidden></div>
-      <div id="mapSel" hidden></div>
+      <div id="mapArea">
+        <canvas id="map2d" aria-label="Seat map. Drag to move, scroll or pinch to zoom, tap a section then a seat."></canvas>
+        <div id="mapCtl"><div class="zbtns"><button type="button" id="mapReset" title="Whole venue" aria-label="Whole venue">⟲</button><button type="button" id="mapZoomIn" title="Zoom in" aria-label="Zoom in">+</button><button type="button" id="mapZoomOut" title="Zoom out" aria-label="Zoom out">−</button></div></div>
+        <div id="mapTip" hidden></div>
+        <div id="mapSel" hidden></div>
+      </div>
     </div>
     <div id="camTop">
       <button type="button" id="camClose" class="camicon" aria-label="Close camera"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -60,7 +64,7 @@
       <div class="lenses" role="group" aria-label="iPhone lens"><button type="button" data-z="0.5417" data-l=".5">.5</button><button type="button" data-z="1" data-l="1×" class="on">1×</button><button type="button" data-z="2" data-l="2">2</button><button type="button" data-z="4.1667" data-l="4">4</button><button type="button" data-z="8.3333" data-l="8">8</button></div>
     </div>
     <div id="crowdBar" role="group" aria-label="Crowd">
-      <span>Crowd</span><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button>
+      <span>Crowd</span><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button><span class="sep" aria-hidden="true"></span><button type="button" id="crowdWave" title="Start a Mexican wave">🌊 Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button>
     </div>
     <div id="hud"><span id="fps">– fps</span><span class="hp"> · <span id="people">0</span> people</span><span id="humanStat"></span></div>
     <div id="hint">Tap any seat to sit there</div>
@@ -138,6 +142,7 @@
 <script src="js/seatmap.js"></script>
 <script src="js/sidebar.js"></script>
 <script src="js/people.js"></script>
+<script src="js/match.js"></script>
 <script src="js/models.js"></script>
 <script src="js/tm.js"></script>
 <script src="js/scene.js"></script>

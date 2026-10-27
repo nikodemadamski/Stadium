@@ -1,21 +1,37 @@
-/* Public relay for live Ticketmaster events (Vercel serverless function: GET /api/events).
- * The key lives only in the TM_API_KEY environment variable on Vercel: it is never sent to the browser.
+/* Seat View on Cloudflare Workers (wrangler.jsonc). Serves the built page from public/ and the live-events relay.
+ * Every response gets the security headers a single HTML file can't set for itself (no framing, HTTPS only, ...).
+ *
+ * GET /api/events: live Ticketmaster events for the six venues. The key lives only in the TM_API_KEY secret
+ * (Cloudflare dashboard > Workers > stadium > Settings > Variables and Secrets) and is never sent to the browser.
  * Abuse protection - visitors cannot spend the Ticketmaster quota:
- *  - one fixed URL with no parameters: anything with a query string is refused, so the CDN cache can't be bypassed;
- *  - the CDN serves one cached copy to everyone for 6 h (s-maxage); this instance also remembers its last result,
- *    and parallel requests share a single refresh, so Ticketmaster sees ~12 calls per refresh, a few refreshes a day;
- *  - after a failed refresh, Ticketmaster is left alone for 5 minutes (and the CDN caches that answer), so an outage
- *    can't be turned into a flood of calls by hammering this URL;
- *  - GET/HEAD only; errors never include Ticketmaster's message (which could echo the key).
+ *  - one fixed URL with no parameters (anything with a query string is refused) and GET/HEAD only;
+ *  - each worker instance keeps its last result for 6 h and parallel requests share a single refresh, so Ticketmaster
+ *    sees ~12 calls per refresh however many people visit; browsers also cache the reply for 10 minutes;
+ *  - after a failed refresh Ticketmaster is left alone for 5 minutes, so an outage can't be turned into a flood;
+ *  - errors never include Ticketmaster's message (which could echo the key).
  * Output is rebuilt field by field with strict checks; the browser cleans it again with cleanEvent(). */
 const VENUES = { aviva: "Aviva Stadium", croke: "Croke Park", puc: "Pairc Ui Chaoimh", thomond: "Thomond Park", "3arena": "3Arena", bget: "Bord Gais Energy Theatre" };
 const BASE = "https://app.ticketmaster.com/discovery/v2/";
 const FRESH = 6 * 3600 * 1000, BACKOFF = 5 * 60 * 1000, MAX_BYTES = 2000000;
+const SECURITY = {
+  "Content-Security-Policy": "frame-ancestors 'none'", "X-Frame-Options": "DENY", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer",
+  "Strict-Transport-Security": "max-age=63072000; includeSubDomains", "Cross-Origin-Opener-Policy": "same-origin", "Cross-Origin-Resource-Policy": "same-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+};
 let memo = null, inflight = null, failedAt = 0;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const httpsUrl = (u) => (typeof u === "string" && /^https:\/\/[^\s"'<>]+$/i.test(u) && u.length < 500 ? u : undefined);
 const str = (v, n) => String(v == null ? "" : v).slice(0, n);
+
+function secure(res) {
+  const out = new Response(res.body, res);
+  for (const [k, v] of Object.entries(SECURITY)) out.headers.set(k, v);
+  return out;
+}
+function json(code, body, cache) {
+  return secure(new Response(JSON.stringify(body), { status: code, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": cache || "no-store" } }));
+}
 
 async function tm(path, key) {
   const r = await fetch(BASE + path + "&apikey=" + encodeURIComponent(key), { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(8000) });
@@ -24,7 +40,6 @@ async function tm(path, key) {
   if (text.length > MAX_BYTES) throw new Error("reply too large");
   return JSON.parse(text);
 }
-
 function typeOf(e) {
   const c = (e.classifications || [])[0] || {}, seg = str((c.segment || {}).name, 40).toLowerCase(), gen = str((c.genre || {}).name, 40).toLowerCase();
   if (seg === "sports") return /rugby/.test(gen) ? "rugby" : /soccer|football/.test(gen) ? "football" : "sport";
@@ -32,7 +47,6 @@ function typeOf(e) {
   if (seg === "family") return "family";
   return "concert";
 }
-
 function clean(e) {
   if (!e || typeof e !== "object") return null;
   const st = (e.dates || {}).start || {}, id = str(e.id, 90).replace(/[^A-Za-z0-9_-]/g, ""), name = str(e.name, 120);
@@ -46,7 +60,6 @@ function clean(e) {
   if (seatmap) out.seatmap = seatmap;
   return out;
 }
-
 async function refresh(key) {
   const today = new Date().toISOString().slice(0, 10), venues = {};
   let failed = 0;
@@ -67,31 +80,30 @@ async function refresh(key) {
   if (failed === Object.keys(VENUES).length) throw new Error("every venue failed");
   return { at: Date.now(), venues };
 }
-
-function send(res, code, body, cache) {
-  res.statusCode = code;
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.setHeader("Cache-Control", cache || "no-store");
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.end(JSON.stringify(body));
-}
-
-module.exports = async function handler(req, res) {
-  if (req.method !== "GET" && req.method !== "HEAD") { res.setHeader("Allow", "GET, HEAD"); return send(res, 405, { error: "GET only" }); }
-  if (String(req.url || "").includes("?")) return send(res, 400, { error: "no parameters accepted" });
-  const key = String(process.env.TM_API_KEY || "").trim();
-  if (!/^[A-Za-z0-9]{8,64}$/.test(key)) return send(res, 503, { error: "live data not configured" });
+async function events(req, env) {
+  if (req.method !== "GET" && req.method !== "HEAD") return json(405, { error: "GET only" });
+  if (new URL(req.url).search) return json(400, { error: "no parameters accepted" });
+  const key = String(env.TM_API_KEY || "").trim();
+  if (!/^[A-Za-z0-9]{8,64}$/.test(key)) return json(503, { error: "live data not configured" });
   try {
     if ((!memo || Date.now() - memo.at > FRESH) && Date.now() - failedAt > BACKOFF) {
       inflight = inflight || refresh(key).catch((err) => { failedAt = Date.now(); throw err; }).finally(() => { inflight = null; });
       memo = await inflight;
     }
-    if (!memo) return send(res, 502, { error: "live data unavailable" }, "public, max-age=60, s-maxage=300");
-    const stale = Date.now() - memo.at > FRESH; // only during back-off: cache briefly so the next refresh isn't delayed 6 h
-    return send(res, 200, memo, stale ? "public, max-age=60, s-maxage=600" : "public, max-age=600, s-maxage=21600, stale-while-revalidate=86400");
+    if (!memo) return json(502, { error: "live data unavailable" }, "public, max-age=60");
+    return json(200, memo, "public, max-age=600");
   } catch (err) {
     console.error("tm refresh: " + err.message);
-    if (memo) return send(res, 200, memo, "public, max-age=60, s-maxage=600");
-    return send(res, 502, { error: "live data unavailable" }, "public, max-age=60, s-maxage=300");
+    if (memo) return json(200, memo, "public, max-age=60");
+    return json(502, { error: "live data unavailable" }, "public, max-age=60");
+  }
+}
+
+export default {
+  async fetch(req, env) {
+    const url = new URL(req.url);
+    if (url.pathname === "/api/events") return events(req, env);
+    if (req.method !== "GET" && req.method !== "HEAD") return secure(new Response("GET only", { status: 405, headers: { Allow: "GET, HEAD" } }));
+    return secure(await env.ASSETS.fetch(req));
   }
 };

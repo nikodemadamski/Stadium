@@ -4,4 +4,6 @@ __pycache__/
 .env
 .env.*
 *.key
-public/
+.dev.vars
+node_modules/
+.wrangler/

@@ -108,11 +108,13 @@
     requestAnimationFrame(loop);
     A.frames = (A.frames || 0) + 1;
     if (A.paused || !sc) { last = now; return; }
-    var animating = state.mode !== "map" && !!sc.preset && state.playing;
+    var animating = state.mode !== "map" && state.playing; // the crowd moves at every event now, not only shows
     if (!animating && dirtyFrames <= 0 && now - lastDraw < 500) { last = now; return; }
     if (dirtyFrames > 0) dirtyFrames--; lastDraw = now; A.renderCount = (A.renderCount || 0) + 1;
     var dt = Math.min(0.1, (now - last) / 1000); last = now;
     if (state.playing && sc.pathCurve) { state.t += dt; $("time").value = ((state.t / sc.pathSeconds) % 1).toFixed(3); }
+    People.tick(now / 1000, A.isSport()); $("crowdJump").hidden = A.isSport();
+    if (sc.match && state.playing && state.mode !== "map") sc.match.update(dt, now / 1000);
     sc.placePerformer(state.t); if (state.mode !== "map") sc.updateFx(now / 1000, renderer, state.mode === "phone" ? sc.phoneCam : sc.camera); updateCamera(); setCrowdScale(sc.camera, canvas.clientHeight * dpr);
     if (state.mode === "phone") renderer.clear(); else if (state.mode !== "map") renderer.render(sc.scene, sc.camera);
     if (state.mode === "phone") renderPhone();
@@ -131,7 +133,7 @@
     var p = ptrs[e.pointerId]; if (!p || !sc) return; var ids = Object.keys(ptrs);
     if (ids.length === 2) { p.x = e.clientX; p.y = e.clientY; var a = ptrs[ids[0]], b = ptrs[ids[1]], dd = Math.hypot(a.x - b.x, a.y - b.y); if (pinch0) zoomBy(pinch0 / dd); pinch0 = dd; return; }
     var dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
-    if (state.mode === "overview") { state.yaw -= dx * 0.006; state.pitch = clamp(state.pitch + dy * 0.004, 0.08, 1.45); }
+    if (state.mode === "overview") { state.yaw += dx * 0.006; /* drag right = fly right, same feel as turning your head in "My view" */ state.pitch = clamp(state.pitch + dy * 0.004, 0.08, 1.45); }
     else { var k = state.mode === "phone" ? 0.0025 / state.zoom : 0.004 * state.fov / 55; state.lookYaw -= dx * k; state.lookPitch = clamp(state.lookPitch + dy * k, -1.2, 1.2); }
   });
   canvas.addEventListener("pointerup", function (e) {
@@ -167,11 +169,14 @@
 
   // ---------- crowd / performer controls ----------
   function setDensity(d) {
-    state.density = d; document.querySelectorAll("#crowdBar button").forEach(function (b) { b.classList.toggle("on", +b.dataset.d === d); });
+    state.density = d; document.querySelectorAll("#crowdBar button[data-d]").forEach(function (b) { b.classList.toggle("on", +b.dataset.d === d); });
     sc.setDensity(d); if (state.seatIdx >= 0) sc.updateNearPeople(state.seatIdx, d, state.phones);
     $("people").textContent = sc.visiblePeople().toLocaleString();
   }
-  document.querySelectorAll("#crowdBar button").forEach(function (b) { b.addEventListener("click", function () { setDensity(+b.dataset.d); }); });
+  document.querySelectorAll("#crowdBar button[data-d]").forEach(function (b) { b.addEventListener("click", function () { setDensity(+b.dataset.d); }); });
+  function play() { if (!state.playing) { state.playing = true; $("play").textContent = "Pause"; } }
+  $("crowdWave").addEventListener("click", function () { People.wave(); play(); });
+  $("crowdJump").addEventListener("click", function () { People.jump(); play(); });
   $("phones").addEventListener("input", function () { state.phones = +this.value; $("phonesLbl").textContent = Math.round(state.phones * 100) + "%"; sc.setPhones(state.phones); if (state.seatIdx >= 0) sc.updateNearPeople(state.seatIdx, state.density, state.phones); });
   $("standing").addEventListener("change", function () { state.standing = this.checked; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); });
   $("play").addEventListener("click", function () { state.playing = !state.playing; this.textContent = state.playing ? "Pause" : "Play"; });
@@ -245,7 +250,7 @@
   function stageEndTag() { var v = store(endKey()); return v === "A" || v === "C" ? v : S.stage.defaultEnd; }
   function applyStage() {
     sc.stageSign = stageEndTag() === "A" ? -1 : 1;
-    sc.setStage(currentPreset()); rebuildCrowd(); renderPresetBtns(); renderStageEnd(); renderMap();
+    sc.setStage(currentPreset()); sc.setMatch(isSport(state.event) ? state.event : null); rebuildCrowd(); renderPresetBtns(); renderStageEnd(); renderMap();
     if (state.seatIdx >= 0) goToSeat(state.seatIdx);
     SeatMap.computeStats(); SeatMap.refresh(); thumbCache = {}; renderCompare();
   }
@@ -255,7 +260,7 @@
     var cur = currentPresetKey(), sport = isSport(state.event);
     document.querySelectorAll(".stageOnly").forEach(function (el) { el.hidden = sport; });
     $("sportNote").hidden = !sport;
-    if (sport) { $("sportNote").innerHTML = "<b>" + esc(EVENT_TYPES[state.event.type]) + " layout</b>: no stage, every stand open, nobody on the pitch. Distances are measured to the centre of the pitch."; return; }
+    if (sport) { $("sportNote").innerHTML = "<b>" + esc(EVENT_TYPES[state.event.type]) + " layout</b>: no stage, every stand open. A simulated match plays on the pitch so you can judge the view (kits are approximate). Distances are measured to the centre of the pitch."; return; }
     $("presetBtns").innerHTML = presetsForVenue().map(function (k) { return '<button type="button" data-k="' + k + '"' + (k === cur ? ' class="on"' : "") + ">" + esc(STAGE_PRESETS[k].name) + "</button>"; }).join("");
     $("presetBtns").querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { A.applyPreset(b.dataset.k); }); });
     $("presetNote").textContent = STAGE_PRESETS[cur].note + " Saved for this concert.";
@@ -614,7 +619,7 @@
   Models.flip = store("modelFlip") === "1"; $("modelFlip").checked = Models.flip;
   Models.restore().then(function () { renderModels(); refreshPeople(); });
   People.loadReal().then(function (ok) { // swap the built-in bodies for the real ones once they are unpacked
-    if (!ok || !sc) return; refreshPeople();
+    if (!ok || !sc) return; refreshPeople(); if (sc.match) sc.match.build();
     if (sc.performerModel) { sc.performer.remove(sc.performerModel); sc.performerModel = null; } // rebuilt on the next frame
   });
   A.updateHash = function () {

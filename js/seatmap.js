@@ -1,28 +1,30 @@
 /* 2D interactive seat map, modelled on Ticketmaster's interactive seat map:
  *  - sections are BLUE when they match your filters and GREY when they don't (Ticketmaster's own colour rule);
  *  - click a section to zoom to individual seat dots, click a dot to select it (green = selected);
- *  - results list on the right with a mini stadium + pin per card.
+ *  - results list on the right with a stadium thumbnail + pin per card; level tabs, a section bar with row/seat pickers.
  * NOT shown: prices / availability — Ticketmaster does not publish them in any reusable form (see Sources). Nothing is invented.
  * Seat dot positions come from js/geometry.js (layout calibrated to official capacity; rows/seats per block are estimates ⚠️). */
 (function () {
   var SM = window.SeatMap = {};
-  var cv, ctx, mini, mctx, wrap, tip, A, M, S;
+  var cv, ctx, wrap, tip, A, M, S;
   var view = { s: 2, tx: 0, ty: 0 }, dpr = 1, hover = -1, sel = -1, polys = [], stats = [], thumbURL = null;
   var F = SM.filters = { level: "all", maxDist: 999, hideClosed: true, sort: "best" };
+  var goal = null, anim = 0; SM.focusBlock = -1;
   var SEAT_ZOOM = 7;
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   SM.secName = function (b) { return b.official ? (S.id === "aviva" ? "BLK" + b.id : (S.blockPrefix || "Section ") + b.id) : b.stand + " · zone " + b.zoneOf.split(" ")[0]; };
 
   SM.init = function (app) {
-    A = app; wrap = $("mapWrap"); cv = $("map2d"); ctx = cv.getContext("2d"); mini = $("miniMap"); mctx = mini.getContext("2d"); tip = $("mapTip");
+    A = app; wrap = $("mapWrap"); cv = $("map2d"); ctx = cv.getContext("2d"); tip = $("mapTip");
     window.addEventListener("resize", function () { if (SM.active) { SM.resize(); SM.draw(); } });
+    if (window.ResizeObserver) new ResizeObserver(function () { if (SM.active) { SM.resize(); SM.draw(); } }).observe($("mapArea")); // toolbar rows come and go
     var ptrs = {}, down = null, pinch = null;
     cv.addEventListener("pointerdown", function (e) { cv.setPointerCapture(e.pointerId); ptrs[e.pointerId] = { x: e.clientX, y: e.clientY }; down = { x: e.clientX, y: e.clientY, n: Object.keys(ptrs).length }; });
     cv.addEventListener("pointermove", function (e) {
       var r = cv.getBoundingClientRect(), p = ptrs[e.pointerId], ids = Object.keys(ptrs);
       if (ids.length === 2 && p) { p.x = e.clientX; p.y = e.clientY; var a = ptrs[ids[0]], b = ptrs[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch) zoomAt((a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top, d / pinch); pinch = d; return; }
-      if (p) { view.tx += e.clientX - p.x; view.ty += e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; SM.draw(); return; }
+      if (p) { stopAnim(); view.tx += e.clientX - p.x; view.ty += e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; SM.draw(); return; }
       var h = pick(e.clientX - r.left, e.clientY - r.top);
       if (h.seat !== hover || h.block !== SM.hoverBlock) { hover = h.seat; SM.hoverBlock = h.block; SM.draw(); }
       showTip(h, e.clientX - r.left, e.clientY - r.top);
@@ -40,11 +42,10 @@
     cv.addEventListener("wheel", function (e) { e.preventDefault(); var r = cv.getBoundingClientRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY > 0 ? 1 / 1.2 : 1.2); }, { passive: false });
     $("mapZoomIn").addEventListener("click", function () { zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1.5); });
     $("mapZoomOut").addEventListener("click", function () { zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, 1 / 1.5); });
-    $("mapReset").addEventListener("click", function () { SM.fit(); });
-    mini.addEventListener("click", function (e) { var r = mini.getBoundingClientRect(), m = SM.miniT, wx = (e.clientX - r.left - m.tx) / m.s, wz = (e.clientY - r.top - m.ty) / m.s; view.tx = cv.clientWidth / 2 - wx * view.s; view.ty = cv.clientHeight / 2 - wz * view.s; SM.draw(); });
+    $("mapReset").addEventListener("click", function () { SM.back(); });
+    $("mapFiltersBtn").addEventListener("click", function () { var f = $("mapFilters"), open = f.hidden; f.hidden = !open; this.setAttribute("aria-expanded", open); SM.resize(); SM.draw(); });
     $("seatSearch").addEventListener("keydown", function (e) { if (e.key === "Enter") SM.search(this.value); });
     $("seatSearchGo").addEventListener("click", function () { SM.search($("seatSearch").value); });
-    $("fLevel").addEventListener("change", function () { F.level = this.value; SM.refresh(); });
     $("fDist").addEventListener("input", function () { F.maxDist = +this.value >= 200 ? 999 : +this.value; $("fDistLbl").textContent = F.maxDist >= 999 ? "Any distance" : "≤ " + F.maxDist + " m"; SM.refresh(); });
     $("fSort").addEventListener("change", function () { F.sort = this.value; SM.renderList(); });
     $("fClosed").addEventListener("change", function () { F.hideClosed = this.checked; SM.refresh(); });
@@ -52,7 +53,7 @@
     document.addEventListener("keydown", function (e) {
       if (e.key !== "Escape") return;
       if (document.body.classList.contains("sideOpen")) { document.body.classList.remove("sideOpen"); return; }
-      if (SM.active && !$("mapSel").hidden) SM.clearSel();
+      if (SM.active && !$("mapSel").hidden) SM.clearSel(); else if (SM.active && SM.focusBlock >= 0) SM.back();
     });
   };
   SM.setStadium = function () {
@@ -63,9 +64,13 @@
       for (i = n; i >= 0; i--) { q = ring.point(b.pa + (b.pb - b.pa) * i / n, b.dBack); pts.push([q.x, q.z]); }
       var c = ring.point((b.pa + b.pb) / 2, (b.dFront + b.dBack) / 2); return { pts: pts, cx: c.x, cz: c.z };
     });
-    $("fLevel").innerHTML = '<option value="all">All levels</option>' + S.levels.map(function (L) { return '<option value="' + L.id + '">' + esc(L.name) + "</option>"; }).join("") +
-      (M.blocks.some(function (b) { return b.standing; }) ? '<option value="standing">Standing terraces</option>' : "");
-    F.level = "all"; $("mapSel").hidden = true; SM.computeStats(); SM.fitted = false; SM.coach("Tap a section to see its seats");
+    var tabs = [["all", "All"]].concat(S.levels.map(function (L) { return [L.id, L.name]; }));
+    if (M.blocks.some(function (b) { return b.standing; })) tabs.push(["standing", "Standing"]);
+    $("mapLevels").innerHTML = tabs.map(function (t) { return '<button type="button" data-l="' + esc(t[0]) + '"' + (t[0] === "all" ? ' class="on"' : "") + ">" + esc(t[1]) + "</button>"; }).join("");
+    $("mapLevels").querySelectorAll("button").forEach(function (bt) { bt.addEventListener("click", function () {
+      F.level = bt.dataset.l; $("mapLevels").querySelectorAll("button").forEach(function (o) { o.classList.toggle("on", o === bt); }); SM.refresh();
+    }); });
+    F.level = "all"; $("mapSel").hidden = true; SM.focusBlock = -1; renderSecBar(); SM.computeStats(); SM.fitted = false; SM.coach("Tap a section to see its seats");
   };
   SM.computeStats = function () {
     if (!M || !A.sc || !A.sc.stageFront) return; var f = A.sc.stageFront, sg = A.sc.stageSign;
@@ -91,26 +96,50 @@
   SM.refresh = function () { SM.draw(); SM.renderList(); };
   SM.resize = function () { dpr = Math.min(window.devicePixelRatio || 1, 2); cv.width = Math.max(1, cv.clientWidth * dpr); cv.height = Math.max(1, cv.clientHeight * dpr); };
   function extent() { var hx = 0, hz = 0; M.seats.forEach(function (s) { hx = Math.max(hx, Math.abs(s.x)); hz = Math.max(hz, Math.abs(s.z)); }); return [hx, hz]; }
-  SM.fit = function () {
-    var w = cv.clientWidth, h = cv.clientHeight, e = extent(), top = 56, hh = Math.max(120, h - top - 70);
-    view.s = Math.min(w / (2 * e[0] + 16), hh / (2 * e[1] + 8)); view.tx = w / 2; view.ty = top + hh / 2; SM.draw();
-  };
-  function zoomAt(px, py, f) { var ns = Math.max(0.5, Math.min(60, view.s * f)); f = ns / view.s; view.tx = px - (px - view.tx) * f; view.ty = py - (py - view.ty) * f; view.s = ns; SM.draw(); }
+  // The mode bar floats over the bottom of the map, so everything is framed in the area above it.
+  function freeArea() { var h = cv.clientHeight, bottom = h - 86, sel = $("mapSel"); if (!sel.hidden) bottom = Math.min(bottom, sel.offsetTop - 8); return { w: cv.clientWidth, top: 8, bottom: Math.max(bottom, 120) }; }
+  function stopAnim() { if (anim) cancelAnimationFrame(anim); anim = 0; goal = null; }
+  function animateTo(g, ms) { // smooth zoom/pan so you can see where you are going
+    var from = { s: view.s, tx: view.tx, ty: view.ty }, t0 = performance.now(); ms = ms || 320; goal = g; if (anim) cancelAnimationFrame(anim);
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) ms = 1;
+    (function step(now) {
+      var k = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - k, 3), ls = Math.log(from.s) + (Math.log(g.s) - Math.log(from.s)) * e;
+      view.s = Math.exp(ls); view.tx = from.tx + (g.tx - from.tx) * e; view.ty = from.ty + (g.ty - from.ty) * e; SM.draw();
+      anim = k < 1 ? requestAnimationFrame(step) : 0; if (!anim) goal = null;
+    })(t0);
+  }
+  function frame(x0, x1, z0, z1, pad, maxS, minS) {
+    var a = freeArea(), s = Math.min(a.w / (x1 - x0 + pad), (a.bottom - a.top) / (z1 - z0 + pad)); s = Math.max(minS || 0.5, Math.min(maxS || 60, s));
+    return { s: s, tx: a.w / 2 - (x0 + x1) / 2 * s, ty: (a.top + a.bottom) / 2 - (z0 + z1) / 2 * s };
+  }
+  SM.fit = function (animate) { var e = extent(), g = frame(-e[0], e[0], -e[1], e[1], 10); if (animate) animateTo(g); else { stopAnim(); view.s = g.s; view.tx = g.tx; view.ty = g.ty; SM.draw(); } };
+  SM.back = function () { SM.focusBlock = -1; renderSecBar(); SM.coach(sel >= 0 ? null : "Tap a section to see its seats"); SM.fit(true); };
+  function zoomAt(px, py, f) { stopAnim(); var ns = Math.max(0.5, Math.min(60, view.s * f)); f = ns / view.s; view.tx = px - (px - view.tx) * f; view.ty = py - (py - view.ty) * f; view.s = ns; SM.draw(); }
+  function blockBox(b) { var x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9; for (var i = b.seatStart; i < b.seatStart + b.seatCount; i++) { var s = M.seats[i]; x0 = Math.min(x0, s.x); x1 = Math.max(x1, s.x); z0 = Math.min(z0, s.z); z1 = Math.max(z1, s.z); } return [x0, x1, z0, z1]; }
   SM.zoomToBlock = function (bi) {
-    var b = M.blocks[bi], x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9;
-    for (var i = b.seatStart; i < b.seatStart + b.seatCount; i++) { var s = M.seats[i]; x0 = Math.min(x0, s.x); x1 = Math.max(x1, s.x); z0 = Math.min(z0, s.z); z1 = Math.max(z1, s.z); }
-    var w = cv.clientWidth, h = cv.clientHeight;
-    view.s = Math.max(SEAT_ZOOM * 1.3, Math.min(40, Math.min(w / (x1 - x0 + 8), h / (z1 - z0 + 8))));
-    view.tx = w / 2 - (x0 + x1) / 2 * view.s; view.ty = h / 2 - (z0 + z1) / 2 * view.s;
-    SM.focusBlock = bi; A.selectBlock(bi); SM.draw(); SM.coach("Now tap a seat");
+    var bb = blockBox(M.blocks[bi]); SM.focusBlock = bi; renderSecBar();
+    animateTo(frame(bb[0], bb[1], bb[2], bb[3], 6, 40, SEAT_ZOOM * 1.3));
+    A.selectBlock(bi); SM.coach(sel >= 0 && M.seats[sel].blockIdx === bi ? null : "Tap a seat, or choose a row and seat above");
   };
+  // Section bar: where you are + row/seat pickers, so nobody has to hit a 4-pixel dot.
+  function renderSecBar() {
+    var bar = $("secBar"), bi = SM.focusBlock; if (!M || bi < 0) { bar.hidden = true; bar.innerHTML = ""; return; }
+    var b = M.blocks[bi], cur = sel >= 0 && M.seats[sel].blockIdx === bi ? M.seats[sel] : null, ri = cur ? b.rowLabels.indexOf(cur.row) : -1;
+    bar.innerHTML = "<button type='button' class='back' id='secBack'>‹ All sections</button><div class='nm'><b>" + esc(SM.secName(b)) + "</b><span>" + esc(b.stand + " · " + b.levelName) + "</span></div>" +
+      "<label>" + (b.standing ? "Terrace row" : "Row") + " <select id='secRow'><option value=''>–</option>" + b.rowLabels.map(function (l, i) { return "<option value='" + i + "'" + (i === ri ? " selected" : "") + ">" + esc(l) + "</option>"; }).join("") + "</select></label>" +
+      "<label>" + (b.standing ? "Spot" : "Seat") + " <select id='secSeat'" + (ri < 0 ? " disabled" : "") + ">" + (ri < 0 ? "<option>–</option>" : Array.from({ length: b.rowInfo[ri].count }, function (_, i) { return "<option value='" + i + "'" + (cur && cur.seat === i + 1 ? " selected" : "") + ">" + (i + 1) + "</option>"; }).join("")) + "</select></label>";
+    bar.hidden = false;
+    $("secBack").addEventListener("click", SM.back);
+    $("secRow").addEventListener("change", function () { if (this.value === "") return; var r = b.rowInfo[+this.value]; SM.selectSeat(r.start + Math.floor((r.count - 1) / 2)); });
+    $("secSeat").addEventListener("change", function () { var r = b.rowInfo[+$("secRow").value]; if (r) SM.selectSeat(r.start + +this.value); });
+  }
   function toS(x, z) { return [x * view.s + view.tx, z * view.s + view.ty]; }
   function inPoly(x, z, pts) { var c = false; for (var i = 0, j = pts.length - 1; i < pts.length; j = i++) { var a = pts[i], b = pts[j]; if ((a[1] > z) !== (b[1] > z) && x < (b[0] - a[0]) * (z - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
   function pick(px, py) {
     var wx = (px - view.tx) / view.s, wz = (py - view.ty) / view.s, block = -1;
     for (var bi = polys.length - 1; bi >= 0; bi--) if (inPoly(wx, wz, polys[bi].pts)) { block = bi; break; }
     if (block < 0 || view.s < SEAT_ZOOM) return { block: block, seat: -1 };
-    var b = M.blocks[block], best = -1, bd = 0.36;
+    var tol = Math.max(0.6, 14 / view.s), b = M.blocks[block], best = -1, bd = tol * tol; // ~14 px finger tolerance
     for (var i = b.seatStart; i < b.seatStart + b.seatCount; i++) { var s = M.seats[i], d = (s.x - wx) * (s.x - wx) + (s.z - wz) * (s.z - wz); if (d < bd) { bd = d; best = i; } }
     return { block: block, seat: best };
   }
@@ -154,21 +183,14 @@
       });
     }
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    if (!showSeats || view.s < 13) polys.forEach(function (P, bi) {
-      var b = M.blocks[bi], s = toS(P.cx, P.cz); ctx.font = "bold " + Math.max(8, Math.min(13, view.s * 2.2)) + "px Segoe UI, Arial";
-      ctx.fillStyle = showSeats ? "#8a91a3" : (matches(bi) ? "#fff" : "#5d6476"); ctx.fillText(b.official ? b.id : b.zoneOf.split(" ")[0], s[0], s[1]);
+    if (!showSeats || view.s < 13) polys.forEach(function (P, bi) { // a label only where it fits inside its section: no pile-ups
+      var b = M.blocks[bi], s = toS(P.cx, P.cz), txt = String(b.official ? b.id : b.zoneOf.split(" ")[0]), fs = Math.max(9, Math.min(13, view.s * 2.2));
+      ctx.font = "bold " + fs + "px Segoe UI, Arial";
+      var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; P.pts.forEach(function (pt) { var q = toS(pt[0], pt[1]); x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); });
+      var tw = ctx.measureText(txt).width, w = x1 - x0, h = y1 - y0;
+      if (!(w >= tw + 4 && h >= fs + 2) && !(h >= tw + 4 && w >= fs + 2) && bi !== SM.hoverBlock) return;
+      ctx.fillStyle = showSeats ? "#8a91a3" : (matches(bi) ? "#fff" : "#5d6476"); ctx.fillText(txt, s[0], s[1]);
     });
-    SM.drawMini();
-  };
-  SM.drawMini = function () {
-    var w = mini.clientWidth, h = mini.clientHeight; if (!w) return; mini.width = w * dpr; mini.height = h * dpr; mctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var e = extent(), s = Math.min(w / (2 * e[0] + 6), h / (2 * e[1] + 6)), m = SM.miniT = { s: s, tx: w / 2, ty: h / 2 };
-    mctx.fillStyle = "#0b0d13"; mctx.fillRect(0, 0, w, h); drawBase(mctx, s, m.tx, m.ty);
-    polys.forEach(function (P, bi) { mctx.beginPath(); P.pts.forEach(function (pt, i) { var x = pt[0] * s + m.tx, y = pt[1] * s + m.ty; if (i) mctx.lineTo(x, y); else mctx.moveTo(x, y); }); mctx.closePath();
-      mctx.fillStyle = sel >= 0 && M.seats[sel].blockIdx === bi ? "#bef264" : colourFor(bi); mctx.fill(); });
-    var x0 = -view.tx / view.s, z0 = -view.ty / view.s, x1 = (cv.clientWidth - view.tx) / view.s, z1 = (cv.clientHeight - view.ty) / view.s;
-    mctx.fillStyle = "rgba(255,255,255,.12)"; mctx.fillRect(x0 * s + m.tx, z0 * s + m.ty, (x1 - x0) * s, (z1 - z0) * s);
-    mctx.strokeStyle = "#ffffff"; mctx.lineWidth = 1.5; mctx.strokeRect(x0 * s + m.tx, z0 * s + m.ty, (x1 - x0) * s, (z1 - z0) * s);
   };
   function thumb() { // one shared stadium thumbnail for the result cards (Ticketmaster shows one per card with a pin)
     if (thumbURL) return thumbURL;
@@ -188,13 +210,23 @@
     tip.hidden = false; tip.style.left = Math.min(x + 14, cv.clientWidth - 240) + "px"; tip.style.top = Math.min(y + 14, cv.clientHeight - 90) + "px";
   }
   SM.selectSeat = function (i) {
-    sel = i; A.goToSeat(i); SM.draw(); SM.coach(null); var s = M.seats[i], st = stats[s.blockIdx];
-    $("mapSel").innerHTML = "<div class='selh'><span class='tick'>✓</span><div><b>" + esc(seatLabel(i)) + "</b><div class='small'>" + esc(M.blocks[s.blockIdx].stand) + " · ≈" + Math.round(st.d) + " m to stage</div></div><button type='button' class='x' id='mapSelX' aria-label='Clear'>×</button></div>" +
+    sel = i; A.goToSeat(i); SM.coach(null); var s = M.seats[i], st = stats[s.blockIdx], b = M.blocks[s.blockIdx], ri = b.rowLabels.indexOf(s.row), r = b.rowInfo[ri];
+    if (SM.focusBlock !== s.blockIdx) SM.focusBlock = s.blockIdx; renderSecBar();
+    $("mapSel").innerHTML = "<div class='selh'><span class='tick'>✓</span><div><b>" + esc(seatLabel(i)) + "</b><div class='small'>" + esc(b.stand) + " · ≈" + Math.round(st.d) + (A.isSport() ? " m to the pitch centre" : " m to stage") + "</div></div>" +
+      "<span class='step'><button type='button' id='selPrev' aria-label='Previous seat'" + (i <= r.start ? " disabled" : "") + ">‹</button><button type='button' id='selNext' aria-label='Next seat'" + (i >= r.start + r.count - 1 ? " disabled" : "") + ">›</button></span>" +
+      "<button type='button' class='x' id='mapSelX' aria-label='Clear'>×</button></div>" +
       "<div class='btns'><button type='button' class='primary' id='mapSee'>See view from seat</button><button type='button' id='mapPhoto'>iPhone photo from here</button><button type='button' id='mapShare'>Copy link</button></div><div class='small' id='shareMsg' aria-live='polite'></div>";
     $("mapSel").hidden = false;
     $("mapSee").addEventListener("click", function () { A.setMode("seat"); });
     $("mapPhoto").addEventListener("click", function () { A.setMode("phone"); });
     $("mapSelX").addEventListener("click", SM.clearSel);
+    $("selPrev").addEventListener("click", function () { SM.selectSeat(i - 1); });
+    $("selNext").addEventListener("click", function () { SM.selectSeat(i + 1); });
+    // keep the chosen seat in sight above the card, at seat-level zoom
+    var g = goal || { s: view.s, tx: view.tx, ty: view.ty }; if (g.s < SEAT_ZOOM * 1.3) { var bb = blockBox(b); g = frame(bb[0], bb[1], bb[2], bb[3], 6, 40, SEAT_ZOOM * 1.3); }
+    var a = freeArea(), px = s.x * g.s + g.tx, py = s.z * g.s + g.ty;
+    if (px < 30 || px > a.w - 30 || py < a.top + 30 || py > a.bottom - 30) { g = { s: g.s, tx: g.tx + a.w / 2 - px, ty: g.ty + (a.top + a.bottom) / 2 - py }; }
+    if (g !== goal) animateTo(g); else SM.draw();
     $("mapShare").addEventListener("click", function () {
       var url = location.href, done = function (ok) { $("shareMsg").textContent = ok ? "Link copied — it opens this exact seat." : "Copy this link: " + url; };
       try { navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); }); } catch (e) { done(false); }
@@ -202,7 +234,7 @@
     A.updateHash();
   };
   SM.coach = function (msg) { var c = $("coach"); if (!c) return; if (msg) { c.textContent = msg; c.hidden = false; } else c.hidden = true; };
-  SM.clearSel = function () { sel = -1; $("mapSel").hidden = true; SM.draw(); };
+  SM.clearSel = function () { sel = -1; $("mapSel").hidden = true; renderSecBar(); SM.draw(); };
   SM.surprise = function () { // random open seat in a section that matches the current filters
     var ok = []; M.blocks.forEach(function (b, bi) { if (matches(bi) && stats[bi] && !stats[bi].closed) ok.push(bi); });
     if (!ok.length) { $("mapMsg").textContent = "No sections match your filters."; return; }

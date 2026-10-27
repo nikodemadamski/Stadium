@@ -147,20 +147,26 @@
   // ---------- Crowd: GPU point sprites; occupancy decided in the shader so the slider is instant ----------
   var crowdVS = [
     "attribute float aRand; attribute float aSize; attribute vec3 aColor; attribute float aPhone;",
-    "uniform float uDensity; uniform float uScale; uniform float uPhones;",
-    "varying vec3 vColor; varying float vPhone;",
+    "uniform float uDensity; uniform float uScale; uniform float uPhones; uniform float uSeated;",
+    "uniform float uTime, uBeat, uEnergy, uWaveA, uWaveOn, uJump, uCheer; uniform vec2 uCenter;", // crowd director (people.js)
+    "varying vec3 vColor; varying float vPhone; varying float vUp;",
     "void main(){",
     "  vColor = aColor; vPhone = (aPhone < uPhones) ? 1.0 : 0.0;",
-    "  vec4 mv = modelViewMatrix * vec4(position,1.0);",
+    "  vec3 pp = position; float beat = 6.2832 * uBeat * uTime + aRand * 0.9;",
+    "  float dA = mod(atan(pp.x - uCenter.x, pp.z - uCenter.y) - uWaveA + 3.14159, 6.28318) - 3.14159;",
+    "  vUp = max(uWaveOn * exp(-dA * dA / 0.05), uCheer * step(fract(aRand * 7.13), 0.7));",
+    "  pp.y += uSeated * 0.45 * vUp + (1.0 - uSeated) * (0.05 * uEnergy * (0.5 + 0.5 * sin(beat)) * step(0.3, fract(aRand * 5.1)) + 0.13 * uJump * max(0.0, sin(beat)));",
+    "  vec4 mv = modelViewMatrix * vec4(pp,1.0);",
     "  gl_Position = projectionMatrix * mv;",
     "  float on = (aRand < uDensity && aSize > 0.0) ? 1.0 : 0.0;",
     "  gl_PointSize = on * min(aSize * uScale / -mv.z, 900.0);",
     "  if (on < 0.5) gl_Position = vec4(2.0,2.0,2.0,1.0);",
     "}"].join("\n");
   var crowdFS = [
-    "varying vec3 vColor; varying float vPhone;",
+    "varying vec3 vColor; varying float vPhone; varying float vUp;",
     "void main(){",
     "  vec2 c = gl_PointCoord;",
+    "  bool inUp = vUp > 0.5 && c.y > 0.1 && c.y < 0.56 && abs(abs(c.x - 0.5) - 0.2) < 0.035;", // arms up
     "  float head = length((c - vec2(0.5,0.40)) * vec2(1.0,0.9));",
     "  bool inHead = head < 0.12;",
     "  bool inBody = c.y > 0.52 && abs(c.x-0.5) < 0.26 + (c.y-0.52)*0.25;",
@@ -169,7 +175,7 @@
     "  if (inPhone) { gl_FragColor = vec4(0.62,0.70,0.85,1.0); return; }",
     "  float lit = 0.42 + 0.25 * (1.0 - c.y);",
     "  if (inHead) { gl_FragColor = vec4(vec3(0.62,0.48,0.40) * lit,1.0); return; }",
-    "  if (inBody || inArm) { gl_FragColor = vec4(vColor * lit,1.0); return; }",
+    "  if (inBody || inArm || inUp) { gl_FragColor = vec4(vColor * lit,1.0); return; }",
     "  discard;",
     "}"].join("\n");
 
@@ -212,9 +218,15 @@
     g.addAttribute("position", new T.BufferAttribute(pos, 3)); g.addAttribute("aRand", new T.BufferAttribute(rnd, 1));
     this.crowdSize = new T.BufferAttribute(size, 1); this.crowdSize.setDynamic(true); g.addAttribute("aSize", this.crowdSize);
     g.addAttribute("aColor", new T.BufferAttribute(col, 3)); g.addAttribute("aPhone", new T.BufferAttribute(ph, 1));
-    this.crowdMat = new T.ShaderMaterial({ vertexShader: crowdVS, fragmentShader: crowdFS, uniforms: { uDensity: { value: opts.density }, uScale: { value: 500 }, uPhones: { value: opts.phones || 0 } } });
+    var cu = { uDensity: { value: opts.density }, uScale: { value: 500 }, uPhones: { value: opts.phones || 0 }, uSeated: { value: standH < 1.5 ? 1 : 0 } };
+    Object.keys(People.U).forEach(function (k) { cu[k] = People.U[k]; }); // shared: the director moves near and far crowd together
+    this.crowdMat = new T.ShaderMaterial({ vertexShader: crowdVS, fragmentShader: crowdFS, uniforms: cu });
     this.crowd = new T.Points(g, this.crowdMat); this.crowd.frustumCulled = false; this.scene.add(this.crowd);
     this.crowdRand = rnd; this.crowdCol = col; this.crowdPhone = ph; this.crowdStandH = standH; this.crowdTotal = total; this.openPlaces = people.length;
+  };
+  StadiumScene.prototype.setMatch = function (ev) { // match preview on the pitch for sport events (js/match.js)
+    if (this.match) { this.match.dispose(); this.match = null; }
+    if (ev && window.Match) this.match = new Match(this, ev);
   };
   StadiumScene.prototype.setDensity = function (d) { if (this.crowdMat) this.crowdMat.uniforms.uDensity.value = d; this.density = d; };
   StadiumScene.prototype.setPhones = function (f) { if (this.crowdMat) this.crowdMat.uniforms.uPhones.value = f; };
@@ -370,7 +382,7 @@
   StadiumScene.prototype.placePerformer = function (t) {
     var s = this.performerAt(t); if (!s) return; this.performer.position.copy(s.pos); this.performer.rotation.y = Math.atan2(s.dir.x, s.dir.z);
     if (window.People && !this.performerModel) { // realistic-proportion performer (1.79 m)
-      var pm = People.makeCrowd([{ x: 0, y: 0, z: 0, rot: 0, k: 7, h: 1.79, top: [0.85, 0.7, 0.2] }]); this.performer.add(pm); this.performerModel = pm;
+      var pm = People.makeCrowd([{ x: 0, y: 0, z: 0, rot: 0, k: 7, h: 1.79, top: [0.85, 0.7, 0.2], mode: People.MODE.perform }]); this.performer.add(pm); this.performerModel = pm;
       this.performer.children.forEach(function (c) { if (c !== pm && c.geometry && c.geometry.type !== "CircleBufferGeometry") c.visible = false; });
     }
   };

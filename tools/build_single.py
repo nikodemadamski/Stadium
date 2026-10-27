@@ -1,4 +1,4 @@
-"""Build the self-contained app: src.html + css/ + js/ -> index.html and SeatView.html."""
+"""Build the self-contained app: src.html + css/ + js/ -> index.html, SeatView.html and public/index.html (deployed)."""
 import os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def read(p): return open(os.path.join(ROOT, p), encoding="utf-8").read()
@@ -10,6 +10,6 @@ import base64, hashlib
 hashes = ["'sha256-%s'" % base64.b64encode(hashlib.sha256(m.encode("utf-8")).digest()).decode() for m in re.findall(r"<script>(.*?)</script>", html, re.S)]
 assert "%SCRIPT_HASHES%" in html, "CSP placeholder missing in src.html"
 html = html.replace("%SCRIPT_HASHES%", " ".join(hashes))
-outs = sys.argv[1:] or [os.path.join(ROOT, "index.html"), os.path.join(ROOT, "SeatView.html")]
-for o in outs: open(o, "w", encoding="utf-8").write(html)
+outs = sys.argv[1:] or [os.path.join(ROOT, "index.html"), os.path.join(ROOT, "SeatView.html"), os.path.join(ROOT, "public", "index.html")]  # public/ = what Cloudflare serves
+for o in outs: os.makedirs(os.path.dirname(o), exist_ok=True); open(o, "w", encoding="utf-8").write(html)
 print("wrote", outs, "%d KB; external script tags left: %d; script hashes in CSP: %d" % (len(html) // 1024, len(re.findall(r'<script src=', html)), len(hashes)))

@@ -4,9 +4,10 @@
     git clone --depth 1 https://github.com/makehumancommunity/makehuman  # assets: CC0 (LICENSE.ASSETS.md)
     bl/bin/python tools/humans/build_humans.py makehuman/makehuman/data [preview_dir]
 
-Pipeline: base mesh + macro targets (sex, build) -> pose with the default skeleton and its skin weights
-(linear-blend skinning in numpy) -> clothes as coloured, slightly inflated regions -> hair grown as a voxel shell
-around the posed head -> reduced to 3 levels of detail with Blender's Decimate -> quantised, gzipped, base64.
+Pipeline: base mesh + macro targets (sex, build) -> rest pose (standing, arms down) with the default skeleton and its
+skin weights (linear-blend skinning in numpy) -> clothes as coloured, slightly inflated regions -> hair grown as a voxel
+shell around the head -> reduced to 3 levels of detail with Blender's Decimate, carrying weights for an 11-bone skeleton
+the app animates (sit/stand, clap, dance, phones, waves) -> quantised, gzipped, base64.
 Every person is 1 unit tall (stature), feet at y = 0, hips at x = z = 0, facing +z (the app scales by real height)."""
 import base64, gzip, json, math, os, struct, sys
 import numpy as np
@@ -23,7 +24,12 @@ LOOKS = [
     dict(id="f0", sex="female", mix={"caucasian-female-young": 0.8, "african-female-young": 0.2}, sleeves="short", top=0.08, hair="long"),
     dict(id="f1", sex="female", mix={"caucasian-female-young": 0.7, "asian-female-young": 0.3, "universal-female-young-averagemuscle-minweight": 0.3}, sleeves="long", top=0.14, hair="bob"),
 ]
-POSES = ["stand", "sit", "phone", "sitphone"]
+# One rest pose (standing, arms down); sitting, phones, clapping, dancing and waves are animated in the app's shader
+# with an 11-bone skeleton whose weights and joint positions are exported here.
+BONES = ["root", "spine", "head", "uarm.L", "farm.L", "uarm.R", "farm.R", "thigh.L", "shin.L", "thigh.R", "shin.R"]
+JOINTS = {"hip.L": ("upperleg01.L", "h"), "knee.L": ("lowerleg01.L", "h"), "ankle.L": ("foot.L", "h"), "sh.L": ("upperarm01.L", "h"), "el.L": ("lowerarm01.L", "h"), "wr.L": ("wrist.L", "h"),
+          "hip.R": ("upperleg01.R", "h"), "knee.R": ("lowerleg01.R", "h"), "ankle.R": ("foot.R", "h"), "sh.R": ("upperarm01.R", "h"), "el.R": ("lowerarm01.R", "h"), "wr.R": ("wrist.R", "h"),
+          "waist": ("spine03", "h"), "neck": ("neck01", "h")}
 LOD_TRIS = [(2600, 700), (800, 220), (260, 70)]  # (body, hair) triangle budgets per level of detail
 
 
@@ -134,6 +140,23 @@ def tidy_labels(part, T, keep=(SKIN, TOP, LEGS), it=3):
     return part
 
 
+def reduce_bone(name):
+    sd = name[-2:] if name.endswith((".L", ".R")) else ""
+    if name.startswith("upperarm"): return "uarm" + sd
+    if name.startswith(("lowerarm", "wrist", "finger", "metacarpal")): return "farm" + sd
+    if name.startswith("upperleg"): return "thigh" + sd
+    if name.startswith(("lowerleg", "foot", "toe")): return "shin" + sd
+    if name.startswith(HEAD_BONES): return "head"
+    if name.startswith(("root", "pelvis", "spine05", "spine04")): return "root"
+    return "spine"  # spine03-01, clavicles, shoulders, breasts
+
+
+def reduced_weights(sk, W):
+    R = np.zeros((len(sk.order), len(BONES)))
+    for i, b in enumerate(sk.order): R[i, BONES.index(reduce_bone(b))] = 1
+    return W @ R
+
+
 def build_body(D, look, pose, base):
     V0, F = base
     V = mh.apply_targets(V0, D, look["mix"]); sk = mh.Skeleton(D, V)
@@ -141,12 +164,12 @@ def build_body(D, look, pose, base):
     W = sk.skin_matrix(len(V)); hi = sk.order.index("head")
     eye_v = np.unique(eyes); W[eye_v] = 0; W[eye_v, hi] = 1
     part = tidy_labels(label_parts(sk, W, V, look), body); part[eye_v] = SHOES  # eyes: dark
-    G = aim_pose(sk, pose_aims(pose)); P = sk.deform(V, W, G)
+    G = aim_pose(sk, pose_aims(pose)); P = sk.deform(V, W, G); Wr = reduced_weights(sk, W)
     used = np.unique(np.r_[body.ravel(), eyes.ravel()])
     P = smooth(P, body, part == TOP, it=40); P = smooth(P, body, part == LEGS, it=4); P = smooth(P, body, part == SHOES, it=14)
     n = vertex_normals(P, body)  # after smoothing, so the offset doesn't put the smoothed-away detail back
     P = P + n * np.select([part == TOP, part == LEGS, part == SHOES], [look["top"], 0.11, 0.14], 0)[:, None]
-    return dict(V=P, body=body, eyes=eyes, part=part, sk=sk, G=G, used=used)
+    return dict(V=P, body=body, eyes=eyes, part=part, sk=sk, G=G, used=used, W=Wr)
 
 
 HAIR_STYLES = {  # thickness (dm), hairline elevation (rad) at front / side / back, lowest y below head centre (dm), curtain
@@ -231,26 +254,31 @@ def hair_mesh(hair, shape, lo, step, bvh, c, Vector):
     return vs[u], inv.reshape(-1, 3)
 
 
+def wpos(b, bone, which="h"):
+    p = (b["sk"].head if which == "h" else b["sk"].tail)[bone]; return b["G"][bone][:3, :3] @ p + b["G"][bone][:3, 3]
+
+
 def phone_box(b):
-    """iPhone-sized box (71.9 x 150 x 8.75 mm) in the right hand, screen (-z side) towards the eyes."""
-    sk, G = b["sk"], b["G"]
-    def wpos(bone, which): p = (sk.head if which == "h" else sk.tail)[bone]; return G[bone][:3, :3] @ p + G[bone][:3, 3]
-    hand = wpos("wrist.R", "t"); eye = (wpos("eye.L", "h") + wpos("eye.R", "h")) / 2
-    ctr = hand + np.array([0.15, 0.55, 0.05]); nrm = unit(eye - ctr); up = unit(np.array([0, 1, 0]) - nrm * nrm[1]); rt = np.cross(up, nrm)
+    """iPhone-sized box (71.9 x 150 x 8.75 mm) in the right hand of the rest pose: lying along the hanging forearm,
+    screen (+z face) forward. When the app raises the forearm to film, the phone stands up with the screen to the eyes."""
+    hand = wpos(b, "wrist.R", "t"); fdir = unit(hand - wpos(b, "lowerarm01.R"))
+    nrm = unit(np.array([0, 0, 1.0]) - fdir * fdir[2]); rt = np.cross(fdir, nrm); ctr = hand + fdir * 0.45 + nrm * 0.12
     w, h, t = 0.719 / 2, 1.5 / 2, 0.0875 / 2
     corners = np.array([[sx, sy, sz] for sx in (-w, w) for sy in (-h, h) for sz in (-t, t)])
-    V = ctr + corners[:, 0:1] * rt + corners[:, 1:2] * up - corners[:, 2:3] * nrm  # local -z = towards the eyes
+    V = ctr + corners[:, 0:1] * rt + corners[:, 1:2] * fdir + corners[:, 2:3] * nrm
     F = [[0, 1, 3, 2], [4, 6, 7, 5], [0, 4, 5, 1], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]]
     return V[np.ravel(F)], tris(np.arange(24).reshape(6, 4))  # separate corners per face: flat normals (lit screen)
 
 
-def decimate(V, T, part, target):
-    """Blender Decimate (collapse). Parts travel as one-hot colours so seams survive; argmax picks them back."""
+def decimate(V, T, part, extra, target):
+    """Blender Decimate (collapse). Parts (one-hot) and bone weights travel as colour attributes, which the collapse
+    interpolates; argmax picks the part back, the two strongest bones are kept."""
     import bpy
     me = bpy.data.meshes.new("d"); me.from_pydata([tuple(v) for v in V], [], [tuple(t) for t in T]); me.update()
-    oh = np.zeros((len(V), 8), np.float32); oh[np.arange(len(V)), part] = 1
-    for k in range(2):
-        a = me.color_attributes.new("p%d" % k, "FLOAT_COLOR", "POINT"); a.data.foreach_set("color", oh[:, 4 * k:4 * k + 4].ravel())
+    A = np.zeros((len(V), 6), np.float32); A[np.arange(len(V)), part] = 1; A = np.c_[A, extra].astype(np.float32)
+    A = np.c_[A, np.zeros((len(V), -A.shape[1] % 4), np.float32)]; nk = A.shape[1] // 4
+    for k in range(nk):
+        a = me.color_attributes.new("a%d" % k, "FLOAT_COLOR", "POINT"); a.data.foreach_set("color", A[:, 4 * k:4 * k + 4].ravel())
     ob = bpy.data.objects.new("d", me); bpy.context.scene.collection.objects.link(ob)
     if target < len(T):
         m = ob.modifiers.new("dec", "DECIMATE"); m.ratio = target / len(T); m.use_collapse_triangulate = True
@@ -259,66 +287,66 @@ def decimate(V, T, part, target):
     nv = len(me.vertices); P = np.zeros(nv * 3); me.vertices.foreach_get("co", P)
     TT = np.zeros(len(me.loop_triangles) * 3, int); me.loop_triangles.foreach_get("vertices", TT)
     cols = []
-    for k in range(2):
-        a = np.zeros(nv * 4, np.float32); me.color_attributes["p%d" % k].data.foreach_get("color", a); cols.append(a.reshape(-1, 4))
-    pt = np.concatenate(cols, 1).argmax(1)
-    bpy.data.objects.remove(ob); bpy.data.meshes.remove(me)
-    return P.reshape(-1, 3), TT.reshape(-1, 3), pt
+    for k in range(nk):
+        a = np.zeros(nv * 4, np.float32); me.color_attributes["a%d" % k].data.foreach_get("color", a); cols.append(a.reshape(-1, 4))
+    C = np.concatenate(cols, 1); bpy.data.objects.remove(ob); bpy.data.meshes.remove(me)
+    return P.reshape(-1, 3), TT.reshape(-1, 3), C[:, :6].argmax(1), C[:, 6:6 + extra.shape[1]]
 
 
-def assemble(b, hair, pose):
+def onehot_bone(n, name): w = np.zeros((n, len(BONES))); w[:, BONES.index(name)] = 1; return w
+
+
+def assemble(b, hair):
     used = b["used"]; remap = -np.ones(len(b["V"]), int); remap[used] = np.arange(len(used))
-    V = b["V"][used]; T = remap[np.r_[b["body"], b["eyes"]]]; part = b["part"][used]
-    parts = [(V, T, part)]
-    if pose.endswith("phone"): pv, pt = phone_box(b); parts.append((pv, pt, np.full(len(pv), PHONE)))
-    return parts, (hair[0], hair[1], np.full(len(hair[0]), HAIR))
+    body = (b["V"][used], remap[np.r_[b["body"], b["eyes"]]], b["part"][used], b["W"][used])
+    pv, pt = phone_box(b)
+    return body, (hair[0], hair[1], np.full(len(hair[0]), HAIR), onehot_bone(len(hair[0]), "head")), (pv, pt, np.full(len(pv), PHONE), onehot_bone(len(pv), "farm.R"))
+
+
+def top2(W):
+    o = np.argsort(-W, 1)[:, :2]; w = np.take_along_axis(W, o, 1); s = np.maximum(w.sum(1), 1e-9)
+    return o[:, 0], o[:, 1], w[:, 0] / s
 
 
 def build_all(D, preview_dir=None):
     import bpy
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    base = mh.load_obj(os.path.join(D, "3dobjs", "base.obj")); meshes = []; grid = []
+    base = mh.load_obj(os.path.join(D, "3dobjs", "base.obj")); meshes = []; grid = []; looks = {}
     for look in LOOKS:
-        stand = build_body(D, look, "stand", base)
-        S = stand["V"][stand["used"]][:, 1].max() - stand["V"][stand["used"]][:, 1].min()  # stature (dm)
-        root = stand["sk"].head["root"]; hair = grow_hair(stand, look["hair"]); row = []
+        b = build_body(D, look, "stand", base)
+        S = b["V"][b["used"]][:, 1].max() - b["V"][b["used"]][:, 1].min()  # stature (dm)
+        root = b["sk"].head["root"]; floor = b["V"][b["used"]][:, 1].min(); org = np.array([root[0], floor, root[2]])
+        hair = grow_hair(b, look["hair"]); body, hp, phone = assemble(b, hair)
+        looks[look["id"]] = {k: [round(float(x), 5) for x in (wpos(b, *v) - org) / S] for k, v in JOINTS.items()}
         print(look["id"], "stature %.2f dm, hair %d tris" % (S, len(hair[1])), flush=True)
-        for pose in POSES:
-            b = stand if pose == "stand" else build_body(D, look, pose, base)
-            parts, hp = assemble(b, hair, pose)
-            floor = b["V"][b["used"]][:, 1].min()
-            for lod, (nb, nh) in enumerate(LOD_TRIS):
-                bv, bt, bp = decimate(*parts[0], nb); hv, ht, hpp = decimate(*hp, nh)
-                Vs, Ts, Ps = [bv, hv], [bt, ht + len(bv)], [bp, hpp]
-                if len(parts) > 1: Vs.append(parts[1][0]); Ts.append(parts[1][1] + len(bv) + len(hv)); Ps.append(parts[1][2])
-                V = np.concatenate(Vs); T = np.concatenate(Ts); P = np.concatenate(Ps)
-                if lod == 0: row.append((V, T, P))
-                V = (V - [root[0], floor, root[2]]) / S
-                meshes.append(dict(key="%s-%s-%d" % (look["id"], pose, lod), V=V, T=T, P=P))
-        grid.append(row)
+        for lod, (nb, nh) in enumerate(LOD_TRIS):
+            parts = [decimate(*body, nb), decimate(*hp, nh), phone]
+            V, T, P, Wt, n0 = [], [], [], [], 0
+            for pv, pt, pp, pw in parts: V.append(pv); T.append(pt + n0); P.append(pp); Wt.append(pw); n0 += len(pv)
+            V = np.concatenate(V); T = np.concatenate(T); P = np.concatenate(P); b0, b1, w0 = top2(np.concatenate(Wt))
+            if lod == 0: grid.append([(V, T, P)])
+            meshes.append(dict(key="%s-%d" % (look["id"], lod), V=(V - org) / S, T=T, P=P, B0=b0, B1=b1, W0=w0))
     if preview_dir:
-        preview_grid(grid, os.path.join(preview_dir, "people.png"), views=(("back", (0, 9, 0)), ("front", (0, -9, 0))))
-        preview_grid([[(V[:, [2, 1, 0]] * [-1, 1, 1], T[:, ::-1], P) for V, T, P in row] for row in grid], os.path.join(preview_dir, "people_s.png"), views=(("side", (0, -9, 0)),))
-    return meshes
+        preview_grid([[r[0] for r in grid]], os.path.join(preview_dir, "people.png"), views=(("back", (0, 9, 0)), ("front", (0, -9, 0))))
+    return meshes, looks
 
 
-def pack(meshes, out):
-    """Binary: uint32 header length, JSON header, then per mesh uint16 xyz (quantised to its box), uint8 part, uint16 indices."""
+def pack(meshes, looks, out):
+    """Binary: uint32 header length, JSON header (meshes + joints per look), then per mesh: uint16 xyz (quantised to its
+    box), uint8 part, uint8 bone0, uint8 bone1, uint8 weight0 (x255), padding to 2 bytes, uint16 indices."""
     head, blobs, off = [], [], 0
     for m in meshes:
         lo, hi = m["V"].min(0), m["V"].max(0); q = np.round((m["V"] - lo) / np.maximum(hi - lo, 1e-9) * 65535).astype("<u2")
-        b = q.tobytes() + m["P"].astype("u1").tobytes(); b += b"\0" * (-len(b) % 2); b += m["T"].astype("<u2").tobytes()
+        b = q.tobytes() + m["P"].astype("u1").tobytes() + m["B0"].astype("u1").tobytes() + m["B1"].astype("u1").tobytes() + np.round(m["W0"] * 255).astype("u1").tobytes()
+        b += b"\0" * (-len(b) % 2); b += m["T"].astype("<u2").tobytes()
         head.append(dict(key=m["key"], nv=len(m["V"]), nt=len(m["T"]), lo=[round(float(x), 6) for x in lo], hi=[round(float(x), 6) for x in hi], off=off)); blobs.append(b); off += len(b)
-    hj = json.dumps(dict(v=1, meshes=head), separators=(",", ":")).encode(); hj += b" " * (-len(hj) % 4)
+    hj = json.dumps(dict(v=2, bones=BONES, looks=looks, meshes=head), separators=(",", ":")).encode(); hj += b" " * (-len(hj) % 4)
     raw = struct.pack("<I", len(hj)) + hj + b"".join(blobs); gz = gzip.compress(raw, 9, mtime=0)
     js = ("/* Crowd people built by tools/humans/build_humans.py from MakeHuman assets (CC0 1.0, makehumancommunity/makehuman).\n"
-          " * %d meshes (4 looks x 4 poses x 3 levels of detail), gzip + base64. Decoded once by js/people.js. */\n"
+          " * %d meshes (4 looks x 3 levels of detail) with an 11-bone skeleton for animation, gzip + base64. Decoded once by js/people.js. */\n"
           "window.HUMANS_GZ = \"%s\";\n") % (len(meshes), base64.b64encode(gz).decode())
     open(out, "w").write(js)
     print("wrote %s: %d KB raw, %d KB gzip, %d KB js" % (out, len(raw) // 1024, len(gz) // 1024, len(js) // 1024))
-
-
-PAL = {SKIN: (0.85, 0.65, 0.52), TOP: (0.15, 0.3, 0.65), LEGS: (0.2, 0.2, 0.25), HAIR: (0.3, 0.17, 0.08), SHOES: (0.05, 0.05, 0.05), PHONE: (0.9, 0.9, 0.9)}
 
 
 def preview_grid(items, out, views=(("side", (9, 0.0, 1.0)), ("back", (0.0, 9, 1.4)), ("front", (0.0, -9, 1.2)))):
@@ -334,20 +362,8 @@ def preview_grid(items, out, views=(("side", (9, 0.0, 1.0)), ("back", (0.0, 9, 1
         preview.render_ortho(out.replace(".png", "_%s.png" % name), (cam[0], cam[1], h / 2), (0, 0, h / 2), max(w * 1.5, h) * 1.02)
 
 
-if __name__ == "__main__" and len(sys.argv) > 2 and sys.argv[2] == "--pose-preview":
-    D = sys.argv[1]; base = mh.load_obj(os.path.join(D, "3dobjs", "base.obj"))
-    rows = []
-    for look in LOOKS:
-        rows.append([(lambda b: (b["V"], np.r_[b["body"], b["eyes"]], b["part"]))(build_body(D, look, pose, base)) for pose in POSES])
-    preview_grid(rows, sys.argv[3], views=(("back", (0, 9, 0)), ("front", (0, -9, 0))))
-    # side views: rotate each person 90 degrees
-    side = [[(V[:, [2, 1, 0]] * [-1, 1, 1], T[:, ::-1], part) for V, T, part in row] for row in rows]
-    preview_grid(side, sys.argv[3].replace(".png", "_s.png"), views=(("side", (0, -9, 0)),))
-
-
-if __name__ == "__main__" and len(sys.argv) > 1 and not sys.argv[2:3] == ["--pose-preview"]:
+if __name__ == "__main__" and len(sys.argv) > 1:
     D = sys.argv[1]; prev = sys.argv[2] if len(sys.argv) > 2 else None
-    ms = build_all(D, prev)
-    for m in ms:
-        if m["key"].endswith("-0") or m["key"].startswith("m0-stand"): print(m["key"], len(m["T"]), "tris")
-    pack(ms, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "js", "data", "humans.js"))
+    ms, looks = build_all(D, prev)
+    for m in ms: print(m["key"], len(m["T"]), "tris")
+    pack(ms, looks, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "js", "data", "humans.js"))
