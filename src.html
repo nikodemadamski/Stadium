@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src %SCRIPT_HASHES%; style-src 'unsafe-inline'; img-src 'self' data: blob: https://commons.wikimedia.org https://upload.wikimedia.org https://mapsapi.tmol.io; connect-src 'self' https://app.ticketmaster.com https://musicbrainz.org; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seat View — Irish Stadiums</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="err" hidden></div>
+<header id="top">
+  <button type="button" id="sideToggle" class="iconbtn" aria-label="Show events"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div class="brand"><span class="logo" aria-hidden="true"></span><strong>Seat View</strong></div>
+  <div id="evHead"><div class="evrow"><span id="evType" class="evtype"></span><div id="evTitle">Loading…</div></div><div id="evMeta"></div></div>
+  <div class="pickers">
+    <label class="pick"><span>Venue</span><select id="stadiumSel" aria-label="Venue"></select></label>
+    <label class="pick"><span>Event</span><select id="eventSel" aria-label="Event"></select></label>
+  </div>
+</header>
+<div id="infoBar"><span id="infoText"></span> <a href="#" id="infoMore">Sources</a></div>
+<main id="app">
+  <aside id="side" aria-label="Artists and dates">
+    <div class="sidehead"><b>Events</b><button type="button" id="sideClose" class="iconbtn" aria-label="Close concerts"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="seg"><button type="button" id="sideList" class="on">List</button><button type="button" id="sideCal">Calendar</button></div></div>
+    <div class="sideq"><input id="sideQ" type="search" placeholder="Search artist, team or venue" aria-label="Search events">
+      <div class="typechips" role="group" aria-label="Event type"><button type="button" data-t="all" class="on">All</button><button type="button" data-t="concert">Music</button><button type="button" data-t="sport">Sport</button><button type="button" data-t="theatre">Theatre</button></div>
+      <div id="liveBar" aria-live="polite"></div><div id="livePanel" hidden></div></div>
+    <div id="sideBody"></div>
+  </aside>
+  <section id="view">
+    <canvas id="c"></canvas>
+    <div id="loading"><div class="spinner"></div>Building stadium…</div>
+    <div id="mapWrap" hidden>
+      <canvas id="map2d" aria-label="Seat map. Drag to move, scroll or pinch to zoom, click a section then a seat."></canvas>
+      <div id="mapTop">
+        <div class="chips">
+          <select id="fLevel" aria-label="Level"></select>
+          <label class="chip2"><span id="fDistLbl">Any distance</span><input id="fDist" type="range" min="30" max="200" step="5" value="200" aria-label="Maximum distance to stage"></label>
+          <label class="chip2"><input id="fClosed" type="checkbox" checked> Hide behind stage</label>
+          <button type="button" id="surprise" class="chip2" aria-label="Surprise me: random open seat" title="Pick a random open seat in the sections that match your filters">Surprise me</button>
+          <div class="msearch"><input id="seatSearch" placeholder="Find a seat: 514 K 12" aria-label="Find a seat"><button type="button" id="seatSearchGo" class="iconbtn" aria-label="Find"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></button></div>
+        </div>
+        <div class="legend"><span><i class="sw blue"></i>Matches</span><span><i class="sw grey"></i>Filtered out</span><span><i class="sw terr"></i>Standing</span><span><i class="sw sel"></i>Your seat</span></div>
+        <div id="mapMsg" class="small"></div>
+      </div>
+      <div id="coach" role="status">Tap a section to see its seats</div>
+      <div id="mapCtl"><canvas id="miniMap" title="Overview: click to jump"></canvas><div class="zbtns"><button type="button" id="mapReset" title="Reset view">⟲</button><button type="button" id="mapZoomIn" title="Zoom in">+</button><button type="button" id="mapZoomOut" title="Zoom out">−</button></div></div>
+      <div id="mapTip" hidden></div>
+      <div id="mapSel" hidden></div>
+    </div>
+    <div id="camTop">
+      <button type="button" id="camClose" class="camicon" aria-label="Close camera"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div id="phoneHud"></div>
+      <button type="button" id="orient" class="camicon" aria-label="Rotate phone"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3 12a9 9 0 0 1 3-6.7M21 12a9 9 0 0 1-3 6.7"/></svg></button>
+    </div>
+    <div id="phoneFrame" hidden>
+      <div class="grid3" aria-hidden="true"></div>
+      <div class="lenses" role="group" aria-label="iPhone lens"><button type="button" data-z="0.5417" data-l=".5">.5</button><button type="button" data-z="1" data-l="1×" class="on">1×</button><button type="button" data-z="2" data-l="2">2</button><button type="button" data-z="4.1667" data-l="4">4</button><button type="button" data-z="8.3333" data-l="8">8</button></div>
+    </div>
+    <div id="crowdBar" role="group" aria-label="Crowd">
+      <span>Crowd</span><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button>
+    </div>
+    <div id="hud"><span id="fps">– fps</span><span class="hp"> · <span id="people">0</span> people</span><span id="humanStat"></span></div>
+    <div id="hint">Tap any seat to sit there</div>
+    <div id="flashOv" aria-hidden="true"></div>
+    <div id="bottom">
+      <div id="phoneCtl" hidden>
+        <div class="camModes"><span>TIME-LAPSE</span><span>VIDEO</span><b>PHOTO</b><span>PORTRAIT</span><span>PANO</span></div>
+        <div class="camRow">
+          <button type="button" id="camThumb" class="thumb" aria-label="Last photo"><img id="camThumbImg" alt=""></button>
+          <button type="button" id="shutter" aria-label="Take photo"><i></i></button>
+          <label class="zoom" title="Zoom (or pinch / scroll)"><input id="zoom" type="range" min="0" max="1" step="0.001" value="0.163" aria-label="Zoom"><b id="zoomLbl">1×</b></label>
+        </div>
+      </div>
+      <nav id="modeBar" aria-label="View">
+        <button type="button" data-mode="map" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z"/><path d="M9 4v14M15 6v14"/></svg><span>Seats</span></button>
+        <button type="button" data-mode="overview"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="5"/><path d="M3 12v3c0 2.8 4 5 9 5s9-2.2 9-5v-3"/></svg><span>Stadium</span></button>
+        <button type="button" data-mode="seat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span>My view</span></button>
+        <button type="button" data-mode="phone"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span>Camera</span></button>
+      </nav>
+    </div>
+  </section>
+  <aside id="panel">
+    <nav id="tabs" role="tablist">
+      <button type="button" data-tab="seat" class="on">Seats</button>
+      <button type="button" data-tab="show">Show</button>
+      <button type="button" data-tab="photos">Photos</button>
+      <button type="button" data-tab="sources">Info</button>
+    </nav>
+    <div class="tab on" id="tab-seat">
+      <div id="seatInfo"></div>
+      <div id="compare" hidden></div>
+      <div class="listhead"><b id="mapCount"></b><label class="sortby"><select id="fSort" aria-label="Sort"><option value="best">Best view</option><option value="near">Closest to stage</option><option value="centre">Most central</option><option value="level">By level</option></select></label></div>
+      <ul id="mapList"></ul>
+      <details class="bynum"><summary>Pick by section / row / seat number</summary>
+        <div id="levelTabs"></div><svg id="map" viewBox="-140 -170 280 340" aria-hidden="true"></svg>
+        <div class="pickrow"><label>Section <select id="blockSel"></select></label></div>
+        <div class="pickrow"><label><span id="rowWord">Row</span> <select id="rowSel"></select></label><label><span id="seatWord">Seat</span> <select id="seatSel"></select></label><button type="button" id="goSeat" class="primary">Go</button></div>
+        <div id="blockInfo"></div>
+      </details>
+    </div>
+    <div class="tab" id="tab-show">
+      <div id="eventCard"></div>
+      <div id="tmBox"></div>
+      <div id="sportNote" class="card" hidden></div>
+      <section class="group stageOnly"><h3>Stage</h3>
+        <div id="presetBtns"></div>
+        <p id="presetNote" class="small muted"></p>
+        <div id="stageEnd"></div></section>
+      <section class="group stageOnly"><h3>Performer</h3>
+        <div class="pickrow"><button type="button" id="play">Pause</button><input id="time" type="range" min="0" max="1" step="0.001" value="0" aria-label="Show timeline"><label class="small"><input id="showPath" type="checkbox"> Path</label></div></section>
+      <section class="group"><h3>Crowd</h3>
+        <label class="pickrow">Phones up <input id="phones" type="range" min="0" max="1" step="0.05" value="0.3"><b id="phonesLbl">30%</b></label>
+        <label class="pickrow"><input id="standing" type="checkbox" checked> Crowd standing</label>
+        <div id="pitchNote" class="small muted"></div></section>
+      <section class="group"><h3>Realistic 3D people</h3>
+        <p class="small muted">Drop in free human models (.glb) and every nearby person will use them. They stay in this browser; nothing is uploaded.</p>
+        <label class="filebtn"><input id="modelFile" type="file" accept=".glb,.gltf" multiple>Add .glb people</label>
+        <label class="pickrow small"><input id="modelFlip" type="checkbox"> Models face backwards? Turn them round</label>
+        <div id="modelList" class="small"></div>
+        <div id="humanNote" class="small muted"></div></section>
+    </div>
+    <div class="tab" id="tab-photos"><div id="photos"></div></div>
+    <div class="tab" id="tab-sources"><div id="sources"></div></div>
+  </aside>
+</main>
+<script>window.addEventListener("error",function(e){var m=String(e.message||e);if(/ResizeObserver loop/.test(m))return;var b=document.getElementById("err");b.hidden=false;b.textContent="Something went wrong: "+m+" — please screenshot this.";});</script>
+<script src="js/vendor/three.r97.min.js"></script>
+<script>if(!window.THREE){var b=document.getElementById("err");b.hidden=false;b.textContent="The 3D library did not load (the built-in 3D library failed). Use the single-file version: SeatView.html";}</script>
+<script src="js/data/sources.js"></script>
+<script src="js/data/stadiums.js"></script>
+<script src="js/data/events.js"></script>
+<script src="js/data/stages.js"></script>
+<script src="js/geometry.js"></script>
+<script src="js/seatmap.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/people.js"></script>
+<script src="js/models.js"></script>
+<script src="js/tm.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
