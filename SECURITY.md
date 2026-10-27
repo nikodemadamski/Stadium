@@ -48,3 +48,9 @@ Raw results are in `tests/results_before.json` and `tests/results_after.json`.
 - **Inline styles are still allowed** (`style-src 'unsafe-inline'`). Injected styling could change how the page looks, but cannot run code.
 - **A key kept in the browser is readable by anyone using that browser profile.** Ticketmaster's own tutorial calls the API from the browser the same way. Running `tools/tm_proxy.py` keeps the key out of the browser entirely.
 - **Not tested:** Safari, Firefox, real Ticketmaster and MusicBrainz servers (replies were simulated), or a professional penetration test.
+## Public hosting (27 Oct 2026)
+- **Key exposure:** on the public site the key lives only in Vercel's `TM_API_KEY` setting and is used by `api/events.js`. The page has no key box, and the key never appears in the page, browser storage or replies (tested, including a Ticketmaster error that echoes the key).
+- **Quota abuse:** 50 parallel requests and 20 more cost 12 Ticketmaster calls in total; query strings (cache-busting) get 400; POST/PUT/DELETE/OPTIONS get 405. During a Ticketmaster outage, 30 requests caused only one refresh (5-minute back-off, also cached by the CDN).
+- **Hostile Ticketmaster data through the relay:** cleaned on the server and again in the browser; no script, handler or `javascript:` link reached the page.
+- **Clickjacking:** now fully blocked by real headers (`frame-ancestors 'none'`, `X-Frame-Options: DENY`), plus HSTS, `nosniff`, `no-referrer`, COOP and a Permissions-Policy.
+- **What is published:** only the built `index.html` and the `/api/events` function.

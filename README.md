@@ -24,3 +24,10 @@ Measured in headless Chromium with software rendering (no GPU), so absolute time
 - Draws only when something changes or the show is playing (idle: a redraw every 500 ms as a safety net).
 - Big-screen close-ups render every 3rd frame and only when a screen is in shot.
 - New: Compare up to 3 seats (rendered view of each, best values highlighted, saved per venue), Best view ranking with Top picks, native Share on phones for photos (download elsewhere).
+## Publishing (Vercel)
+1. Import this repo in Vercel. `vercel.json` does the rest: it builds only `public/index.html` (tools, sources and docs are not published), adds security headers, and deploys `api/events.js`.
+2. In Vercel → Project → Settings → Environment Variables add `TM_API_KEY` = your Ticketmaster Consumer Key (Production). Redeploy.
+3. The public site then shows live Ticketmaster events with no key box. The key stays on the server; visitors never see it.
+
+Abuse protection on `/api/events`: one fixed URL (any `?…` is refused, so the cache can't be bypassed), Vercel's CDN serves one cached copy for 6 h, parallel requests share one refresh, and after a failure Ticketmaster is left alone for 5 min. Ticketmaster gets ~12 calls per refresh however many people visit (free limit: 5,000/day). Without `TM_API_KEY` the site still works with the listed events.
+Never put the key in a file in this repo; `.env` files are git-ignored.

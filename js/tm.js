@@ -24,14 +24,29 @@
     return true;
   };
   // The cached event list is outside data too: every event is rebuilt through cleanEvent() on load.
-  function load() {
-    try {
-      var j = JSON.parse(ls("tm.cache") || "null"); if (!j || typeof j !== "object" || !j.venues || !(j.at > 0) || j.at > Date.now() + 864e5) return null;
-      var v = Object.create(null); Object.keys(VENUES).forEach(function (sid) { var a = j.venues[sid]; v[sid] = Array.isArray(a) ? a.slice(0, 300).map(function (e) { return cleanEvent(e, { venue: sid }); }).filter(Boolean) : []; });
-      return { at: j.at, venues: v };
-    } catch (e) { return null; }
+  function rebuild(j, hosted) {
+    if (!j || typeof j !== "object" || !j.venues || typeof j.venues !== "object" || !(j.at > 0) || j.at > Date.now() + 864e5) return null;
+    var v = Object.create(null); Object.keys(VENUES).forEach(function (sid) {
+      var a = Object.prototype.hasOwnProperty.call(j.venues, sid) ? j.venues[sid] : null;
+      v[sid] = Array.isArray(a) ? a.slice(0, 300).map(function (e) { return cleanEvent(hosted && e && typeof e === "object" ? { id: e.id, type: e.type, name: e.name, date: e.date, time: e.time, status: e.status, url: e.url, seatmap: e.seatmap, src: "Ticketmaster (live)", live: true } : e, { venue: sid }); }).filter(Boolean) : [];
+    });
+    return { at: j.at, venues: v };
   }
+  function load() { try { return rebuild(JSON.parse(ls("tm.cache") || "null")); } catch (e) { return null; } }
   TM.data = load();
+  // Public site (Vercel): live events come from /api/events, which keeps the key on the server (api/events.js).
+  // No key ever reaches the browser, and the reply is cleaned here like any other outside data.
+  TM.hosted = false;
+  function loadHosted() {
+    if (!/^https?:$/.test(location.protocol) || TM.key() || /[?&]tm=1\b/.test(location.search)) return Promise.resolve(false);
+    return fetch("/api/events", { credentials: "omit", headers: { Accept: "application/json" } })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (j) {
+        var d = rebuild(j, true); if (!d) throw new Error("bad reply");
+        TM.hosted = true; TM.data = d; TM.state = "on"; TM.status = ""; TM.renderPanel(); if (TM.onUpdate) TM.onUpdate(); return true;
+      })
+      .catch(function () { return false; });
+  }
   TM.lastAt = function () { return TM.data ? TM.data.at : 0; };
   // Normalise Ticketmaster's classification into the app's event types.
   function typeOf(e) {
@@ -60,7 +75,7 @@
       throw e;
     });
   }
-  TM.check = function () { TM.state = TM.key() || /[?&]tm=1\b/.test(location.search) ? "on" : "off"; return Promise.resolve(TM.state === "on"); };
+  TM.check = function () { TM.state = TM.hosted || TM.key() || /[?&]tm=1\b/.test(location.search) ? "on" : "off"; return Promise.resolve(TM.state === "on"); };
   TM.eventsFor = function (sid) { return (TM.data && Object.prototype.hasOwnProperty.call(TM.data.venues, sid) && TM.data.venues[sid]) || []; };
   // Refresh every venue: 1 venue lookup + 1 event search each (12 calls for 6 venues), spaced to respect 5 requests/second.
   TM.refresh = function () {
@@ -86,16 +101,21 @@
     }, function (e) { TM.busy = null; TM.status = e.message; TM.renderPanel(); throw e; });
     return TM.busy;
   };
-  TM.autoRefresh = function () { TM.renderPanel(); if ((TM.key() || /[?&]tm=1\b/.test(location.search)) && Date.now() - TM.lastAt() > DAY) TM.refresh().catch(function () {}); };
+  TM.autoRefresh = function () {
+    TM.renderPanel();
+    loadHosted().then(function (ok) { if (!ok && (TM.key() || /[?&]tm=1\b/.test(location.search)) && Date.now() - TM.lastAt() > DAY) TM.refresh().catch(function () {}); });
+  };
   function ago(t) { var m = Math.round((Date.now() - t) / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.round(m / 60) + " h ago" : Math.round(m / 1440) + " days ago"; }
   TM.renderPanel = function () {
     var bar = $("liveBar"); if (!bar) return;
     var n = 0; if (TM.data) Object.keys(TM.data.venues).forEach(function (k) { n += TM.data.venues[k].length; });
-    var on = !!TM.key() || /[?&]tm=1\b/.test(location.search);
+    var on = TM.hosted || !!TM.key() || /[?&]tm=1\b/.test(location.search);
     bar.innerHTML = on
-      ? "<span class='dot " + (TM.busy ? "busy" : TM.data ? "ok" : "") + "'></span><span><b>Live</b> · Ticketmaster · " + (TM.busy ? "refreshing…" : TM.data ? n + " events · updated " + ago(TM.data.at) : "not loaded yet") + "</span><button type='button' id='liveRefresh' class='iconbtn' aria-label='Refresh live data' title='Refresh now'>↻</button><button type='button' id='liveSet' class='linkbtn'>Settings</button>"
+      ? "<span class='dot " + (TM.busy ? "busy" : TM.data ? "ok" : "") + "'></span><span><b>Live</b> · Ticketmaster · " + (TM.busy ? "refreshing…" : TM.data ? n + " events · updated " + ago(TM.data.at) : "not loaded yet") + "</span>" +
+        (TM.hosted ? "" : "<button type='button' id='liveRefresh' class='iconbtn' aria-label='Refresh live data' title='Refresh now'>↻</button><button type='button' id='liveSet' class='linkbtn'>Settings</button>")
       : "<span class='dot'></span><span>Listed events · checked " + esc(EVENTS.scrapedOn) + "</span><button type='button' id='liveSet' class='linkbtn'>Go live</button>";
     if (TM.status) bar.innerHTML += "<div class='small warnline'>" + esc(TM.status) + "</div>";
+    if (TM.hosted) { $("livePanel").innerHTML = ""; $("livePanel").hidden = true; return; } // public site: no key settings at all
     var r = $("liveRefresh"); if (r) r.addEventListener("click", function () { TM.refresh().catch(function () {}); });
     $("liveSet").addEventListener("click", function () { var p = $("livePanel"); p.hidden = !p.hidden; });
     $("livePanel").innerHTML = "<p class='small'>Paste your free <a href='https://developer.ticketmaster.com' target='_blank' rel='noopener noreferrer'>Ticketmaster Discovery API key</a> (sign up → My Apps → Consumer Key). The app then pulls every event at all six venues straight from Ticketmaster and refreshes once a day by itself. The key stays in this browser.</p>" +
