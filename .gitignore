@@ -7,3 +7,5 @@ __pycache__/
 .dev.vars
 node_modules/
 .wrangler/
+# CC BY-NC-ND 4.0 skill (TMHSDigital/Blender-Developer-Tools): local only, not redistributed
+.claude/skills/headless-batch-scripting/
