@@ -167,12 +167,31 @@
     if ((m === "seat" || m === "phone") && state.seatIdx < 0) { showTab("seat"); setMode("map"); flash("Pick a seat first: click a section, then a seat"); return; }
     state.mode = m; document.body.classList.toggle("mapmode", m === "map"); document.body.classList.toggle("seatmode", m === "seat"); SeatMap.show(m === "map"); syncFrontUI();
     document.querySelectorAll("#modeBar button").forEach(function (b) { b.classList.toggle("on", b.dataset.mode === m); });
-    $("phoneCtl").hidden = m !== "phone"; $("hint").textContent = HINTS[m]; $("hint").classList.remove("flash");
+    $("phoneCtl").hidden = m !== "phone"; $("hint").classList.remove("flash"); showHint(HINTS[m]);
+    var on = document.querySelector('#modeBar button[data-mode="' + m + '"] span'); $("dockLbl").textContent = on ? on.textContent : "Views";
     var was = document.body.classList.contains("phonemode"); document.body.classList.toggle("phonemode", m === "phone");
     if (was !== (m === "phone")) resize();
     layoutPhone(); requestAnimationFrame(function () { resize(); layoutPhone(); });
   }
-  document.querySelectorAll("#modeBar button").forEach(function (b) { b.addEventListener("click", function () { setMode(b.dataset.mode); }); });
+  document.querySelectorAll("#modeBar button").forEach(function (b) { b.addEventListener("click", function () { setMode(b.dataset.mode); dock(true); }); });
+  // Bottom dock: the view comes first. The views (and on phones the details tabs) fold into one small pill showing the
+  // current view; tap it to open, tap the scene / Escape / 6 s without touching it to fold away again.
+  var dockT = 0;
+  function dock(open) {
+    clearTimeout(dockT); document.body.classList.toggle("dockOpen", open); $("dockBtn").setAttribute("aria-expanded", open);
+    if (open) dockT = setTimeout(function () { if (!document.querySelector("#modeBar:hover, #tabs:hover") && !document.body.classList.contains("sheetOpen")) dock(false); else dock(true); }, 6000);
+  }
+  A.dock = dock;
+  $("dockBtn").addEventListener("click", function () { dock(true); var b = document.querySelector("#modeBar button.on"); if (b) b.focus(); });
+  ["c", "map2d"].forEach(function (id) { $(id).addEventListener("pointerdown", function () { if (document.body.classList.contains("dockOpen")) dock(false); }); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && document.body.classList.contains("dockOpen") && !document.body.classList.contains("sheetOpen")) { dock(false); $("dockBtn").focus(); } });
+  ["modeBar", "tabs"].forEach(function (id) { $(id).addEventListener("focusin", function () { dock(true); }); });
+  // The gesture hint shows for a few seconds when a view opens, then fades: it is there to teach, not to stay.
+  var hintT = 0;
+  function showHint(t) { // the 4 s start once the new view has drawn (a slow phone can take seconds to show it)
+    var h = $("hint"), n = A.renderCount; h.textContent = t; h.classList.add("show"); clearTimeout(hintT);
+    (function wait() { if (A.renderCount > n + 1) hintT = setTimeout(function () { h.classList.remove("show"); }, 4000); else hintT = setTimeout(wait, 100); })();
+  }
   // Person in front (My view only): a simulated height for whoever sits one row ahead. Press again to go back to the crowd as generated.
   function syncFrontUI() {
     var front = sc && state.seatIdx >= 0 ? sc.frontSeat(state.seatIdx) : -1;
@@ -183,7 +202,7 @@
     state.frontH = state.frontH === b.dataset.h ? null : b.dataset.h; sc.frontH = state.frontH; refreshPeople(); syncFrontUI();
   }); });
   var flashT = 0;
-  function flash(msg) { var h = $("hint"); h.textContent = msg; h.classList.add("flash"); clearTimeout(flashT); flashT = setTimeout(function () { h.classList.remove("flash"); h.textContent = HINTS[state.mode]; }, 3000); }
+  function flash(msg) { var h = $("hint"); h.textContent = msg; h.classList.add("flash", "show"); clearTimeout(hintT); hintT = setTimeout(function () { h.classList.remove("show"); }, 3000); clearTimeout(flashT); flashT = setTimeout(function () { h.classList.remove("flash"); h.textContent = HINTS[state.mode]; }, 3000); }
 
   // ---------- crowd / performer controls ----------
   function setDensity(d) {
@@ -197,14 +216,12 @@
   // Moving / Still. Still: everyone holds one pose; Sit / Stand chooses which (the same "Crowd standing" setting).
   function setStanding(on) { state.standing = on; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); syncCrowdUI(); }
   function syncCrowdUI() {
-    var still = People.still; $("crowdMove").classList.toggle("on", !still); $("crowdStill").classList.toggle("on", still);
-    $("crowdMove").setAttribute("aria-pressed", !still); $("crowdStill").setAttribute("aria-pressed", still); 
+    var still = People.still; $("stillToggle").checked = still; $("stillToggle").setAttribute("aria-checked", still);
     $("stillSit").classList.toggle("on", !state.standing); $("stillStand").classList.toggle("on", state.standing); // one Sitting/Standing control (was a checkbox + Still-only buttons)
     $("stillSit").setAttribute("aria-pressed", !state.standing); $("stillStand").setAttribute("aria-pressed", state.standing);
   }
   A.syncCrowdUI = syncCrowdUI;
-  $("crowdMove").addEventListener("click", function () { People.still = false; syncCrowdUI(); invalidate(); });
-  $("crowdStill").addEventListener("click", function () { People.still = true; syncCrowdUI(); invalidate(); });
+  $("stillToggle").addEventListener("change", function () { People.still = this.checked; syncCrowdUI(); invalidate(); }); // the one switch left on the view
   $("stillSit").addEventListener("click", function () { setStanding(false); });
   $("stillStand").addEventListener("click", function () { setStanding(true); });
   $("crowdJump").addEventListener("click", function () { People.jump(); play(); });

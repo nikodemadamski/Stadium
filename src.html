@@ -65,18 +65,19 @@
       <div class="grid3" aria-hidden="true"></div>
       <div class="lenses" role="group" aria-label="iPhone lens"><button type="button" data-z="0.5417" data-l=".5">.5</button><button type="button" data-z="1" data-l="1×" class="on">1×</button><button type="button" data-z="2" data-l="2">2</button><button type="button" data-z="4.1667" data-l="4">4</button><button type="button" data-z="8.3333" data-l="8">8</button></div>
     </div>
-    <div id="frontBar" role="group" aria-labelledby="frontLbl"><span id="frontLbl">Person in front <em>simulated</em></span><button type="button" data-h="short" aria-pressed="false">Short</button><button type="button" data-h="avg" aria-pressed="false">Average</button><button type="button" data-h="tall" aria-pressed="false">Tall</button></div>
     <div id="crowdBar">
-      <div class="quick"><button type="button" id="crowdBtn" aria-expanded="false" aria-controls="crowdPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M2.5 19c.6-3.4 2.8-5.5 5.5-5.5s4.9 2.1 5.5 5.5M13.5 14.2c.9-.7 1.9-1.1 3-1.1 2.3 0 4.1 1.8 4.7 4.9"/></svg>Crowd</button><button type="button" id="crowdWave" title="One Mexican wave around the whole venue">Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button></div>
-      <div id="crowdPanel" role="group" aria-label="Crowd settings" hidden>
+      <button type="button" id="crowdBtn" class="glass" aria-expanded="false" aria-controls="crowdPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M2.5 19c.6-3.4 2.8-5.5 5.5-5.5s4.9 2.1 5.5 5.5M13.5 14.2c.9-.7 1.9-1.1 3-1.1 2.3 0 4.1 1.8 4.7 4.9"/></svg>Crowd</button>
+      <div id="crowdPanel" role="group" aria-label="Crowd" hidden>
         <div class="fld"><span id="lblDens">How full</span><div class="seg" role="group" aria-labelledby="lblDens"><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button></div></div>
-        <div class="fld"><span id="lblMove">Motion</span><div class="seg" role="group" aria-labelledby="lblMove"><button type="button" id="crowdMove" class="on" aria-pressed="true" title="Fans dance, clap, cheer">Moving</button><button type="button" id="crowdStill" aria-pressed="false" title="Everyone holds still">Still</button></div></div>
         <div class="fld"><span id="lblPose">Fans are</span><div class="seg" id="stillPose" role="group" aria-labelledby="lblPose"><button type="button" id="stillSit">Sitting</button><button type="button" id="stillStand">Standing</button></div></div>
+        <div class="fld"><span id="lblMoment">Crowd moments</span><div class="seg" role="group" aria-labelledby="lblMoment"><button type="button" id="crowdWave" title="One Mexican wave around the whole venue">Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button></div></div>
+        <div class="fld" id="frontBar"><span id="frontLbl">Person in front <em>simulated</em></span><div class="seg" role="group" aria-labelledby="frontLbl"><button type="button" data-h="short" aria-pressed="false">Short</button><button type="button" data-h="avg" aria-pressed="false">Average</button><button type="button" data-h="tall" aria-pressed="false">Tall</button></div></div>
         <label class="fld"><span>Phones up</span><span class="rng"><input id="phones" type="range" min="0" max="1" step="0.05" value="0.3"><b id="phonesLbl">30%</b></span></label>
         <p id="hud" class="small muted"><span id="fps">– fps</span><span class="hp"><span id="people">0</span> people</span><span id="humanStat"></span></p>
         <div id="pitchNote" class="small muted"></div>
       </div>
     </div>
+    <label id="stillSwitch" class="glass"><span>Still</span><input type="checkbox" id="stillToggle" role="switch" aria-checked="false"><i aria-hidden="true"></i></label>
     <div id="hint">Tap any seat to sit there</div>
     <div id="flashOv" aria-hidden="true"></div>
     <div id="bottom">
@@ -88,6 +89,7 @@
           <label class="zoom" title="Zoom (or pinch / scroll)"><input id="zoom" type="range" min="0" max="1" step="0.001" value="0.163" aria-label="Zoom"><b id="zoomLbl">1×</b></label>
         </div>
       </div>
+      <button type="button" id="dockBtn" class="glass" aria-expanded="false" aria-controls="modeBar"><span id="dockLbl">Seats</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
       <nav id="modeBar" aria-label="View">
         <button type="button" data-mode="map" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z"/><path d="M9 4v14M15 6v14"/></svg><span>Seats</span></button>
         <button type="button" data-mode="overview"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="5"/><path d="M3 12v3c0 2.8 4 5 9 5s9-2.2 9-5v-3"/></svg><span>Stadium</span></button>

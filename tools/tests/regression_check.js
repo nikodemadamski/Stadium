@@ -24,7 +24,7 @@ const rows = [];
       await p.evaluate(() => { SeatMap.clearSel(); SeatMap.back(); SeatMap.back(); }); await p.waitForTimeout(500);
       if (await p.isHidden("#mapFilters")) await p.click("#mapFiltersBtn"); chk("filters open", await p.isVisible("#fDist")); await p.click("#surprise"); await p.waitForTimeout(600); chk("surprise", await p.evaluate(() => __app.state.seatIdx >= 0));
       await p.evaluate(() => { SeatMap.clearSel(); SeatMap.back(); SeatMap.back(); }); await p.waitForTimeout(400);
-      if (touch) { await p.tap('#tabs button[data-tab="seat"]'); await p.waitForTimeout(300); }
+      if (touch) { await p.tap("#dockBtn"); await p.waitForTimeout(300); await p.tap('#tabs button[data-tab="seat"]'); await p.waitForTimeout(300); }
       await p.locator("#mapList li[data-b]").first().click(); await p.waitForTimeout(600); chk("list -> section", await p.evaluate(() => SeatMap.focusBlock >= 0));
       if (touch) await p.evaluate(() => __app.sheet(false));
       // seat, 3D modes, compare, share, camera
@@ -37,8 +37,8 @@ const rows = [];
       const cmp = await p.$("#cmpAdd"); if (cmp) { await p.evaluate(() => document.getElementById("cmpAdd").click()); await p.waitForTimeout(800); chk("compare", await p.evaluate(() => !document.getElementById("compare").hidden)); }
       // crowd + show controls
       await p.click("#crowdBtn"); await p.click('#crowdPanel button[data-d="0"]'); await p.waitForTimeout(300); chk("crowd empty", await p.evaluate(() => __app.state.density === 0 && __app.sc.visiblePeople() === 0));
-      await p.click('#crowdPanel button[data-d="1"]'); await p.click("#crowdBtn");
-      await p.click("#crowdWave"); chk("wave", await p.evaluate(() => People.U.uWaveOn.value > 0 || People.G.waveOn));
+      await p.click('#crowdPanel button[data-d="1"]');
+      await p.click("#crowdWave"); await p.click("#crowdBtn"); chk("wave", await p.evaluate(() => People.U.uWaveOn.value > 0 || People.G.waveOn));
       const presets = await p.$$("#presetBtns button"); if (presets.length > 1) { await p.evaluate(() => document.querySelectorAll("#presetBtns button")[1].click()); await p.waitForTimeout(1500); chk("stage preset", await p.evaluate(() => !!__app.sc)); }
       r.errors = errs.length ? errs.slice(0, 2).join(" | ") : 0; rows.push(r); errs.length = 0;
     }
