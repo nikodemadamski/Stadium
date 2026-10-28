@@ -197,7 +197,7 @@
     var byKey = {}, fans = Crowd.makeFans(people, { sport: P.ctx.sport });
     people.forEach(function (p, i) {
       var look = lookOf(p), key = look + "-" + (p.lod || 0);
-      p.fan = fans[i]; fans[i].look = look; (byKey[key] = byKey[key] || []).push(p);
+      p.fan = fans[i]; fans[i].look = look; fans[i].yk = LOOKS[look] ? Crowd.armK(LOOKS[look]) : 1; (byKey[key] = byKey[key] || []).push(p);
     });
     Object.keys(byKey).forEach(function (key) {
       var src = REAL[key], list = byKey[key], n = list.length; if (!src) return;

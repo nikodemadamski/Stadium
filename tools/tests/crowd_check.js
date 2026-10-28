@@ -81,6 +81,17 @@ function inPage(opts) { // runs inside the page
       ["L", "R"].forEach((S) => { mx = Math.max(mx, Math.abs(j["el" + S][0]) * 1.75 + 0.05, Math.abs(j["wr" + S][0]) * 1.75 + 0.04, Math.abs(j["tip" + S][0]) * 1.75 + 0.04, Math.abs(j["sh" + S][0]) * 1.75 + 0.05); }); }
       span[name] = { tag: Cw.CLIPS[name].span, halfSpan_m: +mx.toFixed(3) }; } }
   res.clipSpan = span;
+  // self-intersection: a fan's own left arm against their own right arm (clapping, hands in lap), every clip, every body
+  // look, with the same per-look swing-in scaling the renderer applies (Crowd.armK). Radii: hand 1.25 cm (palm half
+  // thickness), forearm 3 cm. Palms touching is fine; more than 0.5 cm overlap is a hand passing through the other.
+  const self = {}; for (const name in Cw.CLIPS) { if (name === "run" || name === "perform") continue; let worst = 0, part = "", bad = 0, n = 0;
+    for (const lk in L) { const yk = Cw.armK(L[lk]); for (let t = 0; t < 4; t += 0.02) { const q = Cw.blank(); Cw.CLIPS[name].fn(q, t, 6.2832 * 2 * t, 0.37); q.yL *= yk; q.yR *= yk;
+      const j = Cw.joints(L[lk], q), sc = (v) => v.map((x) => x * 1.75), R = { fore: 0.03, hand: 0.0125 }; let fw = 0, fp = "";
+      const seg = (S) => ({ fore: [sc(j["el" + S]), sc(j["wr" + S])], hand: [sc(j["wr" + S]), sc(j["tip" + S])] }), A = seg("L"), B = seg("R");
+      for (const a of ["fore", "hand"]) for (const c of ["fore", "hand"]) { const dep = R[a] + R[c] - segDist(A[a][0], A[a][1], B[c][0], B[c][1]); if (dep > fw) { fw = dep; fp = "L" + a + ">R" + c; } }
+      n++; if (fw > 0.005) bad++; if (fw > worst) { worst = fw; part = fp; } } }
+    self[name] = { worst_cm: +(worst * 100).toFixed(1), part, framesOver: bad }; }
+  res.selfIntersect = self;
   // wave: every seat in the venue (every 7th) must rise exactly once, in angle order, and the wave must stop
   const seats = __app.model.seats.filter((_, i) => i % 7 === 0), Gw = Object.assign({}, P.G, { waveOn: true, waveT0: 100, waveLen: P.waveLen, waveA0: 0, cx: 0, cz: 0 });
   let once = 0, never = 0, twice = 0, after = 0; const starts = [];

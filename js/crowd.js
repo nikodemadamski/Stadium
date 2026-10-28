@@ -23,7 +23,7 @@
     for (var i = 0; i < KEYS.length; i++) { var k = KEYS[i]; a[k] += (b[k] - a[k]) * w; }
     // elbow bent (never folded past ~120 degrees: a folded forearm points back OUT) and swung in while travelling
     a.ffL = Math.max(-2.1, a.ffL - 1.0 * tuckL); a.ffR = Math.max(-2.1, a.ffR - 1.0 * tuckR);
-    a.yL = Math.max(a.yL, 0.6 * tuckL); a.yR = Math.max(a.yR, 0.6 * tuckR); return a;
+    a.yL = Math.max(a.yL, Math.min(0.3, 0.6 * tuckL)); a.yR = Math.max(a.yR, Math.min(0.3, 0.6 * tuckR)); return a; // capped: more swing-in crosses the hands (see C.armK)
   }
   C.blank = blank; C.mix = mixInto;
   // Angle conventions (rest pose = standing, arms down): f < 0 raises the upper arm forward (-2.8 = overhead), s > 0
@@ -32,14 +32,16 @@
   function sit(p, u) { p.thL = p.thR = -1.45 * u; p.shL = p.shR = 1.45 * u; p.lean = 0.12 * u; }
   // The modelled rest pose hangs the arms ~7 degrees outward (elbows 2 cm wider than the shoulders); s = -0.2 brings
   // the elbows under the shoulders so a fan's arms stay inside their own seat width (measured: tools/tests/crowd_check.js).
-  function lap(p, u) { p.fL = p.fR = -0.35 * u; p.ffL = p.ffR = -1.1 * u; p.sL = p.sR = -0.2 * u; p.yL = p.yR = 0.4 * u; } // hands on the thighs, not out on the knees
-  function restArms(p) { p.sL = p.sR = -0.2; p.fL = p.fR = -0.12; p.ffL = p.ffR = -0.45; p.yL = p.yR = 0.35; } // hands in front of the thighs
+  function lap(p, u) { p.fL = p.fR = -0.35 * u; p.ffL = p.ffR = -1.1 * u; p.sL = p.sR = -0.2 * u; p.yL = p.yR = 0.2 * u; } // hands on their own thighs, ~10 cm apart (0.4 laid one hand through the other)
+  function restArms(p) { p.sL = p.sR = -0.2; p.fL = p.fR = -0.12; p.ffL = p.ffR = -0.45; p.yL = p.yR = 0.25; } // hands in front of the thighs, apart
   // Arms raised overhead, hands a little in over the head.
   function upArms(p, S, f, u) { p["f" + S] = f; p["s" + S] = -0.32; p["ff" + S] = -0.2; p["y" + S] = 0; }
   var TAU = 6.2832;
-  function clapArms(p, b) { p.fL = p.fR = -0.85; p.ffL = p.ffR = -1.2; p.sL = p.sR = -0.2; p.yL = p.yR = 0.55 + 0.12 * Math.sin(b); } // hands meet in front of the chest
+  // Hands meet at y = 0.40 (measured, 1.75 m male look: fingertips 1.5 cm off the midline) and must never pass it.
+  // The old 0.55 ± 0.12 swung each hand up to 20 cm through the other. Now: open ~26 cm apart, palms touch once per beat.
+  function clapArms(p, b) { p.fL = p.fR = -0.85; p.ffL = p.ffR = -1.2; p.sL = p.sR = -0.2; p.yL = p.yR = 0.40 - 0.26 * (0.5 + 0.5 * Math.sin(b)); }
   function phoneArm(p) { p.fR = -1.25; p.sR = 0; p.ffR = -1.4; p.yR = 0.35; p.phone = 1; p.nod = 0.15; } // phone held up in front of the face
-  function chestArms(p, S, u) { p["f" + S] = -0.5; p["ff" + S] = -1.5 + 0.2 * u; p["s" + S] = -0.2; p["y" + S] = 0.45; } // forearms up in front, elbows in
+  function chestArms(p, S, u) { p["f" + S] = -0.5; p["ff" + S] = -1.5 + 0.2 * u; p["s" + S] = -0.2; p["y" + S] = 0.3; } // forearms up in front, elbows in, hands apart (0.45 crossed them)
   // clip(p, t, beat, seed): t = clip-local seconds, beat = beat phase in radians (already offset and time-scaled per fan)
   var CLIPS = C.CLIPS = {
     still_stand: { span: "narrow", seated: false, fn: function (p) { restArms(p); } },
@@ -150,6 +152,7 @@
       for (i = 0; i < KEYS.length; i++) p[KEYS[i]] = A[KEYS[i]];
     }
     if (f.fixed) return p;
+    if (f.yk) { p.yL *= f.yk; p.yR *= f.yk; } // swing-in calibrated to this body's shoulder width (C.armK)
     var seatedNow = f.seated;
     // group moments (animated only): synchronised jump at concerts, everyone up for a score
     if (!G.still && G.jump > 0 && !seatedNow) { var j = G.jump * Math.max(0, Math.sin(beat)); p.jump = Math.max(p.jump, 0.06 * j); }
@@ -192,4 +195,13 @@
     return out;
   };
   C.KEYS = KEYS;
+  // Arm swing-in calibration per body look: clip angles are written for the 1.75 m male look, whose hands meet at
+  // y = 0.40 in the clap pose; narrower shoulders meet sooner (female looks ~0.33). Scaling y by meet/0.40 keeps every
+  // clip's hands apart on every body. Bisection on the real rig, once per look.
+  C.armK = function (J) {
+    if (J._armK) return J._armK;
+    var q = blank(), lo = 0, hi = 1, i; q.fL = q.fR = -0.85; q.ffL = q.ffR = -1.2; q.sL = q.sR = -0.2;
+    for (i = 0; i < 24; i++) { var m = (lo + hi) / 2; q.yL = q.yR = m; var j = C.joints(J, q); if (Math.min(j.tipL[0], j.wrL[0]) * 1.75 > 0.015) lo = m; else hi = m; }
+    return (J._armK = lo / 0.40);
+  };
 })();
