@@ -314,8 +314,8 @@ body.framed #liveSet { opacity:.5; }
   :root { --hdr:48px; }
   #panel { left:auto; top:0; bottom:0; width:min(420px,55vw); max-height:none; border-radius:var(--r-4) 0 0 var(--r-4); transform:translateX(100%); visibility:hidden; transition:transform var(--dur) ease-out, visibility var(--dur); }
   body.sheetOpen #panel { transform:none; visibility:visible; max-height:none; }
-  #bottom { bottom:var(--sp-2); }
-  #mapCtl, #mapSel, #frontBar { bottom:76px; } #hint { bottom:76px; }
+  #bottom { bottom:var(--sp-2); left:var(--sp-2); right:auto; align-items:flex-start; } /* left edge: the seat card sits on the right */
+  #mapCtl, #frontBar { bottom:76px; } #hint { bottom:76px; }
   #mapTop .mhint { display:none; }
   #sheetOpenBtn { display:inline-flex; }
   #mapSel { left:auto; right:var(--sp-2); bottom:var(--sp-2); width:min(400px,48vw); z-index:9; } #mapSel .btns { margin-top:var(--sp-2); }
