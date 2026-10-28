@@ -45,7 +45,7 @@
   }
   // Pitch markings and goals for the sport (the stadium model only has touchlines and halfway).
   Match.prototype.markings = function (type) {
-    var g = this.group, hw = this.hw + 3, hl = this.hl, white = new T.MeshBasicMaterial({ color: 0xf3f4f6 }), post = new T.MeshLambertMaterial({ color: 0xffffff, emissive: 0x555555 });
+    var g = this.group, hw = this.hw + 3, hl = this.hl, white = new T.MeshBasicMaterial({ color: 0xf3f4f6, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }), post = new T.MeshLambertMaterial({ color: 0xffffff, emissive: 0x555555 });
     function line(x0, z0, x1, z1, w) { var len = Math.hypot(x1 - x0, z1 - z0), m = new T.Mesh(new T.PlaneBufferGeometry(w || 0.12, len), white); m.rotation.x = -Math.PI / 2; m.rotation.z = Math.atan2(x0 - x1, z0 - z1); m.position.set((x0 + x1) / 2, 0.035, (z0 + z1) / 2); g.add(m); }
     function bar(x, y, z, sx, sy, sz) { var m = new T.Mesh(new T.BoxBufferGeometry(sx, sy, sz), post); m.position.set(x, y, z); g.add(m); }
     [-1, 1].forEach(function (s) {

@@ -41,10 +41,11 @@
     if (state.mode === "overview") {
       var cp = Math.cos(state.pitch);
       c.position.set(state.target.x + state.dist * cp * Math.sin(state.yaw), state.target.y + state.dist * Math.sin(state.pitch), state.target.z + state.dist * cp * Math.cos(state.yaw));
-      c.lookAt(state.target); c.fov = 55;
-    } else { c.position.copy(state.eye); c.lookAt(state.eye.clone().add(lookDir())); c.fov = state.fov; }
+      c.lookAt(state.target); c.fov = 55; c.near = clamp(state.dist * 0.02, 0.5, 8); // 24-bit depth: step ≈ d²/(near·2²⁴). near 0.1 gave ~3 cm at 220 m = the gap between seats/treads/pitch → flicker
+    } else { c.position.copy(state.eye); c.lookAt(state.eye.clone().add(lookDir())); c.fov = state.fov; c.near = 0.3; } // nearest thing in a seat view: the head in front, ≥ 0.5 m
     c.updateProjectionMatrix();
   }
+  A.updateCamera = updateCamera;
 
   // ---------- phone camera ----------
   var phoneRect = null, BASE_LONG_FOV = 69; // typical 1× main camera (~26 mm equiv.) ⚠️ varies by phone
@@ -75,7 +76,7 @@
     if (!phoneRect || state.seatIdx < 0) return;
     var pc = sc.phoneCam, d = lookDir();
     pc.position.copy(state.eye).add(new T.Vector3(0, state.raise, 0)).add(d.clone().multiplyScalar(0.3)); pc.lookAt(pc.position.clone().add(d));
-    pc.aspect = phoneRect.w / phoneRect.h; pc.fov = phoneFovV(); pc.updateProjectionMatrix();
+    pc.aspect = phoneRect.w / phoneRect.h; pc.fov = phoneFovV(); pc.near = 0.25; pc.updateProjectionMatrix();
     var q = phoneQuality(), w = Math.max(16, Math.round(phoneRect.w * dpr * q)), h = Math.max(16, Math.round(phoneRect.h * dpr * q));
     if (!rt || rt.width !== w || rt.height !== h) { if (rt) rt.dispose(); rt = new T.WebGLRenderTarget(w, h, { minFilter: T.LinearFilter, magFilter: T.LinearFilter }); }
     setCrowdScale(pc, h);

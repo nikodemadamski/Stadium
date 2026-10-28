@@ -55,6 +55,7 @@
     surround.rotation.x = -Math.PI / 2; g.add(surround);
     var pitch = new T.Mesh(new T.PlaneBufferGeometry(S.field.width, S.field.length), new T.MeshLambertMaterial({ color: S.kind === "stadium" ? 0x2f7d3b : S.kind === "arena" ? 0x23262d : 0x3a2418 }));
     pitch.rotation.x = -Math.PI / 2; pitch.position.y = 0.02; g.add(pitch);
+    pitch.material.polygonOffset = true; pitch.material.polygonOffsetFactor = -1; pitch.material.polygonOffsetUnits = -2; // depth bias scales with slope, so it wins at every orbit distance
     var hw = S.field.width / 2, hl = S.field.length / 2, lg = new T.BufferGeometry();
     lg.addAttribute("position", new T.Float32BufferAttribute([-hw, .05, -hl, hw, .05, -hl, hw, .05, -hl, hw, .05, hl, hw, .05, hl, -hw, .05, hl, -hw, .05, hl, -hw, .05, -hl, -hw, .05, 0, hw, .05, 0], 3));
     if (S.kind === "stadium") g.add(new T.LineSegments(lg, new T.LineBasicMaterial({ color: 0xe8f5e8 })));
@@ -71,8 +72,8 @@
         var a0 = ring.point(p0, st.d0), a1 = ring.point(p1, st.d0), b0 = ring.point(p0, st.d1), b1 = ring.point(p1, st.d1);
         quadPush(pos, [a0.x, st.y, a0.z], [b0.x, st.y, b0.z], [b1.x, st.y, b1.z], [a1.x, st.y, a1.z]);
         colPush(col, b.standing ? terr : tread, 6); for (k = 0; k < 2; k++) owner.push(st.blockIdx * 128 + st.row);
-        var yLow = st.prevY === null ? 0 : st.prevY;
-        quadPush(pos, [a0.x, yLow, a0.z], [a0.x, st.y, a0.z], [a1.x, st.y, a1.z], [a1.x, yLow, a1.z]);
+        if (st.prevY === null) continue; // first row: the tier's front wall/fascia below already closes it. A riser from y=0 here was coplanar with that wall (z-fighting) and cut through the tier below on overhanging upper tiers
+        quadPush(pos, [a0.x, st.prevY, a0.z], [a0.x, st.y, a0.z], [a1.x, st.y, a1.z], [a1.x, st.prevY, a1.z]);
         colPush(col, b.standing ? terrR : riser, 6); for (k = 0; k < 2; k++) owner.push(st.blockIdx * 128 + st.row);
       }
     });
