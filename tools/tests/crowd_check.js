@@ -112,7 +112,7 @@ function inPage(opts) { // runs inside the page
     await p.goto(PAGE + "#stadium=" + v); await p.waitForTimeout(6000);
     const out = {};
     for (const [label, sport, standing] of [["concert-standing", false, true], ["seated", false, false]]) {
-      await p.evaluate(([sport, standing]) => { const cb = document.getElementById("standing"); if (cb.checked !== standing) { cb.checked = standing; cb.dispatchEvent(new Event("change")); }
+      await p.evaluate(([sport, standing]) => { if (__app.state.standing !== standing) document.getElementById(standing ? "stillStand" : "stillSit").click(); // the one Sitting/Standing control
         People.ctx.sport = sport; const m = __app.model, bl = m.blocks.filter((b) => !b.standing)[Math.floor(m.blocks.length / 3)] || m.blocks[0], r = bl.rowInfo[Math.floor(bl.rows / 2)];
         SeatMap.zoomToBlock(m.blocks.indexOf(bl)); SeatMap.selectSeat(r.start + Math.floor(r.count / 2)); __app.setMode("seat"); }, [sport, standing]);
       await p.waitForTimeout(3000);

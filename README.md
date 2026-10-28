@@ -35,7 +35,15 @@ The people near your seat are real human meshes: MakeHuman's base body, skeleton
 - 4 looks (2 men, 2 women: T-shirt/long sleeves, short/crop/long/bob hair) x 3 levels of detail (~3,300 / ~1,000 / ~340 triangles), rigged with an 11-bone skeleton.
 - Animation: every near fan (the ~500 rigged people around your seat) owns its seat and plays **in-place clips** from `js/crowd.js` (idle, clap, bounce, fist pump, cheer, jump, sway, phone; seated versions). Each fan: weighted clip pool, seeded start offset, timeScale 0.85-1.15, crossfade to another clip every 8-20 s, beat moves in a phase bin no neighbour shares. Poses are computed on the CPU (off-screen fans skipped) and uploaded as 4 vec4s per fan; the shader only bends the mesh. Far-crowd sprites follow the same director (`People.tick`).
 - Crowd controls: **Moving / Still** (Still: everyone holds one pose; **Sit / Stand** picks which), **Wave** (one lap around the whole venue, then it stops), **Jump** (concerts).
-- No clipping between neighbours: every clip is tagged narrow/wide by its *measured* arm span; wide clips only go to fans with free seats on both sides; arms raise elbow-first; fans face along their seat (turned at most ~14 degrees to the stage); tall neighbours that don't fit a 0.50 m seat are drawn up to 12% narrower; seats the generated layout squeezes under 0.42 m stay empty. Check: `node tools/tests/crowd_check.js [venue ...]` (clipping, adjacent sync, wave lap).
+- No clipping between neighbours: every clip is tagged narrow/wide by its *measured* arm span; wide clips only go to fans with free seats on both sides; arms raise elbow-first; fans face along their seat (turned at most ~14 degrees to the stage); tall neighbours that don't fit a 0.50 m seat are drawn up to 12% narrower; seats the generated layout squeezes under 0.42 m stay empty. Check: `node tools/tests/crowd_check.js [venue ...]` (clipping, adjacent sync, wave lap, a fan's own hands never passing through each other).
+
+## UI and checks
+Design system, journey and per-control decisions: `docs/ui-system.md`. Seat map: Stadium → Section → Row → Seat.
+All tests run the built page in headless Chromium (`python3 tools/build_single.py` first):
+- `node tools/tests/drag_check.js`: My view and Camera drag direction (mouse + touch, 4 directions).
+- `node tools/tests/ui_check.js`: Crowd panel, bottom sheet, menu drawer, focus and Escape handling.
+- `node tools/tests/regression_check.js [venue ...]`: every feature per venue and event type, on desktop and phone.
+- `node tools/tests/crowd_check.js [venue ...]`: crowd clipping, sync, wave lap and self-intersection.
 - Shipped in `js/data/humans.js` (gzip + base64, ~180 KB) and unpacked once in the background; skin, clothes and hair colours and heights are chosen per person in the app. Browsers without `DecompressionStream` fall back to the old built-in bodies.
 - Same seat, full crowd: 568k -> 609k triangles, 20 -> 32 draw calls, no measurable change in crowd rebuild time.
 - Rebuild: see the header of `tools/humans/build_humans.py` (about 1.5 minutes). `tools/humans/preview.py` renders check images.

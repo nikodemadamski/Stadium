@@ -634,6 +634,7 @@
   var pickMQ = matchMedia("(max-width: 1023px)");
   function placePickers() { var p = document.querySelector(".pickers"); (pickMQ.matches ? $("menuPickers") : $("top")).appendChild(p); }
   placePickers(); pickMQ.addListener(placePickers);
+  ["stadiumSel", "eventSel"].forEach(function (id) { $(id).addEventListener("change", function () { if (document.body.classList.contains("sideOpen")) { document.body.classList.remove("sideOpen"); $("sideToggle").focus(); } }); }); // picked from the menu: close it
   if (/debug/.test(location.search + location.hash)) document.body.classList.add("debug");
   document.querySelectorAll("#tabs button").forEach(function (b) { b.setAttribute("role", "tab"); b.addEventListener("click", function () { showTab(b.dataset.tab); sheet(true, b); }); });
   // Keyboard: 1-4 switch view, C = camera shutter (in camera), ignored while typing.

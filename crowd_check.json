@@ -457,5 +457,2352 @@
    }
   },
   "errors": []
+ },
+ "croke": {
+  "concert-standing": {
+   "fans": 500,
+   "pairs": 1384,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [
+      [
+       "hand>fore",
+       1
+      ]
+     ],
+     "geo": {
+      "side": 1,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 2.4,
+     "depthP95_cm": 2.4,
+     "samples": 32,
+     "pairsClipping": 1,
+     "clipEvents": 1,
+     "topClipPairs": [
+      [
+       "bounce/idle",
+       1
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       4
+      ]
+     ],
+     "geo": {
+      "side": 4,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0.8,
+     "depthP95_cm": 3,
+     "samples": 261,
+     "pairsClipping": 4,
+     "clipEvents": 4,
+     "topClipPairs": [
+      [
+       "jump/bounce",
+       1
+      ],
+      [
+       "fist_pump/fist_pump",
+       1
+      ],
+      [
+       "bounce/fist_pump",
+       1
+      ],
+      [
+       "fist_pump/bounce",
+       1
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 11758,
+    "roseOnce": 11758,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 24
+   }
+  },
+  "seated": {
+   "fans": 500,
+   "pairs": 1384,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 32,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       1
+      ]
+     ],
+     "geo": {
+      "side": 1,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0.6,
+     "depthP95_cm": 0.6,
+     "samples": 261,
+     "pairsClipping": 1,
+     "clipEvents": 1,
+     "topClipPairs": [
+      [
+       "sit_idle/sit_clap",
+       1
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 11758,
+    "roseOnce": 11758,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 24
+   }
+  },
+  "errors": []
+ },
+ "puc": {
+  "concert-standing": {
+   "fans": 500,
+   "pairs": 2212,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 32,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       15
+      ],
+      [
+       "hand>upper",
+       2
+      ]
+     ],
+     "geo": {
+      "side": 15,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0.9,
+     "depthP95_cm": 2.6,
+     "samples": 261,
+     "pairsClipping": 10,
+     "clipEvents": 15,
+     "topClipPairs": [
+      [
+       "fist_pump/jump",
+       3
+      ],
+      [
+       "cheer/bounce",
+       2
+      ],
+      [
+       "jump/bounce",
+       2
+      ],
+      [
+       "clap/jump",
+       2
+      ],
+      [
+       "bounce/jump",
+       1
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 6443,
+    "roseOnce": 6443,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 24
+   }
+  },
+  "seated": {
+   "fans": 500,
+   "pairs": 2212,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [
+      [
+       "hand>upper",
+       2
+      ]
+     ],
+     "geo": {
+      "side": 2,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 1.7,
+     "depthP95_cm": 1.7,
+     "samples": 32,
+     "pairsClipping": 2,
+     "clipEvents": 2,
+     "topClipPairs": [
+      [
+       "sit_clap/sit_idle",
+       2
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       10
+      ],
+      [
+       "hand>upper",
+       2
+      ]
+     ],
+     "geo": {
+      "side": 11,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 1.3,
+     "depthP95_cm": 3.3,
+     "samples": 261,
+     "pairsClipping": 6,
+     "clipEvents": 11,
+     "topClipPairs": [
+      [
+       "sit_idle/sit_clap",
+       4
+      ],
+      [
+       "sit_clap/sit_idle",
+       3
+      ],
+      [
+       "sit_cheer/sit_idle",
+       2
+      ],
+      [
+       "sit_clap/sit_clap",
+       2
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 6443,
+    "roseOnce": 6443,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 24
+   }
+  },
+  "errors": []
+ },
+ "thomond": {
+  "concert-standing": {
+   "fans": 500,
+   "pairs": 2328,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [
+      [
+       "hand>fore",
+       1
+      ],
+      [
+       "hand>upper",
+       1
+      ]
+     ],
+     "geo": {
+      "side": 2,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 1,
+     "depthP95_cm": 1,
+     "samples": 32,
+     "pairsClipping": 2,
+     "clipEvents": 2,
+     "topClipPairs": [
+      [
+       "fist_pump/idle",
+       1
+      ],
+      [
+       "fist_pump/jump",
+       1
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       20
+      ],
+      [
+       "hand>upper",
+       1
+      ]
+     ],
+     "geo": {
+      "side": 19,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 1,
+     "depthP95_cm": 2.7,
+     "samples": 261,
+     "pairsClipping": 13,
+     "clipEvents": 19,
+     "topClipPairs": [
+      [
+       "bounce/bounce",
+       4
+      ],
+      [
+       "cheer/fist_pump",
+       3
+      ],
+      [
+       "bounce/fist_pump",
+       3
+      ],
+      [
+       "jump/jump",
+       2
+      ],
+      [
+       "fist_pump/fist_pump",
+       2
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 3599,
+    "roseOnce": 3599,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 24
+   }
+  },
+  "seated": {
+   "fans": 500,
+   "pairs": 2328,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 32,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       2
+      ]
+     ],
+     "geo": {
+      "side": 2,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 3.7,
+     "depthP95_cm": 3.7,
+     "samples": 261,
+     "pairsClipping": 1,
+     "clipEvents": 2,
+     "topClipPairs": [
+      [
+       "sit_cheer/sit_clap",
+       2
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 3599,
+    "roseOnce": 3599,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 24
+   }
+  },
+  "errors": []
+ },
+ "3arena": {
+  "concert-standing": {
+   "fans": 500,
+   "pairs": 1869,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 32,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       1
+      ]
+     ],
+     "geo": {
+      "side": 1,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 261,
+     "pairsClipping": 1,
+     "clipEvents": 1,
+     "topClipPairs": [
+      [
+       "fist_pump/bounce",
+       1
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 1209,
+    "roseOnce": 1209,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 16
+   }
+  },
+  "seated": {
+   "fans": 500,
+   "pairs": 1869,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [
+      [
+       "upper>fore",
+       2
+      ],
+      [
+       "fore>upper",
+       2
+      ],
+      [
+       "hand>upper",
+       2
+      ]
+     ],
+     "geo": {
+      "side": 2,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 1.1,
+     "depthP95_cm": 1.2,
+     "samples": 32,
+     "pairsClipping": 2,
+     "clipEvents": 2,
+     "topClipPairs": [
+      [
+       "sit_idle/sit_clap",
+       1
+      ],
+      [
+       "sit_idle/sit_cheer",
+       1
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       1
+      ]
+     ],
+     "geo": {
+      "side": 1,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 1.6,
+     "depthP95_cm": 1.6,
+     "samples": 261,
+     "pairsClipping": 1,
+     "clipEvents": 1,
+     "topClipPairs": [
+      [
+       "sit_clap/sit_idle",
+       1
+      ]
+     ],
+     "tightSeatPairs": 0
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 0
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 1209,
+    "roseOnce": 1209,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 16
+   }
+  },
+  "errors": []
+ },
+ "bget": {
+  "concert-standing": {
+   "fans": 500,
+   "pairs": 2475,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 216,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 32,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 216
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       2
+      ]
+     ],
+     "geo": {
+      "side": 2,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 1.2,
+     "depthP95_cm": 1.2,
+     "samples": 261,
+     "pairsClipping": 2,
+     "clipEvents": 2,
+     "topClipPairs": [
+      [
+       "cheer/fist_pump",
+       1
+      ],
+      [
+       "idle/bounce",
+       1
+      ]
+     ],
+     "tightSeatPairs": 215
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 216
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 302,
+    "roseOnce": 302,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 16
+   }
+  },
+  "seated": {
+   "fans": 500,
+   "pairs": 2475,
+   "scenarios": {
+    "animated": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 240,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 215,
+     "maxInSyncSeconds": 0
+    },
+    "group-jump+cheer": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 32,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 216
+    },
+    "wave": {
+     "parts": [
+      [
+       "hand>fore",
+       1
+      ]
+     ],
+     "geo": {
+      "side": 1,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0.2,
+     "depthP95_cm": 0.2,
+     "samples": 261,
+     "pairsClipping": 1,
+     "clipEvents": 1,
+     "topClipPairs": [
+      [
+       "sit_clap/sit_idle",
+       1
+      ]
+     ],
+     "tightSeatPairs": 214
+    },
+    "still": {
+     "parts": [],
+     "geo": {
+      "side": 0,
+      "frontBack": 0
+     },
+     "depthMedian_cm": 0,
+     "depthP95_cm": 0,
+     "samples": 8,
+     "pairsClipping": 0,
+     "clipEvents": 0,
+     "topClipPairs": [],
+     "tightSeatPairs": 215
+    }
+   },
+   "clipSpan": {
+    "still_stand": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "still_sit": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.244
+    },
+    "sit_idle": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_clap": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "bounce": {
+     "tag": "narrow",
+     "halfSpan_m": 0.241
+    },
+    "fist_pump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sit_cheer": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "jump": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "sway": {
+     "tag": "wide",
+     "halfSpan_m": 0.515
+    },
+    "phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.242
+    },
+    "sit_phone": {
+     "tag": "narrow",
+     "halfSpan_m": 0.238
+    },
+    "run": {
+     "tag": "wide",
+     "halfSpan_m": 0.297
+    },
+    "perform": {
+     "tag": "wide",
+     "halfSpan_m": 0.661
+    }
+   },
+   "selfIntersect": {
+    "still_stand": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "still_sit": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_idle": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_clap": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "bounce": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "fist_pump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_cheer": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "jump": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sway": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    },
+    "sit_phone": {
+     "worst_cm": 0,
+     "part": "",
+     "framesOver": 0
+    }
+   },
+   "wave": {
+    "seatsSampled": 302,
+    "roseOnce": 302,
+    "never": 0,
+    "twice": 0,
+    "risingAfterLapEnd": 0,
+    "outOfOrder": 0,
+    "lapSeconds": 16
+   }
+  },
+  "errors": []
  }
 }
