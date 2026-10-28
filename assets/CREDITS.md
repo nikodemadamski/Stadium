@@ -36,7 +36,7 @@ projects") has idle, sit-to-stand and jump clips but no clap, cheer or in-place 
 | Asset | Source | Licence | Date |
 |---|---|---|---|
 | Base body mesh, default skeleton + skin weights, macro shape targets | MakeHuman, https://github.com/makehumancommunity/makehuman (`makehuman/data`, `LICENSE.ASSETS.md`) | CC0 1.0 | 2026-10-27 |
-| Clothes, hair, poses, levels of detail (generated from the above) | `tools/humans/build_humans.py` (original) → `js/data/humans.js` | this project | 2026-10-27 |
+| Clothes, hair, poses, levels of detail (generated from the above) | `tools/humans/build_humans.py` (original) → `js/data/humans.js` | this project | 2026-10-28 (rebuilt: arm-preserving levels of detail) |
 
 ## Code and fonts
 

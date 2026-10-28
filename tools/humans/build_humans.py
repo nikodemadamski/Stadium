@@ -30,7 +30,7 @@ BONES = ["root", "spine", "head", "uarm.L", "farm.L", "uarm.R", "farm.R", "thigh
 JOINTS = {"hip.L": ("upperleg01.L", "h"), "knee.L": ("lowerleg01.L", "h"), "ankle.L": ("foot.L", "h"), "sh.L": ("upperarm01.L", "h"), "el.L": ("lowerarm01.L", "h"), "wr.L": ("wrist.L", "h"),
           "hip.R": ("upperleg01.R", "h"), "knee.R": ("lowerleg01.R", "h"), "ankle.R": ("foot.R", "h"), "sh.R": ("upperarm01.R", "h"), "el.R": ("lowerarm01.R", "h"), "wr.R": ("wrist.R", "h"),
           "waist": ("spine03", "h"), "neck": ("neck01", "h")}
-LOD_TRIS = [(2600, 700), (800, 220), (260, 70)]  # (body, hair) triangle budgets per level of detail
+LOD_TRIS = [(2800, 700, 800), (1100, 220, 400), (450, 70, 200)]  # (body, hair, of the body: arms) triangles per level of detail; arms ~12 / 8 / 6 sides
 
 
 def unit(v): v = np.asarray(v, float); return v / np.linalg.norm(v)
@@ -270,9 +270,10 @@ def phone_box(b):
     return V[np.ravel(F)], tris(np.arange(24).reshape(6, 4))  # separate corners per face: flat normals (lit screen)
 
 
-def decimate(V, T, part, extra, target):
+def decimate(V, T, part, extra, target, protect=None):
     """Blender Decimate (collapse). Parts (one-hot) and bone weights travel as colour attributes, which the collapse
-    interpolates; argmax picks the part back, the two strongest bones are kept."""
+    interpolates; argmax picks the part back, the two strongest bones are kept. protect (0..1 per vertex): collapsed
+    last. Without it the budget went to the torso and arms ended up 3-5 sided prisms that read as flat strips."""
     import bpy
     me = bpy.data.meshes.new("d"); me.from_pydata([tuple(v) for v in V], [], [tuple(t) for t in T]); me.update()
     A = np.zeros((len(V), 6), np.float32); A[np.arange(len(V)), part] = 1; A = np.c_[A, extra].astype(np.float32)
@@ -282,6 +283,10 @@ def decimate(V, T, part, extra, target):
     ob = bpy.data.objects.new("d", me); bpy.context.scene.collection.objects.link(ob)
     if target < len(T):
         m = ob.modifiers.new("dec", "DECIMATE"); m.ratio = target / len(T); m.use_collapse_triangulate = True
+        if protect is not None:
+            g = ob.vertex_groups.new(name="keep")
+            for i, w in enumerate(protect): g.add([i], float(1.0 - w), "REPLACE")  # group weight 1 = collapse freely
+            m.vertex_group = "keep"; m.vertex_group_factor = 1.0
         bpy.context.view_layer.objects.active = ob; bpy.ops.object.modifier_apply(modifier="dec")
     me = ob.data; me.calc_loop_triangles()
     nv = len(me.vertices); P = np.zeros(nv * 3); me.vertices.foreach_get("co", P)
@@ -291,6 +296,23 @@ def decimate(V, T, part, extra, target):
         a = np.zeros(nv * 4, np.float32); me.color_attributes["a%d" % k].data.foreach_get("color", a); cols.append(a.reshape(-1, 4))
     C = np.concatenate(cols, 1); bpy.data.objects.remove(ob); bpy.data.meshes.remove(me)
     return P.reshape(-1, 3), TT.reshape(-1, 3), C[:, :6].argmax(1), C[:, 6:6 + extra.shape[1]]
+
+
+def decimate_body(V, T, part, extra, target, arm_target):
+    """Two passes so the arms keep a round cross-section: (1) torso/legs/head pinned, the arms alone come down to
+    arm_target triangles; (2) arms pinned, everything else comes down to the rest of the budget."""
+    arm = arm_protect(extra) > 0.5; tarm = arm[T].all(1).sum()
+    if target >= len(T): return decimate(V, T, part, extra, target)
+    if tarm > arm_target:
+        V, T, part, extra = decimate(V, T, part, extra, len(T) - (tarm - arm_target), protect=(~arm).astype(float))
+        arm = arm_protect(extra) > 0.5
+    return decimate(V, T, part, extra, target, protect=arm.astype(float))
+
+
+def arm_protect(W):
+    """1 on arm vertices (upper arm + forearm + hand), 0 elsewhere: the arms are what the crowd animates most."""
+    arms = [BONES.index(b) for b in ("uarm.L", "farm.L", "uarm.R", "farm.R")]
+    return np.clip(W[:, arms].sum(1), 0, 1)
 
 
 def onehot_bone(n, name): w = np.zeros((n, len(BONES))); w[:, BONES.index(name)] = 1; return w
@@ -319,8 +341,8 @@ def build_all(D, preview_dir=None):
         hair = grow_hair(b, look["hair"]); body, hp, phone = assemble(b, hair)
         looks[look["id"]] = {k: [round(float(x), 5) for x in (wpos(b, *v) - org) / S] for k, v in JOINTS.items()}
         print(look["id"], "stature %.2f dm, hair %d tris" % (S, len(hair[1])), flush=True)
-        for lod, (nb, nh) in enumerate(LOD_TRIS):
-            parts = [decimate(*body, nb), decimate(*hp, nh), phone]
+        for lod, (nb, nh, na) in enumerate(LOD_TRIS):
+            parts = [decimate_body(*body, nb, na), decimate(*hp, nh), phone]
             V, T, P, Wt, n0 = [], [], [], [], 0
             for pv, pt, pp, pw in parts: V.append(pv); T.append(pt + n0); P.append(pp); Wt.append(pw); n0 += len(pv)
             V = np.concatenate(V); T = np.concatenate(T); P = np.concatenate(P); b0, b1, w0 = top2(np.concatenate(Wt))

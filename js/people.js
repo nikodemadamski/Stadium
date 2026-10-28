@@ -158,7 +158,7 @@
     "mat3 rz(float a){ float c = cos(a), s = sin(a); return mat3(c,s,0.0, -s,c,0.0, 0.0,0.0,1.0); }",
     "mat3 ry(float a){ float c = cos(a), s = sin(a); return mat3(c,0.0,-s, 0.0,1.0,0.0, s,0.0,c); }",
     "mat3 Rul, Rur, Rfl, Rfr, Rtl, Rtr, Rsl, Rsr, Rsp, Rh;",
-    "void bone(float b, inout vec3 P, inout vec3 N){", // child first, then up the chain to the root
+    "void bone(float b, inout vec3 P, inout vec3 N){", // the bone in full, then up the chain to the root
     "  if (b > 6.5) { bool l = b < 8.5; vec3 hip = l ? jHipL : jHipR, knee = l ? jKneeL : jKneeR;",
     "    if (b > 7.5 && b < 8.5 || b > 9.5) { mat3 S = l ? Rsl : Rsr; P = S * (P - knee) + knee; N = S * N; }",
     "    mat3 Tt = l ? Rtl : Rtr; P = Tt * (P - hip) + hip; N = Tt * N; return; }",
@@ -168,12 +168,30 @@
     "  if (b > 1.5 && b < 2.5) { P = Rh * (P - jNeck) + jNeck; N = Rh * N; }",
     "  if (b > 0.5) { P = Rsp * (P - jWaist) + jWaist; N = Rsp * N; }",
     "}",
+    // Bones: 0 root, 1 spine, 2 head, 3/4 upper/fore arm L, 5/6 R, 7/8 thigh/shin L, 9/10 R. par(): parent.
+    "float par(float b){ return b > 9.5 ? 9.0 : b > 8.5 ? 0.0 : b > 7.5 ? 7.0 : b > 6.5 ? 0.0 : b > 5.5 ? 5.0 : b > 4.5 ? 1.0 : b > 3.5 ? 3.0 : b > 1.5 ? 1.0 : 0.0; }",
+    "void part(float b, float k, inout vec3 P, inout vec3 N){", // the bone's own rotation with its angles scaled by k
+    "  mat3 R; vec3 j;",
+    "  if (b < 1.5) { R = ry(iQBody.y * k) * rz(iQBody.z * 0.5 * k) * rx(iQBody.w * k); j = jWaist; }",
+    "  else if (b < 2.5) { R = rx((iMisc.y + 0.15 * iMisc.z) * k); j = jNeck; }",
+    "  else if (b < 6.5) { bool l = b < 4.5; vec4 q = l ? iQArmL : iQArmR; float sg = l ? -1.0 : 1.0;",
+    "    if (b > 3.5 && b < 4.5 || b > 5.5) { R = rx(q.z * k); j = l ? jElL : jElR; } else { R = ry(sg * q.w * k) * rx(q.x * k) * rz(-sg * q.y * k); j = l ? jShL : jShR; } }", // side first, then raise
+    "  else { bool l = b < 8.5; bool shin = b > 7.5 && b < 8.5 || b > 9.5; R = rx((l ? (shin ? iQLeg.z : iQLeg.x) : (shin ? iQLeg.w : iQLeg.y)) * k); j = shin ? (l ? jKneeL : jKneeR) : (l ? jHipL : jHipR); }",
+    "  P = R * (P - j) + j; N = R * N; }",
     "void main(){",
     "  Rtl = rx(iQLeg.x); Rtr = rx(iQLeg.y); Rsl = rx(iQLeg.z); Rsr = rx(iQLeg.w);",
     "  Rsp = ry(iQBody.y) * rz(iQBody.z * 0.5) * rx(iQBody.w); Rh = rx(iMisc.y + 0.15 * iMisc.z);",
     "  Rul = ry(-iQArmL.w) * rx(iQArmL.x) * rz(iQArmL.y); Rur = ry(iQArmR.w) * rx(iQArmR.x) * rz(-iQArmR.y); Rfl = rx(iQArmL.z); Rfr = rx(iQArmR.z);", // side first, then raise: side means out/in at any height
-    "  vec3 P0 = position, N0 = normal, P1 = position, N1 = normal; bone(aBone.x, P0, N0); bone(aBone.y, P1, N1);",
-    "  vec3 p = mix(P1, P0, aBone.z), n = normalize(mix(N1, N0, aBone.z)); p.y += iQBody.x; float part = aBone.w;",
+    // Joint blending by ANGLE, not by position: a vertex weighted between a bone and its parent turns by its share of
+    // the joint angle (a rigid rotation, so it keeps its distance from the bone), then rides the parent. Averaging the
+    // two posed positions (linear blend skinning) pulled shoulders toward the joint and flattened raised arms.
+    // Every blended vertex in js/data/humans.js is between a bone and its parent (measured: 80% rigid, 20% parent-child,
+    // 0% other pairs), so one partial rotation + one parent chain covers all of them, chosen without branching.
+    "  float b0 = aBone.x, b1 = aBone.y, w = aBone.z; vec3 p = position, n = normal;",
+    "  float up = step(abs(par(b1) - b0), 0.5) * step(0.5, b1);", // 1: b1 is b0's child, so b1 is the turning bone
+    "  float cb = mix(b0, b1, up), k = mix(step(abs(par(b0) - b1), 0.5) * step(0.5, b0) > 0.5 ? w : 1.0, 1.0 - w, up);",
+    "  if (cb > 0.5) { part(cb, k, p, n); bone(par(cb), p, n); }",
+    "  n = normalize(n); p.y += iQBody.x; float part = aBone.w;",
     "  if (part > 4.5 && iMisc.z < 0.5) p = jWaist;", // phone only in the hands of people filming
     "  vY = p.y; vPart = part; vScreen = (part > 4.5 && normal.z > 0.5) ? 1.0 : 0.0;",
     "  p *= iMisc.x; p.x *= iMisc.w; float c = cos(iPos.w), s = sin(iPos.w);",
@@ -182,6 +200,38 @@
     "  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }"].join("\n");
   var SFS = [P.LIGHT_FS, "varying vec3 vCol; varying vec3 vN; varying vec3 vW; varying float vY; varying float vPart; varying float vScreen;",
     "void main(){ gl_FragColor = vec4(concertLight(vCol, normalize(vN), vW, vY, vScreen), 1.0); }"].join("\n");
+  // CPU copy of the shader's skinning (SVS above), for tests: tools/tests/arm_volume_check.js. Unit-stature space.
+  P.skinCPU = function (geo, J, q) {
+    function rx(a) { var c = Math.cos(a), s = Math.sin(a); return [1, 0, 0, 0, c, s, 0, -s, c]; } // column-major like GLSL mat3
+    function ry(a) { var c = Math.cos(a), s = Math.sin(a); return [c, 0, -s, 0, 1, 0, s, 0, c]; }
+    function rz(a) { var c = Math.cos(a), s = Math.sin(a); return [c, s, 0, -s, c, 0, 0, 0, 1]; }
+    function mul(A, B) { var o = []; for (var c = 0; c < 3; c++) for (var r = 0; r < 3; r++) o[c * 3 + r] = A[r] * B[c * 3] + A[3 + r] * B[c * 3 + 1] + A[6 + r] * B[c * 3 + 2]; return o; }
+    function app(M, v) { return [M[0] * v[0] + M[3] * v[1] + M[6] * v[2], M[1] * v[0] + M[4] * v[1] + M[7] * v[2], M[2] * v[0] + M[5] * v[1] + M[8] * v[2]]; }
+    function about(M, v, j) { var r = app(M, [v[0] - j[0], v[1] - j[1], v[2] - j[2]]); return [r[0] + j[0], r[1] + j[1], r[2] + j[2]]; }
+    var PAR = [-1, 0, 1, 1, 3, 1, 5, 0, 7, 0, 9], PIV = [null, J.waist, J.neck, J["sh.L"], J["el.L"], J["sh.R"], J["el.R"], J["hip.L"], J["knee.L"], J["hip.R"], J["knee.R"]];
+    function loc(b, k) { // the bone's own rotation, its angles scaled by k (k = 1: the full pose)
+      switch (b) {
+        case 1: return mul(mul(ry(q.twist * k), rz(q.sway * 0.5 * k)), rx(q.lean * k));
+        case 2: return rx((q.nod + 0.15 * q.phone) * k);
+        case 3: return mul(mul(ry(-q.yL * k), rx(q.fL * k)), rz(q.sL * k));
+        case 4: return rx(q.ffL * k);
+        case 5: return mul(mul(ry(q.yR * k), rx(q.fR * k)), rz(-q.sR * k));
+        case 6: return rx(q.ffR * k);
+        case 7: return rx(q.thL * k); case 8: return rx(q.shL * k); case 9: return rx(q.thR * k); case 10: return rx(q.shR * k);
+      } return null;
+    }
+    function chain(b, k, v) { while (b > 0) { v = about(loc(b, k), v, PIV[b]); b = PAR[b]; k = 1; } return v; }
+    var pos = geo.attributes.position.array, B = geo.attributes.aBone.array, n = pos.length / 3, out = new Float32Array(n * 3), lift = Crowd.rootY(J, q);
+    for (var i = 0; i < n; i++) {
+      var v = [pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]], b0 = Math.round(B[i * 4]), b1 = Math.round(B[i * 4 + 1]), w = B[i * 4 + 2], r;
+      if (P.SKIN_MODE === "rigid") r = chain(w >= 0.5 ? b0 : b1, 1, v); // test reference: no blending at all
+      else if (P.SKIN_MODE === "angle") { var up = b1 > 0 && PAR[b1] === b0, c = up ? b1 : b0; r = chain(c, up ? 1 - w : (b0 > 0 && PAR[b0] === b1 ? w : 1), v); } // = the shader: turn by the weighted share of the child's angle
+      else { var a = chain(b0, 1, v), c = chain(b1, 1, v); r = [c[0] + (a[0] - c[0]) * w, c[1] + (a[1] - c[1]) * w, c[2] + (a[2] - c[2]) * w]; }
+      out[i * 3] = r[0]; out[i * 3 + 1] = r[1] + lift; out[i * 3 + 2] = r[2];
+    }
+    return out;
+  };
+  P.SKIN_MODE = "angle"; // matches the shader
   function lookMat(id) { // one material per look (its joint positions); the shader program itself is compiled once
     if (lookMats[id]) { if (P.stagePos) lookMats[id].uniforms.uStage.value.copy(P.stagePos); return lookMats[id]; }
     var J = LOOKS[id], u = P.lightUniforms(), V3 = function (a) { return { value: new T.Vector3(a[0], a[1], a[2]) }; };
