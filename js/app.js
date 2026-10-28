@@ -136,8 +136,15 @@
     if (ids.length === 2) { p.x = e.clientX; p.y = e.clientY; var a = ptrs[ids[0]], b = ptrs[ids[1]], dd = Math.hypot(a.x - b.x, a.y - b.y); if (pinch0) zoomBy(pinch0 / dd); pinch0 = dd; return; }
     var dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
     if (state.mode === "overview") { state.yaw += dx * 0.006; /* drag right = fly right, same feel as turning your head in "My view" */ state.pitch = clamp(state.pitch + dy * 0.004, 0.08, 1.45); }
-    else { var k = state.mode === "phone" ? 0.0025 / state.zoom : 0.004 * state.fov / 55; state.lookYaw -= dx * k; state.lookPitch = clamp(state.lookPitch + dy * k, -1.2, 1.2); }
+    else dragLook(dx, dy);
   });
+  // One drag rule for My view and Camera, for mouse, touch and trackpad click-drag (all arrive as pointer events):
+  // the scene follows the pointer on both axes, like dragging a photo. Flip a sign here to change it everywhere.
+  var LOOK_DRAG = A.LOOK_DRAG = { x: 1, y: 1 }; // +1 = grab (scene moves with the finger), -1 = turn-head
+  function dragLook(dx, dy) {
+    var k = state.mode === "phone" ? 0.0025 / state.zoom : 0.004 * state.fov / 55; // same on-screen speed at any zoom
+    state.lookYaw += LOOK_DRAG.x * dx * k; state.lookPitch = clamp(state.lookPitch + LOOK_DRAG.y * dy * k, -1.2, 1.2);
+  }
   canvas.addEventListener("pointerup", function (e) {
     if (sc && downAt && downAt.n === 1 && Object.keys(ptrs).length === 1 && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) < 6 && performance.now() - downAt.t < 600 && state.mode !== "phone") {
       var r = canvas.getBoundingClientRect(), idx = sc.pickSeat(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1, sc.camera);
