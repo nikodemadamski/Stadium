@@ -187,19 +187,20 @@
 
   // ---------- crowd / performer controls ----------
   function setDensity(d) {
-    state.density = d; document.querySelectorAll("#crowdBar button[data-d]").forEach(function (b) { b.classList.toggle("on", +b.dataset.d === d); });
+    state.density = d; document.querySelectorAll("#crowdPanel button[data-d]").forEach(function (b) { b.classList.toggle("on", +b.dataset.d === d); });
     sc.setDensity(d); if (state.seatIdx >= 0) sc.updateNearPeople(state.seatIdx, d, state.phones);
     $("people").textContent = sc.visiblePeople().toLocaleString();
   }
-  document.querySelectorAll("#crowdBar button[data-d]").forEach(function (b) { b.addEventListener("click", function () { setDensity(+b.dataset.d); }); });
+  document.querySelectorAll("#crowdPanel button[data-d]").forEach(function (b) { b.addEventListener("click", function () { setDensity(+b.dataset.d); }); });
   function play() { if (!state.playing) { state.playing = true; $("play").textContent = "Pause"; } }
   $("crowdWave").addEventListener("click", function () { People.wave(); play(); });
   // Moving / Still. Still: everyone holds one pose; Sit / Stand chooses which (the same "Crowd standing" setting).
-  function setStanding(on) { state.standing = on; $("standing").checked = on; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); syncCrowdUI(); }
+  function setStanding(on) { state.standing = on; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); syncCrowdUI(); }
   function syncCrowdUI() {
     var still = People.still; $("crowdMove").classList.toggle("on", !still); $("crowdStill").classList.toggle("on", still);
-    $("crowdMove").setAttribute("aria-pressed", !still); $("crowdStill").setAttribute("aria-pressed", still); $("stillPose").hidden = !still;
-    $("stillSit").classList.toggle("on", !state.standing); $("stillStand").classList.toggle("on", state.standing);
+    $("crowdMove").setAttribute("aria-pressed", !still); $("crowdStill").setAttribute("aria-pressed", still); 
+    $("stillSit").classList.toggle("on", !state.standing); $("stillStand").classList.toggle("on", state.standing); // one Sitting/Standing control (was a checkbox + Still-only buttons)
+    $("stillSit").setAttribute("aria-pressed", !state.standing); $("stillStand").setAttribute("aria-pressed", state.standing);
   }
   A.syncCrowdUI = syncCrowdUI;
   $("crowdMove").addEventListener("click", function () { People.still = false; syncCrowdUI(); invalidate(); });
@@ -208,7 +209,11 @@
   $("stillStand").addEventListener("click", function () { setStanding(true); });
   $("crowdJump").addEventListener("click", function () { People.jump(); play(); });
   $("phones").addEventListener("input", function () { state.phones = +this.value; $("phonesLbl").textContent = Math.round(state.phones * 100) + "%"; sc.setPhones(state.phones); if (state.seatIdx >= 0) sc.updateNearPeople(state.seatIdx, state.density, state.phones); });
-  $("standing").addEventListener("change", function () { state.standing = this.checked; rebuildCrowd(); if (state.seatIdx >= 0) goToSeat(state.seatIdx); if (A.syncCrowdUI) A.syncCrowdUI(); });
+  // Crowd settings live behind one button; Wave / Jump stay as quick actions.
+  function crowdPanel(open) { $("crowdPanel").hidden = !open; $("crowdBtn").setAttribute("aria-expanded", open); }
+  $("crowdBtn").addEventListener("click", function () { crowdPanel($("crowdPanel").hidden); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("crowdPanel").hidden) { crowdPanel(false); $("crowdBtn").focus(); } });
+  document.addEventListener("pointerdown", function (e) { if (!$("crowdPanel").hidden && !e.target.closest("#crowdBar")) crowdPanel(false); });
   $("play").addEventListener("click", function () { state.playing = !state.playing; this.textContent = state.playing ? "Pause" : "Play"; });
   $("time").addEventListener("input", function () { state.playing = false; $("play").textContent = "Play"; state.t = +this.value * (sc.pathSeconds || 30); });
   $("showPath").addEventListener("change", function () { sc.showPath = this.checked; if (sc.pathLine) sc.pathLine.visible = this.checked; });
@@ -372,7 +377,7 @@
   function selectEvent(id, keep) {
     var ev = state.events.filter(function (e) { return e.id === id; })[0]; if (!ev) return;
     var changed = !state.event || state.event.id !== ev.id, prevType = state.event ? state.event.type || "concert" : null; state.event = ev; A.event = ev;
-    if (changed && prevType !== (ev.type || "concert")) { state.standing = (ev.type || "concert") === "concert" && S.kind !== "theatre"; $("standing").checked = state.standing; if (A.syncCrowdUI) A.syncCrowdUI(); }
+    if (changed && prevType !== (ev.type || "concert")) { state.standing = (ev.type || "concert") === "concert" && S.kind !== "theatre"; if (A.syncCrowdUI) A.syncCrowdUI(); }
     renderEventCard(); if (changed || !keep) applyStage(); Sidebar.setCurrent(ev.id); $("eventSel").value = ev.id; renderHeader(); TM.render(A);
   }
   function renderEventCard() {
@@ -486,7 +491,7 @@
       '<div class="stats"><div class="stat"><b>' + dist.toFixed(0) + ' m</b><span>' + (isSport(state.event) ? "to the centre of the pitch" : "to the stage") + '</span></div>' +
       '<div class="stat"><b>' + ang.toFixed(0) + '°</b><span>off-centre, looking ' + (elev >= 0 ? "down" : "up") + " " + Math.abs(elev).toFixed(0) + '°</span></div>' +
       '<div class="stat ' + (visPct === null ? "" : visPct >= 95 ? "good" : "warn") + '"><b>' + (visPct === null ? px + " px" : visPct + "%") + '</b><span>' + (visPct === null ? "performer in a 1× photo" : "of the show in view") + "</span></div></div>" +
-      '<div class="btns"><button type="button" class="primary" data-go="seat">See my view</button><button type="button" data-go="phone">Take a photo</button><button type="button" id="cmpAdd" title="Add this seat to the comparison">+ Compare</button></div>' +
+      '<div class="btns"><button type="button" class="primary" data-go="seat">My view</button><button type="button" data-go="phone">Camera view</button><button type="button" id="cmpAdd" title="Add this seat to the comparison">+ Compare</button></div>' +
       '<details><summary>Details</summary><table class="info"><tr><td>Performer size</td><td>' + (1.8 / dist * 180 / Math.PI).toFixed(2) + "° tall · about " + px + " px in a 1600 px iPhone photo at 1×</td></tr>" +
       (vis && vis.visible < 1 ? "<tr><td>Set piece</td><td>Hides the performer " + Math.round((1 - vis.visible) * 100) + "% of the walk</td></tr>" : "") +
       "<tr><td>Accuracy</td><td>Stand heights, rake and row depths are estimates (no published drawings).</td></tr></table></details></div>";
@@ -604,7 +609,33 @@
     document.querySelectorAll(".tab").forEach(function (d) { d.classList.toggle("on", d.id === "tab-" + t); });
     if (t === "sources") renderSources();
   }
-  document.querySelectorAll("#tabs button").forEach(function (b) { b.setAttribute("role", "tab"); b.addEventListener("click", function () { showTab(b.dataset.tab); }); });
+  // Phones and portrait tablets: the details panel is a bottom sheet (a right-side drawer in phone landscape).
+  // It behaves like a dialog: focus moves in, Escape or the close button closes it and focus returns to the tab.
+  var sheetMQ = matchMedia("(max-width: 1023px), (max-height: 520px)"), sheetFrom = null;
+  function sheet(open, from) {
+    if (!sheetMQ.matches) return; document.body.classList.toggle("sheetOpen", open); $("panel").setAttribute("aria-modal", open ? "true" : "false");
+    if (open) { sheetFrom = from || sheetFrom; var on = $("panel").querySelector(".tab.on"); if (on) { on.setAttribute("tabindex", "-1"); on.focus({ preventScroll: true }); } }
+    else if (sheetFrom) sheetFrom.focus();
+  }
+  A.sheet = sheet;
+  function sheetRole() { $("panel").setAttribute("role", sheetMQ.matches ? "dialog" : "complementary"); $("panel").setAttribute("aria-label", "Details"); if (!sheetMQ.matches) document.body.classList.remove("sheetOpen"); }
+  sheetRole(); sheetMQ.addListener(sheetRole);
+  $("sheetClose").addEventListener("click", function () { sheet(false); });
+  $("sheetOpenBtn").addEventListener("click", function () { sheet(true, this); });
+  document.addEventListener("pointerdown", function (e) { if (document.body.classList.contains("sheetOpen") && !e.target.closest("#panel, #sheetOpenBtn")) { e.preventDefault(); sheet(false); } });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && document.body.classList.contains("sheetOpen")) { sheet(false); return; }
+    if (e.key === "Tab" && document.body.classList.contains("sheetOpen")) { // keep focus inside the open sheet
+      var f = [].filter.call($("panel").querySelectorAll("button, select, input, a[href], summary, [tabindex='0']"), function (x) { return x.offsetParent !== null && !x.disabled; }); if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    }
+  });
+  // Phones: venue and event pickers live in the menu drawer instead of the header.
+  var pickMQ = matchMedia("(max-width: 1023px)");
+  function placePickers() { var p = document.querySelector(".pickers"); (pickMQ.matches ? $("menuPickers") : $("top")).appendChild(p); }
+  placePickers(); pickMQ.addListener(placePickers);
+  if (/debug/.test(location.search + location.hash)) document.body.classList.add("debug");
+  document.querySelectorAll("#tabs button").forEach(function (b) { b.setAttribute("role", "tab"); b.addEventListener("click", function () { showTab(b.dataset.tab); sheet(true, b); }); });
   // Keyboard: 1-4 switch view, C = camera shutter (in camera), ignored while typing.
   document.addEventListener("keydown", function (e) {
     var t = e.target, typing = t && (/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName) || t.isContentEditable);

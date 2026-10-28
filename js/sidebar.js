@@ -18,7 +18,8 @@
     A = app;
     $("sideList").addEventListener("click", function () { mode = "list"; SB.render(); });
     $("sideCal").addEventListener("click", function () { mode = "cal"; SB.render(); });
-    $("sideToggle").addEventListener("click", function (e) { e.stopPropagation(); document.body.classList.toggle("sideOpen"); });
+    $("sideToggle").addEventListener("click", function (e) { e.stopPropagation(); var open = document.body.classList.toggle("sideOpen"); this.setAttribute("aria-expanded", open); if (open) $("side").querySelector("select, input, button:not(#sideClose)").focus(); });
+    new MutationObserver(function () { $("sideToggle").setAttribute("aria-expanded", document.body.classList.contains("sideOpen")); }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
     $("sideClose").addEventListener("click", function () { document.body.classList.remove("sideOpen"); });
     document.addEventListener("click", function (e) { // tap outside the drawer closes it
       if (document.body.classList.contains("sideOpen") && !e.target.closest("#side")) { document.body.classList.remove("sideOpen"); e.stopPropagation(); e.preventDefault(); }

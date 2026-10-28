@@ -154,7 +154,8 @@
   SM.stackedWith = function (bi) { return stackedWith(bi); };
   // Section bar: where you are + row/seat pickers, so nobody has to hit a 4-pixel dot.
   function renderSecBar() {
-    var bar = $("secBar"), bi = SM.focusBlock; if (!M || bi < 0) { bar.hidden = true; bar.innerHTML = ""; return; }
+    var bar = $("secBar"), bi = SM.focusBlock; wrap.classList.toggle("focus", !!M && bi >= 0); // inside a section the breadcrumb replaces levels/search
+    if (!M || bi < 0) { bar.hidden = true; bar.innerHTML = ""; return; }
     var b = M.blocks[bi], cur = sel >= 0 && M.seats[sel].blockIdx === bi ? M.seats[sel] : null, ri = SM.focusRow >= 0 ? SM.focusRow : cur ? b.rowLabels.indexOf(cur.row) : -1;
     var stk = stackedWith(bi).map(function (oi) { return M.blocks[oi]; }), above = stk.filter(function (o) { return o.levelIdx > b.levelIdx; }), below = stk.filter(function (o) { return o.levelIdx < b.levelIdx; });
     var tier = below.length ? "Upper tier: overhangs " + below[0].levelName : above.length ? "Under the " + above[0].levelName + " overhang (rows at the back)" : "";
@@ -183,11 +184,11 @@
     rows.forEach(function (pts, ri) { for (var k = 1; k < pts.length; k++) { var d = segD2(wx, wz, pts[k - 1], pts[k]); if (d < brd) { brd = d; br = ri; } } });
     return { block: block, row: brd < Math.max(tol, 1.2) * Math.max(tol, 1.2) ? br : -1, seat: -1 };
   }
-  var BLUE = "#7c5cff", GREY = "#272c39", TERR = "#4f5fb5";
+  var BLUE = "#4266D4", GREY = "#273246", TERR = "#3E5BA8", YELLOW = "#FFCF3F", NAVY = "#0E1522"; // = --c-map, --c-acc, --c-bg in css/app.css
   function colourFor(bi) { return !matches(bi) ? GREY : M.blocks[bi].standing ? TERR : BLUE; }
   function drawBase(c, s, tx, ty, opts) {
     var hw = S.field.width / 2, hl = S.field.length / 2;
-    c.fillStyle = S.kind === "stadium" ? "#1b5a36" : S.kind === "arena" ? "#262a35" : "#3a2418"; c.fillRect(-hw * s + tx, -hl * s + ty, S.field.width * s, S.field.length * s);
+    c.fillStyle = S.kind === "stadium" ? "#2E7D4A" : S.kind === "arena" ? "#262a35" : "#3a2418"; c.fillRect(-hw * s + tx, -hl * s + ty, S.field.width * s, S.field.length * s);
     if (S.kind === "stadium") c.strokeStyle = "rgba(255,255,255,.7)"; else c.strokeStyle = "rgba(255,255,255,0)"; c.lineWidth = 1; c.strokeRect(-hw * s + tx + 3, -hl * s + ty + 3, S.field.width * s - 6, S.field.length * s - 6);
     var pr = A.sc.preset;
     if (!pr && opts && opts.labels) { c.fillStyle = "rgba(255,255,255,.85)"; c.font = "bold " + Math.max(10, Math.min(20, s * 3)) + "px Segoe UI, Arial, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(S.kind === "stadium" ? "PITCH" : "FLOOR", tx, ty); }
@@ -200,17 +201,20 @@
   }
   // Labels every `n`th item, more when there is room: every one if items are >= 16 px apart, every 2nd at >= 8 px.
   function labelStep(px) { return px >= 16 ? 1 : px >= 8 ? 2 : px * 5 >= 16 ? 5 : 10; }
+  var hatchPat = null;
+  function hatch() { if (hatchPat) return hatchPat; var c = document.createElement("canvas"); c.width = c.height = 8; var x = c.getContext("2d"); x.strokeStyle = "rgba(255,255,255,.09)"; x.lineWidth = 1.2; x.beginPath(); x.moveTo(0, 8); x.lineTo(8, 0); x.stroke(); return (hatchPat = ctx.createPattern(c, "repeat")); }
   function path(pts) { ctx.beginPath(); pts.forEach(function (pt, i) { var q = toS(pt[0], pt[1]); if (i) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); }); }
   SM.draw = function () {
     if (!SM.active || !M) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = "#0b0d13"; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.fillStyle = NAVY; ctx.fillRect(0, 0, cv.width, cv.height);
     drawBase(ctx, view.s, view.tx, view.ty, { labels: true });
-    var f = SM.focusBlock, W = cv.clientWidth, H = cv.clientHeight, FONT = "Inter, Segoe UI, Arial, sans-serif";
+    var f = SM.focusBlock, W = cv.clientWidth, H = cv.clientHeight, FONT = "'Barlow Semi Condensed', system-ui, sans-serif";
     polys.forEach(function (P, bi) {
       if (bi === f || hidden(bi)) return; // the isolated section is drawn last, on top; stacked tiers hidden
       path(P.pts); ctx.closePath(); ctx.globalAlpha = f >= 0 ? 0.22 : 1;
-      ctx.fillStyle = bi === SM.hoverBlock && matches(bi) ? "#a78bfa" : colourFor(bi); ctx.fill();
-      ctx.lineWidth = bi === SM.hoverBlock ? 2.5 : 1; ctx.strokeStyle = bi === SM.hoverBlock ? "#ffffff" : "#0b0d13"; ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillStyle = bi === SM.hoverBlock && matches(bi) ? "#7D9AF0" : colourFor(bi); ctx.fill();
+      if (!matches(bi)) { ctx.fillStyle = hatch(); ctx.fill(); } // filtered out: hatched, not just grey
+      ctx.lineWidth = bi === SM.hoverBlock ? 2.5 : 1; ctx.strokeStyle = bi === SM.hoverBlock ? "#ffffff" : NAVY; ctx.stroke(); ctx.globalAlpha = 1;
     });
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     if (f < 0) polys.forEach(function (P, bi) { // a label only where it fits inside its section: no pile-ups
@@ -224,12 +228,12 @@
     if (f < 0) return;
     // ---- isolated section: rows as bars ----
     var b = M.blocks[f], rows = rowsOf(f), fr = SM.focusRow;
-    path(polys[f].pts); ctx.closePath(); ctx.fillStyle = "#151925"; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(167,139,250,.55)"; ctx.stroke();
+    path(polys[f].pts); ctx.closePath(); ctx.fillStyle = "#151F31"; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(125,154,240,.6)"; ctx.stroke();
     var rowPx = b.rowInfo.length > 1 ? Math.abs(b.rowInfo[1].d - b.rowInfo[0].d) * view.s : 20, bar = Math.max(2, Math.min(rowPx * 0.62, 14));
     ctx.lineCap = "round"; ctx.lineJoin = "round";
     rows.forEach(function (pts, ri) {
       path(pts); ctx.lineWidth = ri === fr ? Math.max(bar, 6) : bar;
-      ctx.strokeStyle = ri === fr ? "rgba(124,92,255,.35)" : ri === SM.hoverRow ? "rgba(167,139,250,.85)" : fr >= 0 ? "rgba(124,92,255,.22)" : matches(f) ? "rgba(124,92,255,.5)" : "rgba(93,100,118,.5)"; ctx.stroke();
+      ctx.strokeStyle = ri === fr ? "rgba(66,102,212,.35)" : ri === SM.hoverRow ? "rgba(125,154,240,.9)" : fr >= 0 ? "rgba(66,102,212,.2)" : matches(f) ? "rgba(66,102,212,.55)" : "rgba(107,120,145,.5)"; ctx.stroke();
     });
     var step = labelStep(rowPx); ctx.font = "600 11px " + FONT; ctx.fillStyle = "#aab0bf";
     b.rowInfo.forEach(function (r, ri) { // row labels just past the first seat, along the row
@@ -245,10 +249,10 @@
     for (var i = R.start; i < R.start + R.count; i++) {
       var s = M.seats[i], p = toS(s.x, s.z); if (p[0] < -10 || p[1] < -10 || p[0] > W + 10 || p[1] > H + 10) continue;
       ctx.beginPath(); ctx.arc(p[0], p[1], i === sel ? rad * 1.35 : rad, 0, 6.2832);
-      ctx.fillStyle = i === sel ? "#bef264" : i === hover ? "#ffffff" : c; ctx.fill();
-      if (i === sel) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke(); }
+      ctx.fillStyle = i === sel ? YELLOW : i === hover ? "#ffffff" : c; ctx.fill();
+      if (i === sel) { ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke(); ctx.strokeStyle = NAVY; ctx.lineWidth = Math.max(1.5, rad * 0.28); ctx.beginPath(); ctx.moveTo(p[0] - rad * 0.55, p[1]); ctx.lineTo(p[0] - rad * 0.1, p[1] + rad * 0.45); ctx.lineTo(p[0] + rad * 0.6, p[1] - rad * 0.45); ctx.stroke(); } // ✓: selected is not colour alone
       var n = i - R.start + 1; // seat numbers on the pitch side of the dot
-      if (n === 1 || n === R.count || n % sstep === 0 || i === sel || i === hover) { var lq = toS(s.x + s.nx * (rad + 9) / view.s, s.z + s.nz * (rad + 9) / view.s); ctx.font = (i === sel ? "700 " : "500 ") + "10.5px " + FONT; ctx.fillStyle = i === sel ? "#bef264" : "#d5d9df"; ctx.fillText(String(s.seat), lq[0], lq[1]); }
+      if (n === 1 || n === R.count || n % sstep === 0 || i === sel || i === hover) { var lq = toS(s.x + s.nx * (rad + 9) / view.s, s.z + s.nz * (rad + 9) / view.s); ctx.font = (i === sel ? "700 " : "500 ") + "10.5px " + FONT; ctx.fillStyle = i === sel ? YELLOW : "#C8D1DE"; ctx.fillText(String(s.seat), lq[0], lq[1]); }
     }
   };
   function thumb() { // one shared stadium thumbnail for the result cards (Ticketmaster shows one per card with a pin)
@@ -275,7 +279,7 @@
     $("mapSel").innerHTML = "<div class='selh'><span class='tick'>✓</span><div><b>" + esc(seatLabel(i)) + "</b><div class='small'>" + esc(b.stand) + " · ≈" + Math.round(st.d) + (A.isSport() ? " m to the pitch centre" : " m to stage") + "</div></div>" +
       "<span class='step'><button type='button' id='selPrev' aria-label='Previous seat'" + (i <= r.start ? " disabled" : "") + ">‹</button><button type='button' id='selNext' aria-label='Next seat'" + (i >= r.start + r.count - 1 ? " disabled" : "") + ">›</button></span>" +
       "<button type='button' class='x' id='mapSelX' aria-label='Clear'>×</button></div>" +
-      "<div class='btns'><button type='button' class='primary' id='mapSee'>See view from seat</button><button type='button' id='mapPhoto'>iPhone photo from here</button><button type='button' id='mapShare'>Copy link</button></div><div class='small' id='shareMsg' aria-live='polite'></div>";
+      "<div class='btns'><button type='button' class='primary' id='mapSee'>My view</button><button type='button' id='mapPhoto'>Camera view</button><button type='button' id='mapShare'>Share link</button></div><div class='small' id='shareMsg' aria-live='polite'></div>";
     $("mapSel").hidden = false;
     $("mapSee").addEventListener("click", function () { A.setMode("seat"); });
     $("mapPhoto").addEventListener("click", function () { A.setMode("phone"); });

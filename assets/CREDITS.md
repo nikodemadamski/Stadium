@@ -38,11 +38,12 @@ projects") has idle, sit-to-stand and jump clips but no clap, cheer or in-place 
 | Base body mesh, default skeleton + skin weights, macro shape targets | MakeHuman, https://github.com/makehumancommunity/makehuman (`makehuman/data`, `LICENSE.ASSETS.md`) | CC0 1.0 | 2026-10-27 |
 | Clothes, hair, poses, levels of detail (generated from the above) | `tools/humans/build_humans.py` (original) → `js/data/humans.js` | this project | 2026-10-27 |
 
-## Code
+## Code and fonts
 
 | Library | Source | Licence | Date |
 |---|---|---|---|
 | three.js r97 | https://threejs.org (`js/vendor/three.r97.min.js`) | MIT | bundled before 2026-10-23 |
+| Barlow Semi Condensed 600 (latin) | https://github.com/jpt/barlow via npm `@fontsource/barlow-semi-condensed@5.3.0` (`assets/fonts/`, inlined at build) | SIL OFL 1.1 (`assets/fonts/OFL-Barlow.txt`) | 2026-10-28 |
 
 ## Photos and data
 

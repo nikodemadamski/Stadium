@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src %SCRIPT_HASHES%; style-src 'unsafe-inline'; img-src 'self' data: blob: https://commons.wikimedia.org https://upload.wikimedia.org https://mapsapi.tmol.io; connect-src 'self' https://app.ticketmaster.com https://musicbrainz.org; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src %SCRIPT_HASHES%; style-src 'unsafe-inline'; img-src 'self' data: blob: https://commons.wikimedia.org https://upload.wikimedia.org https://mapsapi.tmol.io; connect-src 'self' https://app.ticketmaster.com https://musicbrainz.org; object-src 'none'; font-src data:; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Seat View — Irish Stadiums</title>
@@ -12,17 +12,19 @@
 <body>
 <div id="err" hidden></div>
 <header id="top">
-  <button type="button" id="sideToggle" class="iconbtn" aria-label="Show events"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-  <div class="brand"><span class="logo" aria-hidden="true"></span><strong>Seat View</strong></div>
+  <button type="button" id="sideToggle" class="iconbtn" aria-label="Menu: venue, event and listings" aria-controls="side" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div class="brand"><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5" fill="#FFCF3F" stroke="none"/><path d="M4 19h16v-3h-4v-3.5h-4V9H8V5.5H4z" fill="#0E1522" stroke="none"/><circle cx="17.5" cy="8" r="2.4" fill="#0E1522" stroke="none"/></svg><strong>Seat View</strong></div>
   <div id="evHead"><div class="evrow"><span id="evType" class="evtype"></span><div id="evTitle">Loading…</div></div><div id="evMeta"></div></div>
   <div class="pickers">
     <label class="pick"><span>Venue</span><select id="stadiumSel" aria-label="Venue"></select></label>
     <label class="pick"><span>Event</span><select id="eventSel" aria-label="Event"></select></label>
   </div>
+  <button type="button" id="sheetOpenBtn" class="iconbtn" aria-label="Details: seats, show, photos, info"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
 </header>
 <div id="infoBar"><span id="infoText"></span> <a href="#" id="infoMore">Sources</a></div>
 <main id="app">
-  <aside id="side" aria-label="Artists and dates">
+  <aside id="side" aria-label="Menu: venue, event and listings">
+    <div id="menuPickers"></div>
     <div class="sidehead"><b>Events</b><button type="button" id="sideClose" class="iconbtn" aria-label="Close concerts"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="seg"><button type="button" id="sideList" class="on">List</button><button type="button" id="sideCal">Calendar</button></div></div>
     <div class="sideq"><input id="sideQ" type="search" placeholder="Search artist, team or venue" aria-label="Search events">
       <div class="typechips" role="group" aria-label="Event type"><button type="button" data-t="all" class="on">All</button><button type="button" data-t="concert">Music</button><button type="button" data-t="sport">Sport</button><button type="button" data-t="theatre">Theatre</button></div>
@@ -64,10 +66,17 @@
       <div class="lenses" role="group" aria-label="iPhone lens"><button type="button" data-z="0.5417" data-l=".5">.5</button><button type="button" data-z="1" data-l="1×" class="on">1×</button><button type="button" data-z="2" data-l="2">2</button><button type="button" data-z="4.1667" data-l="4">4</button><button type="button" data-z="8.3333" data-l="8">8</button></div>
     </div>
     <div id="frontBar" role="group" aria-labelledby="frontLbl"><span id="frontLbl">Person in front <em>simulated</em></span><button type="button" data-h="short" aria-pressed="false">Short</button><button type="button" data-h="avg" aria-pressed="false">Average</button><button type="button" data-h="tall" aria-pressed="false">Tall</button></div>
-    <div id="crowdBar" role="group" aria-label="Crowd">
-      <span>Crowd</span><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button><span class="sep" aria-hidden="true"></span><button type="button" id="crowdMove" class="on" aria-pressed="true" title="Fans dance, clap, cheer">Moving</button><button type="button" id="crowdStill" aria-pressed="false" title="Everyone holds still">Still</button><span id="stillPose" hidden><button type="button" id="stillSit" title="Everyone sitting">Sit</button><button type="button" id="stillStand" title="Everyone standing">Stand</button></span><span class="sep" aria-hidden="true"></span><button type="button" id="crowdWave" title="One Mexican wave around the whole venue">🌊 Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button>
+    <div id="crowdBar">
+      <div class="quick"><button type="button" id="crowdBtn" aria-expanded="false" aria-controls="crowdPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M2.5 19c.6-3.4 2.8-5.5 5.5-5.5s4.9 2.1 5.5 5.5M13.5 14.2c.9-.7 1.9-1.1 3-1.1 2.3 0 4.1 1.8 4.7 4.9"/></svg>Crowd</button><button type="button" id="crowdWave" title="One Mexican wave around the whole venue">Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button></div>
+      <div id="crowdPanel" role="group" aria-label="Crowd settings" hidden>
+        <div class="fld"><span id="lblDens">How full</span><div class="seg" role="group" aria-labelledby="lblDens"><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button></div></div>
+        <div class="fld"><span id="lblMove">Motion</span><div class="seg" role="group" aria-labelledby="lblMove"><button type="button" id="crowdMove" class="on" aria-pressed="true" title="Fans dance, clap, cheer">Moving</button><button type="button" id="crowdStill" aria-pressed="false" title="Everyone holds still">Still</button></div></div>
+        <div class="fld"><span id="lblPose">Fans are</span><div class="seg" id="stillPose" role="group" aria-labelledby="lblPose"><button type="button" id="stillSit">Sitting</button><button type="button" id="stillStand">Standing</button></div></div>
+        <label class="fld"><span>Phones up</span><span class="rng"><input id="phones" type="range" min="0" max="1" step="0.05" value="0.3"><b id="phonesLbl">30%</b></span></label>
+        <p id="hud" class="small muted"><span id="fps">– fps</span><span class="hp"><span id="people">0</span> people</span><span id="humanStat"></span></p>
+        <div id="pitchNote" class="small muted"></div>
+      </div>
     </div>
-    <div id="hud"><span id="fps">– fps</span><span class="hp"> · <span id="people">0</span> people</span><span id="humanStat"></span></div>
     <div id="hint">Tap any seat to sit there</div>
     <div id="flashOv" aria-hidden="true"></div>
     <div id="bottom">
@@ -88,18 +97,18 @@
     </div>
   </section>
   <aside id="panel">
-    <nav id="tabs" role="tablist">
+    <div class="sheethead"><nav id="tabs" role="tablist" aria-label="Details">
       <button type="button" data-tab="seat" class="on">Seats</button>
       <button type="button" data-tab="show">Show</button>
       <button type="button" data-tab="photos">Photos</button>
       <button type="button" data-tab="sources">Info</button>
-    </nav>
+    </nav><button type="button" id="sheetClose" class="iconbtn" aria-label="Close details"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>
     <div class="tab on" id="tab-seat">
       <div id="seatInfo"></div>
       <div id="compare" hidden></div>
       <div class="listhead"><b id="mapCount"></b><label class="sortby"><select id="fSort" aria-label="Sort"><option value="best">Best view</option><option value="near">Closest to stage</option><option value="centre">Most central</option><option value="level">By level</option></select></label></div>
       <ul id="mapList"></ul>
-      <details class="bynum"><summary>Pick by section / row / seat number</summary>
+      <details class="bynum" hidden><summary>Pick by section / row / seat number</summary>
         <div id="levelTabs"></div><svg id="map" viewBox="-140 -170 280 340" aria-hidden="true"></svg>
         <div class="pickrow"><label>Section <select id="blockSel"></select></label></div>
         <div class="pickrow"><label><span id="rowWord">Row</span> <select id="rowSel"></select></label><label><span id="seatWord">Seat</span> <select id="seatSel"></select></label><button type="button" id="goSeat" class="primary">Go</button></div>
@@ -116,16 +125,12 @@
         <div id="stageEnd"></div></section>
       <section class="group stageOnly"><h3>Performer</h3>
         <div class="pickrow"><button type="button" id="play">Pause</button><input id="time" type="range" min="0" max="1" step="0.001" value="0" aria-label="Show timeline"><label class="small"><input id="showPath" type="checkbox"> Path</label></div></section>
-      <section class="group"><h3>Crowd</h3>
-        <label class="pickrow">Phones up <input id="phones" type="range" min="0" max="1" step="0.05" value="0.3"><b id="phonesLbl">30%</b></label>
-        <label class="pickrow"><input id="standing" type="checkbox" checked> Crowd standing</label>
-        <div id="pitchNote" class="small muted"></div></section>
-      <section class="group"><h3>Realistic 3D people</h3>
+      <details class="group adv"><summary>Advanced: use your own 3D people</summary>
         <p class="small muted">Drop in free human models (.glb) and every nearby person will use them. They stay in this browser; nothing is uploaded.</p>
         <label class="filebtn"><input id="modelFile" type="file" accept=".glb,.gltf" multiple>Add .glb people</label>
         <label class="pickrow small"><input id="modelFlip" type="checkbox"> Models face backwards? Turn them round</label>
         <div id="modelList" class="small"></div>
-        <div id="humanNote" class="small muted"></div></section>
+        <div id="humanNote" class="small muted"></div></details>
     </div>
     <div class="tab" id="tab-photos"><div id="photos"></div></div>
     <div class="tab" id="tab-sources"><div id="sources"></div></div>

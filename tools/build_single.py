@@ -1,8 +1,9 @@
 """Build the self-contained app: src.html + css/ + js/ -> index.html, SeatView.html and public/index.html (deployed)."""
-import os, re, sys
+import os, re, sys, base64
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def read(p): return open(os.path.join(ROOT, p), encoding="utf-8").read()
-html = read("src.html").replace('<link rel="stylesheet" href="css/app.css">', "<style>\n" + read("css/app.css") + "</style>")
+css = re.sub(r'url\("\.\./(assets/fonts/[^"]+\.woff2)"\)', lambda m: 'url("data:font/woff2;base64,' + base64.b64encode(open(os.path.join(ROOT, m.group(1)), "rb").read()).decode() + '")', read("css/app.css"))  # fonts inline (CSP: font-src data:)
+html = read("src.html").replace('<link rel="stylesheet" href="css/app.css">', "<style>\n" + css + "</style>")
 html = re.sub(r'<script src="(js/[^"]+)"></script>', lambda m: "<script>/* " + m.group(1) + " */\n" + read(m.group(1)) + "</script>", html)
 # Lock scripts to exactly these blocks: CSP lists the SHA-256 of every inline <script>, so an injected script or an
 # injected on...= handler is refused by the browser even if some text ever got past the escaping.
