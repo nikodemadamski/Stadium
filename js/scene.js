@@ -238,6 +238,12 @@
     if (this.match) { this.match.dispose(); this.match = null; }
     if (ev && window.Match) this.match = new Match(this, ev);
   };
+  StadiumScene.prototype.frontSeat = function (seatIdx) { // seat directly in front: same block, one row nearer the action
+    var seats = this.model.seats, me = seats[seatIdx]; if (!me || me.rowIdx === 0) return -1;
+    var ri = this.model.blocks[me.blockIdx].rowInfo[me.rowIdx - 1], best = -1, bd = 1e9;
+    for (var i = ri.start; i < ri.start + ri.count; i++) { var d = Math.hypot(seats[i].x - me.x, seats[i].z - me.z); if (d < bd) { bd = d; best = i; } }
+    return best;
+  };
   StadiumScene.prototype.setDensity = function (d) { if (this.crowdMat) this.crowdMat.uniforms.uDensity.value = d; this.density = d; };
   StadiumScene.prototype.setPhones = function (f) { if (this.crowdMat) this.crowdMat.uniforms.uPhones.value = f; };
   StadiumScene.prototype.visiblePeople = function () { if (!this.crowdRand) return 0; var d = this.density, n = 0; for (var i = 0; i < this.crowdRand.length; i++) if (this.crowdRand[i] < d) n++; return n; };
@@ -260,17 +266,20 @@
     var RAD = 18, RAD2 = RAD * RAD, MAXN = 500, people = [], standing = this.crowdStandH > 1.5;
     var ranges = this._blockC.filter(function (c) { return Math.hypot(c.x - me.x, c.y - me.y, c.z - me.z) < c.r + RAD + 1; });
     var look = this.stageFront || new T.Vector3();
+    // "Person in front" simulation (My view): the nearest seat one row ahead in your block is filled with a person of the
+    // chosen height. Nobody is in front of a front-row seat.
+    var front = this.frontH && density > 0 ? this.frontSeat(seatIdx) : -1, FRONT_H = { short: 1.55, avg: 1.72, tall: 1.95 }[this.frontH];
     for (var ri = 0; ri < ranges.length; ri++) for (i = ranges[ri].start; i < ranges[ri].end; i++) {
       var s = seats[i]; if (i === seatIdx) continue;
       var dx = s.x - me.x, dz = s.z - me.z, dy = s.y - me.y, dd = dx * dx + dz * dz + dy * dy; if (dd > RAD2) continue;
       var k = this.crowdSeatIndex[i]; if (k < 0) continue;
-      size[k] = 0; if (this.crowdRand[k] >= density) continue;
+      size[k] = 0; if (this.crowdRand[k] >= density && i !== front) continue;
       var sit = !(s.standing || standing);
       // Face along the seat (rows are built for it), turned towards the stage by at most ~14 degrees: facing the stage
       // fully from a side stand would turn whole rows 45 degrees and put hands into the neighbour's seat.
       var fx = -s.nx, fz = -s.nz; if (fx * -s.x + fz * -s.z < 0) { fx = -fx; fz = -fz; } // seat normal pointing into the bowl
       var seatRot = Math.atan2(fx, fz), dr = Math.atan2(look.x - s.x, look.z - s.z) - seatRot; dr = Math.atan2(Math.sin(dr), Math.cos(dr));
-      people.push({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, rot: seatRot + Math.max(-0.25, Math.min(0.25, dr)), k: i, si: k, sit: sit, dd: dd }); // k = seat index: the person's identity (People.describe); si = their far sprite
+      people.push({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, rot: seatRot + Math.max(-0.25, Math.min(0.25, dr)), k: i, si: k, sit: sit, dd: dd, h: i === front ? FRONT_H : undefined }); // k = seat index: the person's identity (People.describe); si = their far sprite
     }
     people.sort(function (a, b) { return a.dd - b.dd; });
     // Where the generated layout squeezes seats closer than 0.42 m (block ends on a curve; real seats are >= 0.45 m)

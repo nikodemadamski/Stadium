@@ -306,3 +306,10 @@ body.framed #liveSet { opacity:.5; }
   #crowdBar::-webkit-scrollbar { display:none; }
   #crowdBar button { flex:none; padding:2px 10px; }
 }
+
+/* Person in front (My view only) */
+#frontBar { position:absolute; left:12px; bottom:84px; display:none; gap:2px; align-items:center; background:rgba(20,23,32,.8); backdrop-filter:blur(10px); border:1px solid var(--line); padding:4px; border-radius:999px; }
+body.seatmode #frontBar { display:flex; }
+#frontBar span { padding:0 8px; color:var(--muted); font-size:12px; } #frontBar em { font-style:normal; color:var(--warn); }
+#frontBar button { min-height:30px; padding:2px 12px; font-size:12.5px; background:transparent; border-color:transparent; }
+#frontBar button.on { background:var(--ink); color:#0b0c10; } #frontBar button:disabled { opacity:.45; cursor:not-allowed; }

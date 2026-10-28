@@ -165,7 +165,7 @@
   function setMode(m) {
     invalidate();
     if ((m === "seat" || m === "phone") && state.seatIdx < 0) { showTab("seat"); setMode("map"); flash("Pick a seat first: click a section, then a seat"); return; }
-    state.mode = m; document.body.classList.toggle("mapmode", m === "map"); SeatMap.show(m === "map");
+    state.mode = m; document.body.classList.toggle("mapmode", m === "map"); document.body.classList.toggle("seatmode", m === "seat"); SeatMap.show(m === "map"); syncFrontUI();
     document.querySelectorAll("#modeBar button").forEach(function (b) { b.classList.toggle("on", b.dataset.mode === m); });
     $("phoneCtl").hidden = m !== "phone"; $("hint").textContent = HINTS[m]; $("hint").classList.remove("flash");
     var was = document.body.classList.contains("phonemode"); document.body.classList.toggle("phonemode", m === "phone");
@@ -173,6 +173,15 @@
     layoutPhone(); requestAnimationFrame(function () { resize(); layoutPhone(); });
   }
   document.querySelectorAll("#modeBar button").forEach(function (b) { b.addEventListener("click", function () { setMode(b.dataset.mode); }); });
+  // Person in front (My view only): a simulated height for whoever sits one row ahead. Press again to go back to the crowd as generated.
+  function syncFrontUI() {
+    var front = sc && state.seatIdx >= 0 ? sc.frontSeat(state.seatIdx) : -1;
+    document.querySelectorAll("#frontBar button").forEach(function (b) { var on = b.dataset.h === state.frontH; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); b.disabled = front < 0; });
+    $("frontLbl").firstChild.textContent = front < 0 && state.seatIdx >= 0 ? "Front row: nobody in front " : "Person in front ";
+  }
+  document.querySelectorAll("#frontBar button").forEach(function (b) { b.addEventListener("click", function () {
+    state.frontH = state.frontH === b.dataset.h ? null : b.dataset.h; sc.frontH = state.frontH; refreshPeople(); syncFrontUI();
+  }); });
   var flashT = 0;
   function flash(msg) { var h = $("hint"); h.textContent = msg; h.classList.add("flash"); clearTimeout(flashT); flashT = setTimeout(function () { h.classList.remove("flash"); h.textContent = HINTS[state.mode]; }, 3000); }
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-AehIWPb3ANPBg8J2ASItYhmDbQmx3fX8ATuAno+tc4E=' 'sha256-6IYVCKtguXqUYIJRXYKMgTXm1RfLkmc8EAMEsdVa/XQ=' 'sha256-Q30Vz7tpSokEJcAzKBy99ue36eiE/+5ZaxXorFclWy0=' 'sha256-MastnFAGnW51c5pu6mgBMGrOEGAseeHLdK5WMSakgow=' 'sha256-mn3Ym4TrR9g12RX2Qn3bKJnK6qmRhk+Vc/PLsE+xWmc=' 'sha256-G7IihD7JzZwjoFWVQYz5J8aeXu/lUGII/jct2ej9b/M=' 'sha256-t33mMJA2kMFZt4jPvmAwNv0l5aLgA356HZ9wJSlVgOs=' 'sha256-FMDPAyfk9b5MFbzZSlSNsNEAVbrtfateNRpaTZA1IT0=' 'sha256-YVL+5Ma8DOIX1sJTvli4gWjZ0WUm4WjEtv5gJnZ9flM=' 'sha256-u6Dy2/lGTTNm95e4UNQU3p8DNj4IMK09lNciYB+xhYI=' 'sha256-4LvRddj+rnZm9a47Sd4WBgCavsQi53WUkxDH57ECdz0=' 'sha256-4m1iFpMYvZm6f1xIwejFh5C7K5jmSiJSXS4oeVaFrUk=' 'sha256-UX5fQSyQnPjgekXSWgXfijqG40A16+BjKdt0ad/6+Wk=' 'sha256-EDU/SmT+vjDJBMGw8F79ch5NGQaboYGZcBMJCvcsNKQ=' 'sha256-bpY7FLE2nWcdP8KM99GyFax7jH11QBcq56C5yae4ynA=' 'sha256-v2H7QwRPtDEg5kkXZO0sl8lC6gD20erdyJ/KMWJDnH0=' 'sha256-akUGPyG28z+DXIWLZNpEuE/8pPjeJwwTyHAONWUI5fI=' 'sha256-YJhVc1jjqthFkI2VboaxS0t6dHHoVr5koLxeYuXklJ4='; style-src 'unsafe-inline'; img-src 'self' data: blob: https://commons.wikimedia.org https://upload.wikimedia.org https://mapsapi.tmol.io; connect-src 'self' https://app.ticketmaster.com https://musicbrainz.org; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-AehIWPb3ANPBg8J2ASItYhmDbQmx3fX8ATuAno+tc4E=' 'sha256-6IYVCKtguXqUYIJRXYKMgTXm1RfLkmc8EAMEsdVa/XQ=' 'sha256-Q30Vz7tpSokEJcAzKBy99ue36eiE/+5ZaxXorFclWy0=' 'sha256-MastnFAGnW51c5pu6mgBMGrOEGAseeHLdK5WMSakgow=' 'sha256-mn3Ym4TrR9g12RX2Qn3bKJnK6qmRhk+Vc/PLsE+xWmc=' 'sha256-G7IihD7JzZwjoFWVQYz5J8aeXu/lUGII/jct2ej9b/M=' 'sha256-t33mMJA2kMFZt4jPvmAwNv0l5aLgA356HZ9wJSlVgOs=' 'sha256-FMDPAyfk9b5MFbzZSlSNsNEAVbrtfateNRpaTZA1IT0=' 'sha256-YVL+5Ma8DOIX1sJTvli4gWjZ0WUm4WjEtv5gJnZ9flM=' 'sha256-u6Dy2/lGTTNm95e4UNQU3p8DNj4IMK09lNciYB+xhYI=' 'sha256-4LvRddj+rnZm9a47Sd4WBgCavsQi53WUkxDH57ECdz0=' 'sha256-4m1iFpMYvZm6f1xIwejFh5C7K5jmSiJSXS4oeVaFrUk=' 'sha256-UX5fQSyQnPjgekXSWgXfijqG40A16+BjKdt0ad/6+Wk=' 'sha256-EDU/SmT+vjDJBMGw8F79ch5NGQaboYGZcBMJCvcsNKQ=' 'sha256-bpY7FLE2nWcdP8KM99GyFax7jH11QBcq56C5yae4ynA=' 'sha256-v2H7QwRPtDEg5kkXZO0sl8lC6gD20erdyJ/KMWJDnH0=' 'sha256-X9oiBWhc8Z5s16EZaTX3HUAJhatDpTYLCN5q2ymLWTc=' 'sha256-DvF3M/aGfVjp7GnrSARfQuqYdV5pXIryH3IKx+WiJWA='; style-src 'unsafe-inline'; img-src 'self' data: blob: https://commons.wikimedia.org https://upload.wikimedia.org https://mapsapi.tmol.io; connect-src 'self' https://app.ticketmaster.com https://musicbrainz.org; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Seat View — Irish Stadiums</title>
@@ -316,6 +316,13 @@ body.framed #liveSet { opacity:.5; }
   #crowdBar::-webkit-scrollbar { display:none; }
   #crowdBar button { flex:none; padding:2px 10px; }
 }
+
+/* Person in front (My view only) */
+#frontBar { position:absolute; left:12px; bottom:84px; display:none; gap:2px; align-items:center; background:rgba(20,23,32,.8); backdrop-filter:blur(10px); border:1px solid var(--line); padding:4px; border-radius:999px; }
+body.seatmode #frontBar { display:flex; }
+#frontBar span { padding:0 8px; color:var(--muted); font-size:12px; } #frontBar em { font-style:normal; color:var(--warn); }
+#frontBar button { min-height:30px; padding:2px 12px; font-size:12.5px; background:transparent; border-color:transparent; }
+#frontBar button.on { background:var(--ink); color:#0b0c10; } #frontBar button:disabled { opacity:.45; cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -372,6 +379,7 @@ body.framed #liveSet { opacity:.5; }
       <div class="grid3" aria-hidden="true"></div>
       <div class="lenses" role="group" aria-label="iPhone lens"><button type="button" data-z="0.5417" data-l=".5">.5</button><button type="button" data-z="1" data-l="1×" class="on">1×</button><button type="button" data-z="2" data-l="2">2</button><button type="button" data-z="4.1667" data-l="4">4</button><button type="button" data-z="8.3333" data-l="8">8</button></div>
     </div>
+    <div id="frontBar" role="group" aria-labelledby="frontLbl"><span id="frontLbl">Person in front <em>simulated</em></span><button type="button" data-h="short" aria-pressed="false">Short</button><button type="button" data-h="avg" aria-pressed="false">Average</button><button type="button" data-h="tall" aria-pressed="false">Tall</button></div>
     <div id="crowdBar" role="group" aria-label="Crowd">
       <span>Crowd</span><button type="button" data-d="0">Empty</button><button type="button" data-d="0.5">Half</button><button type="button" data-d="1" class="on">Full</button><span class="sep" aria-hidden="true"></span><button type="button" id="crowdMove" class="on" aria-pressed="true" title="Fans dance, clap, cheer">Moving</button><button type="button" id="crowdStill" aria-pressed="false" title="Everyone holds still">Still</button><span id="stillPose" hidden><button type="button" id="stillSit" title="Everyone sitting">Sit</button><button type="button" id="stillStand" title="Everyone standing">Stand</button></span><span class="sep" aria-hidden="true"></span><button type="button" id="crowdWave" title="One Mexican wave around the whole venue">🌊 Wave</button><button type="button" id="crowdJump" title="Everyone jumps on the beat">Jump</button>
     </div>
@@ -3480,6 +3488,12 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
     if (this.match) { this.match.dispose(); this.match = null; }
     if (ev && window.Match) this.match = new Match(this, ev);
   };
+  StadiumScene.prototype.frontSeat = function (seatIdx) { // seat directly in front: same block, one row nearer the action
+    var seats = this.model.seats, me = seats[seatIdx]; if (!me || me.rowIdx === 0) return -1;
+    var ri = this.model.blocks[me.blockIdx].rowInfo[me.rowIdx - 1], best = -1, bd = 1e9;
+    for (var i = ri.start; i < ri.start + ri.count; i++) { var d = Math.hypot(seats[i].x - me.x, seats[i].z - me.z); if (d < bd) { bd = d; best = i; } }
+    return best;
+  };
   StadiumScene.prototype.setDensity = function (d) { if (this.crowdMat) this.crowdMat.uniforms.uDensity.value = d; this.density = d; };
   StadiumScene.prototype.setPhones = function (f) { if (this.crowdMat) this.crowdMat.uniforms.uPhones.value = f; };
   StadiumScene.prototype.visiblePeople = function () { if (!this.crowdRand) return 0; var d = this.density, n = 0; for (var i = 0; i < this.crowdRand.length; i++) if (this.crowdRand[i] < d) n++; return n; };
@@ -3502,17 +3516,20 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
     var RAD = 18, RAD2 = RAD * RAD, MAXN = 500, people = [], standing = this.crowdStandH > 1.5;
     var ranges = this._blockC.filter(function (c) { return Math.hypot(c.x - me.x, c.y - me.y, c.z - me.z) < c.r + RAD + 1; });
     var look = this.stageFront || new T.Vector3();
+    // "Person in front" simulation (My view): the nearest seat one row ahead in your block is filled with a person of the
+    // chosen height. Nobody is in front of a front-row seat.
+    var front = this.frontH && density > 0 ? this.frontSeat(seatIdx) : -1, FRONT_H = { short: 1.55, avg: 1.72, tall: 1.95 }[this.frontH];
     for (var ri = 0; ri < ranges.length; ri++) for (i = ranges[ri].start; i < ranges[ri].end; i++) {
       var s = seats[i]; if (i === seatIdx) continue;
       var dx = s.x - me.x, dz = s.z - me.z, dy = s.y - me.y, dd = dx * dx + dz * dz + dy * dy; if (dd > RAD2) continue;
       var k = this.crowdSeatIndex[i]; if (k < 0) continue;
-      size[k] = 0; if (this.crowdRand[k] >= density) continue;
+      size[k] = 0; if (this.crowdRand[k] >= density && i !== front) continue;
       var sit = !(s.standing || standing);
       // Face along the seat (rows are built for it), turned towards the stage by at most ~14 degrees: facing the stage
       // fully from a side stand would turn whole rows 45 degrees and put hands into the neighbour's seat.
       var fx = -s.nx, fz = -s.nz; if (fx * -s.x + fz * -s.z < 0) { fx = -fx; fz = -fz; } // seat normal pointing into the bowl
       var seatRot = Math.atan2(fx, fz), dr = Math.atan2(look.x - s.x, look.z - s.z) - seatRot; dr = Math.atan2(Math.sin(dr), Math.cos(dr));
-      people.push({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, rot: seatRot + Math.max(-0.25, Math.min(0.25, dr)), k: i, si: k, sit: sit, dd: dd }); // k = seat index: the person's identity (People.describe); si = their far sprite
+      people.push({ x: s.x - s.nx * 0.05, y: s.y, z: s.z - s.nz * 0.05, rot: seatRot + Math.max(-0.25, Math.min(0.25, dr)), k: i, si: k, sit: sit, dd: dd, h: i === front ? FRONT_H : undefined }); // k = seat index: the person's identity (People.describe); si = their far sprite
     }
     people.sort(function (a, b) { return a.dd - b.dd; });
     // Where the generated layout squeezes seats closer than 0.42 m (block ends on a curve; real seats are >= 0.45 m)
@@ -3849,7 +3866,7 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
   function setMode(m) {
     invalidate();
     if ((m === "seat" || m === "phone") && state.seatIdx < 0) { showTab("seat"); setMode("map"); flash("Pick a seat first: click a section, then a seat"); return; }
-    state.mode = m; document.body.classList.toggle("mapmode", m === "map"); SeatMap.show(m === "map");
+    state.mode = m; document.body.classList.toggle("mapmode", m === "map"); document.body.classList.toggle("seatmode", m === "seat"); SeatMap.show(m === "map"); syncFrontUI();
     document.querySelectorAll("#modeBar button").forEach(function (b) { b.classList.toggle("on", b.dataset.mode === m); });
     $("phoneCtl").hidden = m !== "phone"; $("hint").textContent = HINTS[m]; $("hint").classList.remove("flash");
     var was = document.body.classList.contains("phonemode"); document.body.classList.toggle("phonemode", m === "phone");
@@ -3857,6 +3874,15 @@ window.HUMANS_GZ = "H4sIAAAAAAAC/+x6BVxW27bvCspCxcJWsFEkP8Du7lZEaUSkS0BAUCQkJQSk
     layoutPhone(); requestAnimationFrame(function () { resize(); layoutPhone(); });
   }
   document.querySelectorAll("#modeBar button").forEach(function (b) { b.addEventListener("click", function () { setMode(b.dataset.mode); }); });
+  // Person in front (My view only): a simulated height for whoever sits one row ahead. Press again to go back to the crowd as generated.
+  function syncFrontUI() {
+    var front = sc && state.seatIdx >= 0 ? sc.frontSeat(state.seatIdx) : -1;
+    document.querySelectorAll("#frontBar button").forEach(function (b) { var on = b.dataset.h === state.frontH; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); b.disabled = front < 0; });
+    $("frontLbl").firstChild.textContent = front < 0 && state.seatIdx >= 0 ? "Front row: nobody in front " : "Person in front ";
+  }
+  document.querySelectorAll("#frontBar button").forEach(function (b) { b.addEventListener("click", function () {
+    state.frontH = state.frontH === b.dataset.h ? null : b.dataset.h; sc.frontH = state.frontH; refreshPeople(); syncFrontUI();
+  }); });
   var flashT = 0;
   function flash(msg) { var h = $("hint"); h.textContent = msg; h.classList.add("flash"); clearTimeout(flashT); flashT = setTimeout(function () { h.classList.remove("flash"); h.textContent = HINTS[state.mode]; }, 3000); }
 
